@@ -1,5 +1,12 @@
-CC = g++
-CFLAGS = -I/usr/local/include/cegui-0 -L /usr/local/lib/ -lglfw -lGL -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
+CC = gcc
+CC+ = g++
+
+EXT_LDFLAGS  =
+VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
+VIS_SRCFLAGS = -I/usr/local/include/cegui-0
+
+CFLAGS = -Wall
+
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 
 OBJ =   loadShaders.o\
@@ -7,10 +14,10 @@ OBJ =   loadShaders.o\
        
 
 all:  $(OBJ)
-	$(CC) -o gltest $(OBJ)  $(CFLAGS) 
+	$(CC+) -o gltest $(OBJ)  $(CFLAGS) $(VIS_LDFLAGS)
 
 %.o : %.cpp
-	$(CC) -c $(CFLAGS) $*.cpp -o $*.o
+	$(CC+) -c $(CFLAGS) $(VIS_SRCFLAGS) $*.cpp -o $*.o
 
 clean:
 	rm $(OBJ) gltest

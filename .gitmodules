@@ -1,0 +1,3 @@
+[submodule "lbsim"]
+	path = lbsim
+	url = https://github.com/noirb/CFD_Assignment3.git

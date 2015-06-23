@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include "loadShaders.hpp"
+#include "input/input-mapping.hpp"
 
 // easy access to math functions defined in glm & CEGUI
 using namespace glm;
@@ -77,8 +78,49 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+
+    // pass through to CEGUI
+    if (action == GLFW_PRESS)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown( (CEGUI::Key::Scan)GlfwToCeguiKey(key) );
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp( (CEGUI::Key::Scan)GlfwToCeguiKey(key) );
+    }
 }
 
+static void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    // pass through to CEGUI
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(codepoint);
+}
+
+static void cursor_position_callback(GLFWwindow* window, double new_xpos, double new_ypos)
+{
+    static double xpos = 0.0;
+    static double ypos = 0.0;
+
+    // inject movement to CEGUI
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(new_xpos - xpos, new_ypos - ypos);
+
+    // store new positions
+    xpos = new_xpos;
+    ypos = new_ypos;
+}
+
+static void cursor_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    // pass through to CEGUI
+    if (action == GLFW_PRESS)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown( GlfwToCeguiButton(button) );
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp( GlfwToCeguiButton(button) );
+    }
+}
 
 // Do some general initialization stuff
 // This gets us a window we can draw to
@@ -117,10 +159,15 @@ void init(GLFWwindow** window)
     glDepthFunc(GL_LESS);
 
     glfwSetKeyCallback(*window, key_callback); // key_callback will be called whenever a key is pressed
+    glfwSetCharCallback(*window, character_callback); // callback for text input
+    glfwSetCursorPosCallback(*window, cursor_position_callback); // callback for mouse movement
+    glfwSetMouseButtonCallback(*window, cursor_button_callback);
 }
 
 int main(void)
 {
+    double time = glfwGetTime(); // time elapsed since startup
+
     CEGUI::OpenGL3Renderer* guiRenderer; // main GUI object
     CEGUI::Window* guiRoot;              // root window for GUI
 
@@ -163,7 +210,11 @@ int main(void)
     CEGUI::Scheme::setDefaultResourceGroup("schemes");
     CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
+
+    // force CEGUI's mouse position to (0,0)
+    CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();  
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(-mousePos.d_x, -mousePos.d_y);
+
     // set root window
     guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot);
@@ -174,6 +225,9 @@ int main(void)
     fWnd->setSize( USize(UDim(0.25f, 0.0f), UDim(0.25f, 0.0f)));
     fWnd->setText("Hello, CEGUI!");
 
+    /* --------------- */
+    /* END CEGUI Setup */
+    /* --------------- */
 
     // set up & bind a vertex array object (VAO) -- must be done AFTER the context is created!
     glGenVertexArrays(1, &VertexArrayID);
@@ -202,6 +256,8 @@ int main(void)
     // the main rendering loop
     while (!glfwWindowShouldClose(window))
     {
+        double curTime = glfwGetTime();
+
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -250,6 +306,10 @@ int main(void)
         glfwPollEvents();
         // update mouse position
         glfwGetCursorPos(window, &mouseX, &mouseY);
+
+        // tell CEGUI how long its been since the last frame
+        CEGUI::System::getSingleton().injectTimePulse(curTime - time);
+        time = curTime; // update time
     }
     glfwDestroyWindow(window);
     glfwTerminate();

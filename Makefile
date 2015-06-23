@@ -10,6 +10,7 @@ CFLAGS = -Wall
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 
 OBJ =   loadShaders.o\
+        input/input-mapping.o\
         main.o
        
 
@@ -23,6 +24,6 @@ clean:
 	rm $(OBJ) fluid-vis
 
 loadShaders.o : loadShaders.hpp
-
+input-mapping.o : input/input-mapping.hpp
 main.o        : loadShaders.hpp
 

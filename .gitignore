@@ -36,6 +36,7 @@
 *.vtk
 *.project
 *.cproject
+*.swp
 lbsim*
 *dump
 *~

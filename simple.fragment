@@ -1,0 +1,8 @@
+#version 330 core
+out vec3 color;
+
+void main()
+{
+    // just set a flat RGB color for every pixel
+    color = vec3(0, 1, 0);
+}

@@ -1,0 +1,15 @@
+#version 330 core
+layout(origin_upper_left) in vec4 gl_FragCoord;
+out vec3 color;
+uniform vec2 mousePos;
+
+void main()
+{
+    float dist_threshold = 100; // don't include mouse position in color calculation if it's too far away
+
+    // compute 2D distance between mouse cursor and this fragmen
+    vec4 mouse = vec4(mousePos.x, mousePos.y, gl_FragCoord.z, gl_FragCoord.w);
+    float dist = min(distance(mouse, gl_FragCoord), dist_threshold);
+
+    color = vec3(0.5 + (dist_threshold/dist) * 0.25, 0.95, 0.8) * (gl_FragCoord.z / gl_FragCoord.w) * 0.05;
+}

@@ -1,15 +1,27 @@
-#define GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES // MUST be before any GL-related includes!
+
+/// CEGUI -- Must be included before GLFW
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
+
+/// GLFW -- Must be before anything else that touches OpenGL (except CEGUI)
 #include <GLFW/glfw3.h>
+
+/// GLM
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+
+/// STD Libraries
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "loadShaders.hpp"
 
-// easy access to math functions defined in glm
+// easy access to math functions defined in glm & CEGUI
 using namespace glm;
+using namespace CEGUI;
 
 // this describes all the vertices which make up our cube
 static const GLfloat g_vertex_buffer_data[] = {
@@ -109,6 +121,9 @@ void init(GLFWwindow** window)
 
 int main(void)
 {
+    CEGUI::OpenGL3Renderer* guiRenderer; // main GUI object
+    CEGUI::Window* guiRoot;              // root window for GUI
+
     GLFWwindow* window;  // the window we draw to
     GLuint VertexArrayID;
     GLuint vertexBuffer; // integer ID of our vertex buffer
@@ -127,6 +142,38 @@ int main(void)
 
     // do some setup stuff, open a window, and configure our GL context to target it for drawing
     init(&window);
+
+    /* ----------- */
+    /* CEGUI SETUP */ // <-- must be done AFTER GL Context creation
+    /* ----------- */
+    guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
+    // set default resource paths
+    CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
+    rp->setResourceGroupDirectory("schemes", "/usr/local/share/cegui-0/schemes/");
+    rp->setResourceGroupDirectory("imagesets", "/usr/local/share/cegui-0/imagesets/");
+    rp->setResourceGroupDirectory("fonts", "/usr/local/share/cegui-0/fonts/");
+    rp->setResourceGroupDirectory("layouts", "/usr/local/share/cegui-0/layouts/");
+    rp->setResourceGroupDirectory("looknfeels", "/usr/local/share/cegui-0/looknfeel");
+    rp->setResourceGroupDirectory("lua_scripts", "/usr/local/share/cegui-0/lua_scripts");
+    CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
+    CEGUI::Font::setDefaultResourceGroup("fonts");
+    CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
+    CEGUI::WindowManager::setDefaultResourceGroup("layouts");
+    CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+    CEGUI::Scheme::setDefaultResourceGroup("schemes");
+    CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
+    // set root window
+    guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot);
+    // create first 'real' window
+    CEGUI::FrameWindow* fWnd = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow", "testWindow"));
+    guiRoot->addChild(fWnd);
+    fWnd->setPosition( UVector2(UDim(0.2f, 0.0f), UDim(0.2f, 0.0f)));
+    fWnd->setSize( USize(UDim(0.25f, 0.0f), UDim(0.25f, 0.0f)));
+    fWnd->setText("Hello, CEGUI!");
+
 
     // set up & bind a vertex array object (VAO) -- must be done AFTER the context is created!
     glGenVertexArrays(1, &VertexArrayID);
@@ -158,6 +205,7 @@ int main(void)
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glBindVertexArray(VertexArrayID);
         // set which shaders we want to use for the next batch of vertices
         glUseProgram(programID);
 
@@ -185,8 +233,16 @@ int main(void)
         // draw the cube, using 12*3 vertices starting at vertex 0 (12 triangles, 3 vertices each)
         glDrawArrays(GL_TRIANGLES, 0, 12*3);
 
-        // must be paired anywhere we use EnableVertexAttribArray
+         // --- cleanup after drawing 3D geometry --- //
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(0);
+        glUseProgram(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(0);
+
+        // Draw GUI -- must be the LAST drawing call we do!
+        CEGUI::System::getSingleton().renderAllGUIContexts();
 
         // put whatever we've drawn on the screen
         glfwSwapBuffers(window);

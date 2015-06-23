@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -L /usr/local/lib/ -lglfw -lGL 
+CFLAGS = -I/usr/local/include/cegui-0 -L /usr/local/lib/ -lglfw -lGL -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 
 OBJ =   loadShaders.o\

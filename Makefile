@@ -14,13 +14,13 @@ OBJ =   loadShaders.o\
        
 
 all:  $(OBJ)
-	$(CC+) -o gltest $(OBJ)  $(CFLAGS) $(VIS_LDFLAGS)
+	$(CC+) -o fluid-vis $(OBJ)  $(CFLAGS) $(VIS_LDFLAGS)
 
 %.o : %.cpp
 	$(CC+) -c $(CFLAGS) $(VIS_SRCFLAGS) $*.cpp -o $*.o
 
 clean:
-	rm $(OBJ) gltest
+	rm $(OBJ) fluid-vis
 
 loadShaders.o : loadShaders.hpp
 

@@ -11,6 +11,7 @@ CFLAGS = -Wall
 
 OBJ =   loadShaders.o\
         input/input-mapping.o\
+        input/InputManager.o\
         main.o
        
 
@@ -23,7 +24,8 @@ all:  $(OBJ)
 clean:
 	rm $(OBJ) fluid-vis
 
-loadShaders.o : loadShaders.hpp
+loadShaders.o   : loadShaders.hpp
 input-mapping.o : input/input-mapping.hpp
-main.o        : loadShaders.hpp
+InputManager.o  : input/InputManager.hpp
+main.o          : loadShaders.hpp
 

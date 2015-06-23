@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 #include "loadShaders.hpp"
-#include "input/input-mapping.hpp"
+#include "input/InputManager.hpp"
 
 // easy access to math functions defined in glm & CEGUI
 using namespace glm;
@@ -70,57 +70,6 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
-// This function is called any time GLFW detects a keypress
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    // if the user presses Escape, close the window
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-
-    // pass through to CEGUI
-    if (action == GLFW_PRESS)
-    {
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown( (CEGUI::Key::Scan)GlfwToCeguiKey(key) );
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp( (CEGUI::Key::Scan)GlfwToCeguiKey(key) );
-    }
-}
-
-static void character_callback(GLFWwindow* window, unsigned int codepoint)
-{
-    // pass through to CEGUI
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(codepoint);
-}
-
-static void cursor_position_callback(GLFWwindow* window, double new_xpos, double new_ypos)
-{
-    static double xpos = 0.0;
-    static double ypos = 0.0;
-
-    // inject movement to CEGUI
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(new_xpos - xpos, new_ypos - ypos);
-
-    // store new positions
-    xpos = new_xpos;
-    ypos = new_ypos;
-}
-
-static void cursor_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    // pass through to CEGUI
-    if (action == GLFW_PRESS)
-    {
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown( GlfwToCeguiButton(button) );
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp( GlfwToCeguiButton(button) );
-    }
-}
 
 // Do some general initialization stuff
 // This gets us a window we can draw to
@@ -157,11 +106,6 @@ void init(GLFWwindow** window)
     // if two fragments overlap, only accept the one closer to the camera in the final image
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
-    glfwSetKeyCallback(*window, key_callback); // key_callback will be called whenever a key is pressed
-    glfwSetCharCallback(*window, character_callback); // callback for text input
-    glfwSetCursorPosCallback(*window, cursor_position_callback); // callback for mouse movement
-    glfwSetMouseButtonCallback(*window, cursor_button_callback);
 }
 
 int main(void)
@@ -189,6 +133,7 @@ int main(void)
 
     // do some setup stuff, open a window, and configure our GL context to target it for drawing
     init(&window);
+    InputManager inputManager = InputManager(window);
 
     /* ----------- */
     /* CEGUI SETUP */ // <-- must be done AFTER GL Context creation

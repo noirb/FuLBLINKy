@@ -20,6 +20,8 @@ InputManager::InputManager( GLFWwindow* window )
     this->addMouseMoveCallback( window );
     this->addMouseButtonCallback( window );
     this->addScrollCallback( window );
+
+    glfwSetWindowUserPointer( window, this ); // give GLFW a reference to the Manager
 }
 
 void InputManager::GetMousePosition(double* pos_x, double* pos_y)
@@ -100,15 +102,15 @@ void InputManager::mouseEnter_callback( GLFWwindow* window, int entered )
 
 void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double ypos )
 {
-    static double old_xpos = 0.0; /// TODO: Should probably just use our member variables
-    static double old_ypos = 0.0;
+    // get a 'this' reference
+    InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 
     // inject movement to CEGUI
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(xpos - old_xpos, ypos - old_ypos);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(xpos - manager->mouseX, ypos - manager->mouseY);
 
     // store new positions
-    old_xpos = xpos;
-    old_ypos = ypos;
+    manager->mouseX = xpos;
+    manager->mouseY = ypos;
 }
 
 void InputManager::mouseButton_callback( GLFWwindow* window, int button, int action, int mods )

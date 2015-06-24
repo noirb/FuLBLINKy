@@ -25,7 +25,7 @@ class RenderableComponent
         GLuint shaderProgram;         // shaders to use when we render
         GLuint VBO;                   // Vertex Buffer Object
         GLuint VAO;                   // Vertex Array Object
-        int totalVertices;            // Total # of vertices this object will draw each frame
+        int totalVertices = 0;        // Total # of vertices this object will draw each frame
 };
 
 #endif

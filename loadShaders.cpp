@@ -11,8 +11,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define GL_GLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
 #include "loadShaders.hpp"
 
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){

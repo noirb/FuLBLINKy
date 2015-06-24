@@ -1,8 +1,7 @@
 #ifndef _INPUT_MAPPING_H
 #define _INPUT_MAPPING_H
 
-#include <CEGUI/CEGUI.h>
-#include <GLFW/glfw3.h>
+#include "../common.hpp"
 
 /* ------------------------------------------------------------------------- */
 /* This just provides a mapping between the GLFW keycodes and the equivalent */

@@ -14,6 +14,7 @@ OBJ =   loadShaders.o\
         input/input-mapping.o\
         input/InputManager.o\
         rendering/RenderableComponent.o\
+        rendering/PointRenderer.o\
         main.o
        
 
@@ -31,5 +32,6 @@ vtkLegacyReader.o     : dataProviders/vtkLegacyReader.hpp
 input-mapping.o       : input/input-mapping.hpp
 InputManager.o        : input/InputManager.hpp
 RenderableComponent.o : rendering/RenderableComponent.hpp
+PointRenderer.o       : rendering/PointRenderer.hpp rendering/RenderableComponent.hpp
 main.o                : loadShaders.hpp
 

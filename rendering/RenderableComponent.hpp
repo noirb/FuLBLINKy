@@ -1,8 +1,7 @@
 #ifndef _RENDERABLE_COMPONENT_H
 #define _RENDERABLE_COMPONENT_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "../common.hpp"
 
 /********************************************************************************/
 /* Base class for all Renderable Component Objects                              */
@@ -26,7 +25,7 @@ class RenderableComponent
         GLuint shaderProgram;         // shaders to use when we render
         GLuint VBO;                   // Vertex Buffer Object
         GLuint VAO;                   // Vertex Array Object
-
+        int totalVertices;            // Total # of vertices this object will draw each frame
 };
 
 #endif

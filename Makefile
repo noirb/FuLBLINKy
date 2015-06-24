@@ -5,11 +5,12 @@ EXT_LDFLAGS  =
 VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
 VIS_SRCFLAGS = -I/usr/local/include/cegui-0
 
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 
 OBJ =   loadShaders.o\
+        dataProviders/vtkLegacyReader.o\
         input/input-mapping.o\
         input/InputManager.o\
         main.o
@@ -24,8 +25,9 @@ all:  $(OBJ)
 clean:
 	rm $(OBJ) fluid-vis
 
-loadShaders.o   : loadShaders.hpp
-input-mapping.o : input/input-mapping.hpp
-InputManager.o  : input/InputManager.hpp
-main.o          : loadShaders.hpp
+loadShaders.o     : loadShaders.hpp
+vtkLegacyReader.o : dataProviders/vtkLegacyReader.hpp
+input-mapping.o   : input/input-mapping.hpp
+InputManager.o    : input/InputManager.hpp
+main.o            : loadShaders.hpp
 

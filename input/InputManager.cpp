@@ -12,6 +12,7 @@ InputManager::InputManager( GLFWwindow* window )
 {
     this->mouseX = 0;
     this->mouseY = 0;
+    this->mainWindow = window;
 
     this->addKeyCallback( window );
     this->addCharCallback( window );
@@ -19,6 +20,11 @@ InputManager::InputManager( GLFWwindow* window )
     this->addMouseMoveCallback( window );
     this->addMouseButtonCallback( window );
     this->addScrollCallback( window );
+}
+
+void InputManager::GetMousePosition(double* pos_x, double* pos_y)
+{
+    glfwGetCursorPos(this->mainWindow, pos_x, pos_y);
 }
 
         // called when a non-text key is pressed or released

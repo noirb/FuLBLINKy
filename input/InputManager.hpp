@@ -1,8 +1,7 @@
 #ifndef _INPUT_MANAGER_H
 #define _INPUT_MANAGER_H
 
-#include <CEGUI/CEGUI.h>
-#include <GLFW/glfw3.h>
+#include "../common.hpp"
 #include "input-mapping.hpp"
 
 class InputManager
@@ -10,6 +9,7 @@ class InputManager
     private:
         double mouseX;
         double mouseY;
+        GLFWwindow* mainWindow;
 
         // default callback implementations
         static void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods );
@@ -25,6 +25,9 @@ class InputManager
 
         // will initialize InputManager with default events for the given window
         InputManager( GLFWwindow* window );
+
+        // retrieves mouse position from the mainWindow
+        void GetMousePosition(double* pos_x, double* pos_y);
 
         // called when a non-text key is pressed or released
         GLFWkeyfun addKeyCallback( GLFWwindow* window );

@@ -26,7 +26,8 @@ InputManager::InputManager( GLFWwindow* window )
 
 void InputManager::GetMousePosition(double* pos_x, double* pos_y)
 {
-    glfwGetCursorPos(this->mainWindow, pos_x, pos_y);
+    *pos_x = this->mouseX;
+    *pos_y = this->mouseY;
 }
 
         // called when a non-text key is pressed or released

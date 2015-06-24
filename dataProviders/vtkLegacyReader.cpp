@@ -74,7 +74,6 @@ void vtkLegacyReader::init(std::string filename)
                 std::stringstream pointStream;
                 pointStream << line;
                 pointStream >> point[0] >> point[1] >> point[2];
-                std::cout << lineNumber << ": " << point[0] << " " << point[1] << " " << point[2] << "\n";
                 this->pointsField.push_back(std::vector<double>(point, point + sizeof(point) / sizeof(point[0])));
                 getline(file, line, '\n');
                 lineNumber++;

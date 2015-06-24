@@ -128,7 +128,7 @@ int main(void)
     GLuint mvpID = glGetUniformLocation(programID, "MVP");
 
     // get a handle for our mouse coordinates as well
-//    GLuint mousePosID = glGetUniformLocation(programID, "mousePos"); // the strings refer to variable names in the shader
+    GLuint mousePosID = glGetUniformLocation(programID, "mousePos"); // the strings refer to variable names in the shader
 
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
@@ -151,9 +151,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         MVP = inputManager.GetProjectionMatrix() * inputManager.GetViewMatrix() * glm::mat4(1.0f);
-        pointRenderer.Draw(MVP, mvpID);
-            // send mouse coordinates to the shaders
-            //glUniform2f(mousePosID, mouseX, mouseY);
+        pointRenderer.Draw(MVP, mvpID, mouseX, mouseY, mousePosID);
 
         // Draw GUI -- must be the LAST drawing call we do!
         CEGUI::System::getSingleton().renderAllGUIContexts();

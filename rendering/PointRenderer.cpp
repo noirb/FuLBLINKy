@@ -56,7 +56,7 @@ void PointRenderer::Draw()
     /// TODO: Finalize interface & remove this dummy
 }
 
-void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
+void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mouseY, GLuint mouseID) /// FIXME: Do NOT take mouseX, mouseY, mouseID here...
 {
     // if we have no shaders, vertices, etc., we can't render anything
     if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
@@ -70,8 +70,8 @@ void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
     // set shaders
     glUseProgram(this->shaderProgram);
 
-
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
+    glUniform2f(mouseID, mouseX, mouseY);
 
     glEnableVertexAttribArray(0);
 

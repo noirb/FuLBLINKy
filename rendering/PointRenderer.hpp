@@ -11,7 +11,8 @@ class PointRenderer: public RenderableComponent
         virtual void PrepareGeometry(std::vector<std::vector<double> >* points);
 
         virtual void Draw();
-        virtual void Draw(glm::mat4 MVP, GLuint MVP_ID);
+        virtual void Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mouseY, GLuint mouseID);
+                            /// FIXME: Do NOT take all these parameters...
 
     private:
 

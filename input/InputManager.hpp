@@ -7,9 +7,26 @@
 class InputManager
 {
     private:
+        GLFWwindow* mainWindow;
         double mouseX;
         double mouseY;
-        GLFWwindow* mainWindow;
+
+        glm::mat4 _projectionMatrix;
+        glm::mat4 _viewMatrix;
+
+        // camera-related variables
+        glm::vec3 cameraPos;   // position
+        float horizontalAngle;
+        float verticalAngle;
+        float initialFoV;      // default FoV
+        float speed;
+        float mouseSpeed;
+
+        bool _leftMouseDown;
+        bool _rightMouseDown;
+
+        // called by constructor to set up some basic stuff
+        void init();
 
         // default callback implementations
         static void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods );
@@ -28,6 +45,16 @@ class InputManager
 
         // retrieves mouse position from the mainWindow
         void GetMousePosition(double* pos_x, double* pos_y);
+
+        // returns TRUE if the left or right mouse button is pressed
+        bool MousePressed();
+
+        // updates _projectionMatrix & _viewMatrix based on mouse movement
+        void UpdateCameraMatrices(double dx, double dy);
+
+        // retrieves the Projection & View matrix
+        glm::mat4 GetProjectionMatrix();
+        glm::mat4 GetViewMatrix();
 
         // called when a non-text key is pressed or released
         GLFWkeyfun addKeyCallback( GLFWwindow* window );

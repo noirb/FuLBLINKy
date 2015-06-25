@@ -26,11 +26,9 @@ void PointRenderer::PrepareGeometry(std::vector<std::vector<double> >* points)
         // get coords for current point
         for (std::vector<double>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
         {
-            std::cout << *it2 << ", "; 
             this->vertex_buffer_data[i] = *it2;
             i++;
         }
-        std::cout << std::endl;
     }
 
     GLuint vao, vbo;
@@ -43,12 +41,24 @@ void PointRenderer::PrepareGeometry(std::vector<std::vector<double> >* points)
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
 
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        (void*)0
+    );
+    glEnableVertexAttribArray(0);
+
     // reset GL state
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     this->VAO = vao;
     this->VBO = vbo;
+
+    std::cout << "PointRenderer::PrepareGeometry : Got VAO " << this->VAO << " and VBO " << this->VBO << std::endl;
 }
 
 void PointRenderer::Draw()
@@ -64,34 +74,20 @@ void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mou
         return; /// TODO: Log an error here!
     }
 
-    glBindVertexArray(this->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-
     // set shaders
     glUseProgram(this->shaderProgram);
-
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
     glUniform2f(mouseID, mouseX, mouseY);
 
-    glEnableVertexAttribArray(0);
+    glBindVertexArray(this->VAO);
 
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        (void*)0
-    );
-
+    // DRAW!
     glDrawArrays(GL_POINTS, 0, this->totalVertices);
-
-    // unbind our vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);    
 
     // unset shaders
     glUseProgram(0);
 
+    // unbind VAO
     glBindVertexArray(0);
 }
 

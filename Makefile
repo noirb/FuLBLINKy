@@ -15,6 +15,7 @@ OBJ =   loadShaders.o\
         input/InputManager.o\
         rendering/RenderableComponent.o\
         rendering/PointRenderer.o\
+        rendering/AxesRenderer.o\
         main.o
        
 
@@ -33,5 +34,6 @@ input-mapping.o       : input/input-mapping.hpp
 InputManager.o        : input/InputManager.hpp
 RenderableComponent.o : rendering/RenderableComponent.hpp
 PointRenderer.o       : rendering/PointRenderer.hpp rendering/RenderableComponent.hpp
+AxesRenderer.o        : rendering/AxesRenderer.hpp rendering/RenderableComponent.hpp
 main.o                : loadShaders.hpp
 

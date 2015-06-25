@@ -8,6 +8,7 @@
 #include "input/InputManager.hpp"
 #include "dataProviders/vtkLegacyReader.hpp"
 #include "rendering/PointRenderer.hpp"
+#include "rendering/AxesRenderer.hpp"
 
 // easy access to math functions defined in glm & CEGUI
 using namespace glm;
@@ -122,7 +123,7 @@ int main(void)
 
     // load our vertex & fragment shaders so they're ready & compiled when we need them
     GLuint programID = LoadShaders("simpleProjection.vertex", "simpleMouseColor.fragment");
-        // replace the *.vertex or *.fragment strings with the filename of any vertex or fragment shader
+    GLuint axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
 
     // get a handle for our MVP matrix so we can pass it to the shaders
     GLuint mvpID = glGetUniformLocation(programID, "MVP");
@@ -136,9 +137,15 @@ int main(void)
     vtkLegacyReader vtkReader = vtkLegacyReader("test.vtk");
     DomainParameters domainParameters;
     vtkReader.getDomainParameters(&domainParameters);
+
     PointRenderer pointRenderer;
+    AxesRenderer axesRenderer;
+
+    axesRenderer.SetShader(axesShader);
+    axesRenderer.PrepareGeometry();
     pointRenderer.SetShader(programID);
     pointRenderer.PrepareGeometry(&(vtkReader.pointsField));
+
 
     inputManager.UpdateCameraMatrices(0, 0); // ensure camera state is correctly initialized before we start rendering
 
@@ -151,6 +158,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         MVP = inputManager.GetProjectionMatrix() * inputManager.GetViewMatrix() * glm::mat4(1.0f);
+        axesRenderer.Draw(MVP, mvpID);
         pointRenderer.Draw(MVP, mvpID, mouseX, mouseY, mousePosID);
 
         // Draw GUI -- must be the LAST drawing call we do!

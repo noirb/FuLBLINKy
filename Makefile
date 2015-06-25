@@ -5,7 +5,7 @@ EXT_LDFLAGS  =
 VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
 VIS_SRCFLAGS = -I/usr/local/include/cegui-0
 
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -std=c++11
 
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 

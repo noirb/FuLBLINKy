@@ -2,6 +2,7 @@
 #define _RENDERABLE_COMPONENT_H
 
 #include "../common.hpp"
+#include "../dataProviders/DataProvider.hpp"
 
 /********************************************************************************/
 /* Base class for all Renderable Component Objects                              */

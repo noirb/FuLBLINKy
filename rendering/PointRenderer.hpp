@@ -3,12 +3,13 @@
 
 #include <vector>
 #include "RenderableComponent.hpp"
+#include "../dataProviders/DataProvider.hpp"
 
 class PointRenderer: public RenderableComponent
 {
     public:
         virtual void PrepareGeometry();
-        virtual void PrepareGeometry(std::vector<std::vector<double> >* points);
+        virtual void PrepareGeometry(DataProvider* provider);
 
         virtual void Draw();
         virtual void Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mouseY, GLuint mouseID);

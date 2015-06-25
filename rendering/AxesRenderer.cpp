@@ -49,8 +49,6 @@ void AxesRenderer::PrepareGeometry()
 
     this->VAO = vao;
     this->VBO = vbo;
-
-    std::cout << "AxesRenderer::PrepareGeometry : Got VAO " << this->VAO << " and VBO " << this->VBO << std::endl;
 }
 
 void AxesRenderer::Draw()

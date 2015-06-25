@@ -6,8 +6,15 @@ void PointRenderer::PrepareGeometry()
     /// TODO: Finalize Interface & remove this dummy
 }
 
-void PointRenderer::PrepareGeometry(std::vector<std::vector<double> >* points)
+void PointRenderer::PrepareGeometry(DataProvider* provider)
 {
+    std::vector<std::vector<double> >* points;
+
+    if ( provider->GetField("points", &points) != 0)
+    {
+        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
+    }
+
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -57,8 +64,6 @@ void PointRenderer::PrepareGeometry(std::vector<std::vector<double> >* points)
 
     this->VAO = vao;
     this->VBO = vbo;
-
-    std::cout << "PointRenderer::PrepareGeometry : Got VAO " << this->VAO << " and VBO " << this->VBO << std::endl;
 }
 
 void PointRenderer::Draw()

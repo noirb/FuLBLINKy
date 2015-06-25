@@ -6,10 +6,12 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <map>
 
+#include "DataProvider.hpp"
 #include "DomainParameters.h"
 
-class vtkLegacyReader
+class vtkLegacyReader : public DataProvider
 {
     public:
         vtkLegacyReader();
@@ -36,13 +38,19 @@ class vtkLegacyReader
         // gets the current timestep from the reader
         int GetTimeStep();
 
-        /// FIXME: This should be PRIVATE
-        std::vector<std::vector<double> > pointsField;
+        // retrieves data for the given field and returns a pointer in fieldData. Returns 0 on success, -1 on failure.
+        virtual int GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData);
+
     private:
         DomainParameters domainParameters;
         std::string filename;
+
+        std::map<std::string, std::vector<std::vector<double> > > domainFields;
+        std::vector<std::string> fieldNames;
+
         int timestep;
         int maxTimesteps;
+
 };
 
 #endif

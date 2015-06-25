@@ -144,7 +144,7 @@ int main(void)
     axesRenderer.SetShader(axesShader);
     axesRenderer.PrepareGeometry();
     pointRenderer.SetShader(programID);
-    pointRenderer.PrepareGeometry(&(vtkReader.pointsField));
+    pointRenderer.PrepareGeometry(&(vtkReader));
 
 
     inputManager.UpdateCameraMatrices(0, 0); // ensure camera state is correctly initialized before we start rendering

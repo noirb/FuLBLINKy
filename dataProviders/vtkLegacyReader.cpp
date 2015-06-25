@@ -50,7 +50,7 @@ void vtkLegacyReader::init(std::string filename)
             lineStream >> this->domainParameters.size[0] >> 
                           this->domainParameters.size[1] >>
                           this->domainParameters.size[2];
-            std::cout << "Read domain size as: (" << this->domainParameters.size[0] <<
+            std::cout << "\tRead domain size as: (" << this->domainParameters.size[0] <<
                                         ", " << this->domainParameters.size[1] <<
                                         ", " << this->domainParameters.size[2] << 
                                         ") " << std::endl;
@@ -58,31 +58,70 @@ void vtkLegacyReader::init(std::string filename)
         // parse point locations
         else if (tok == "POINTS")
         {
-            double point[3];
+            this->fieldNames.push_back("points");
+            this->domainFields["points"] = std::vector<std::vector<double> >();
+
             lineStream >> this->domainParameters.numPoints;
-            std::cout << "Read numPoints as: " << this->domainParameters.numPoints << std::endl;
+            std::cout << "\tRead numPoints as: " << this->domainParameters.numPoints << std::endl;
 
             getline(file, line, '\n'); lineNumber++;
             while (line.empty() || line.find_first_of("0123456789") == std::string::npos)
             {
                 getline(file, line, '\n');
-                std::cout << "Skipping line " << lineNumber << std::endl;
+                std::cout << "\tSkipping line " << lineNumber << std::endl;
                 lineNumber++;
             }
-            for (int i = 0; i < this->domainParameters.numPoints; i++)
+            for (int i = 0; i < this->domainParameters.numPoints; i++)      /// TODO: This could probably be its own function
             {
+                double tmp;
+                std::vector<double> tmpv;
                 std::stringstream pointStream;
                 pointStream << line;
-                pointStream >> point[0] >> point[1] >> point[2];
-                this->pointsField.push_back(std::vector<double>(point, point + sizeof(point) / sizeof(point[0])));
+
+                while(pointStream >> tmp)
+                {
+                    tmpv.push_back(tmp);
+                }
+                this->domainFields["points"].push_back(tmpv);
+
                 getline(file, line, '\n');
                 lineNumber++;
             }
             continue;
         }
         // parse point data field
-        else if (tok == "POINT_DATA")
+        else if (tok == "SCALARS" || tok == "VECTORS")
         {
+            std::stringstream ptDataStream;
+            std::string fieldName;
+            lineStream >> fieldName; // get next word on line for fieldName
+
+            this->fieldNames.push_back(fieldName);
+            this->domainFields[fieldName] = std::vector<std::vector<double> >();            
+
+            std::cout << "\tFound field: '" << fieldName << "'" << std::endl;
+
+            // get to first line containing a number
+            ptDataStream.str(std::string());
+            getline(file, line, '\n'); lineNumber++;
+            while (line.empty() || line.find_first_of("0123456789") == std::string::npos)
+            {
+                getline(file, line, '\n'); lineNumber++;
+                std::cout << "\tSkipping line " << lineNumber << std::endl;
+            }
+            // read data
+            for (int i = 0; i < this->domainParameters.numPoints; i++)
+            {
+                double tmp;
+                std::vector<double> tmpv;
+                ptDataStream << line;
+
+                while (ptDataStream >> tmp)
+                {
+                    tmpv.push_back(tmp);
+                }
+                this->domainFields[fieldName].push_back(tmpv);
+            }
 
         }
         // parse cell data field
@@ -134,4 +173,21 @@ void vtkLegacyReader::SetTimeStep(int step)
 int vtkLegacyReader::GetTimeStep()
 {
     return this->timestep;
+}
+
+// retrieves data for the given field
+// Return value is 0 on success, another value for failure (unknown field, etc)
+int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData)
+{
+    // return -1 if the given fieldName does not exist
+    if (this->domainFields.count(fieldName) == 0)
+    {
+        return -1;
+    }
+    else
+    {
+        *fieldData = &(this->domainFields[fieldName]);
+    }
+
+    return 0;
 }

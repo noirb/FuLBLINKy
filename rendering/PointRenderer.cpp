@@ -13,6 +13,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
+        return;
     }
 
     // if we previously allocated space for our vertices, clear it before continuing

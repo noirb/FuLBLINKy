@@ -158,8 +158,11 @@ void InputManager::char_callback( GLFWwindow* window, unsigned int codepoint )
 
 void InputManager::mouseEnter_callback( GLFWwindow* window, int entered )
 {
-    /// TODO
-    return;
+    InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+
+    // reset CEGUI's mouse position in case we're out of sync, now
+    CEGUI::Vector2<float> cegMousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(manager->mouseX - cegMousePos.d_x, manager->mouseY - cegMousePos.d_y);
 }
 
 void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double ypos )

@@ -109,6 +109,7 @@ void init_cegui(CEGUI::Window* guiRoot)
 
     // set root window
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot); 
+    guiRoot->setMousePassThroughEnabled(true);
     // load default window layout
     CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
     guiRoot->addChild(fWnd);

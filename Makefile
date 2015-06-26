@@ -1,6 +1,20 @@
 CC = gcc
 CC+ = g++
 
+# final executable name
+BIN = fluid-vis
+BUILD_DIR = ./build
+
+# source files
+CSRC   = $(wildcard nativefilddialog/*.c)
+CPPSRC = main.cpp\
+        loadShaders.cpp\
+        $(wildcard dataProviders/*.cpp)\
+        $(wildcard input/*.cpp)\
+        $(wildcard rendering/*.cpp)\
+        $(wildcard shaders/*.cpp)
+
+
 EXT_LDFLAGS  =
 VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
 VIS_SRCFLAGS = -I/usr/local/include/cegui-0
@@ -9,31 +23,27 @@ CFLAGS = -Wall -g -std=c++11
 
 .cpp.o:  ; $(CC) -c $(CFLAGS) $<
 
-OBJ =   loadShaders.o\
-        dataProviders/vtkLegacyReader.o\
-        input/input-mapping.o\
-        input/InputManager.o\
-        rendering/RenderableComponent.o\
-        rendering/PointRenderer.o\
-        rendering/AxesRenderer.o\
-        main.o
-       
+OBJ = $(CPPSRC:%.cpp=$(BUILD_DIR)/%.o)\
+      $(CSRC:%.c=$(BUILD_DIR)/%.o)
 
-all:  $(OBJ)
-	$(CC+) -o fluid-vis $(OBJ)  $(CFLAGS) $(VIS_LDFLAGS)
+DEP = $(OBJ:%.o=%.d)
 
-%.o : %.cpp
-	$(CC+) -c $(CFLAGS) $(VIS_SRCFLAGS) $*.cpp -o $*.o 
+all : $(BIN)
+
+#$(BIN) : $(BUILD_DIR)/$(BIN)
+
+$(BIN) : $(OBJ)
+	mkdir -p $(@D)
+	$(CC+) $(CFLAGS) $^ -o $@ $(VIS_LDFLAGS)
+
+-include $(DEP)
+
+$(BUILD_DIR)/%.o : %.cpp
+	mkdir -p $(@D)
+	$(CC+) $(CFLAGS) $(VIS_SRCFLAGS) -MMD -c $< -o $@
+
+.PHONY : clean
 
 clean:
-	rm $(OBJ) fluid-vis
-
-loadShaders.o         : loadShaders.hpp
-vtkLegacyReader.o     : dataProviders/vtkLegacyReader.hpp
-input-mapping.o       : input/input-mapping.hpp
-InputManager.o        : input/InputManager.hpp
-RenderableComponent.o : rendering/RenderableComponent.hpp
-PointRenderer.o       : rendering/PointRenderer.hpp rendering/RenderableComponent.hpp
-AxesRenderer.o        : rendering/AxesRenderer.hpp rendering/RenderableComponent.hpp
-main.o                : loadShaders.hpp
+	-rm $(BIN) $(OBJ) $(DEP)
 

@@ -9,18 +9,34 @@ void PointRenderer::PrepareGeometry()
 void PointRenderer::PrepareGeometry(DataProvider* provider)
 {
     std::vector<std::vector<double> >* points;
+    std::vector<std::vector<double> >* densities;
 
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
+    if ( provider->GetField("density", &densities) != 0)
+    {
+        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+    }
 
+    std::cout << "PointRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*densities).size() << " densities" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
         delete(this->vertex_buffer_data);
     }
+    if (this->totalAttributes > 0)
+    {
+        for (int i = 0; i < this->totalAttributes; i++)
+        {
+            delete(this->vertex_attrib_data[i]);
+        }
+    }
+
+
+    /** Copy point data **/
 
     // determine needed number of vertices & allocate space for them
     // PointRenderer only needs ONE vertex per data point
@@ -39,8 +55,24 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         }
     }
 
-    GLuint vao, vbo;
-    // copy vertex data to GPU & save VAO and VBO handles
+    /** Copy density data **/
+
+    this->totalAttributes = 1; // TODO: don't hard-code this...
+    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
+    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 density per vertex
+    i = 0;
+    for (std::vector<std::vector<double> >::iterator it = (*densities).begin(); it != (*densities).end(); ++it)
+    {
+        for (std::vector<double>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+        {
+            this->vertex_attrib_data[0][i] = *it2;
+            i++;
+        }
+    }
+
+    GLuint vao, vbo, density_buf;
+
+    /** copy vertex data to GPU & save VAO and VBO handles **/
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -49,6 +81,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
 
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,
         3,
@@ -57,8 +90,24 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         0,
         (void*)0
     );
-    glEnableVertexAttribArray(0);
 
+    /** Buffer density data **/
+    glGenBuffers(1, &density_buf);
+    glBindBuffer(GL_ARRAY_BUFFER, density_buf);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, density_buf);
+    glVertexAttribPointer(
+        1,
+        1,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        (void*)0
+    );
+    
     // reset GL state
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -83,7 +132,6 @@ void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mou
     // set shaders
     glUseProgram(this->shaderProgram);
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-    glUniform2f(mouseID, mouseX, mouseY);
 
     glBindVertexArray(this->VAO);
 

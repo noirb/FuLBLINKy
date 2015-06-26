@@ -114,15 +114,18 @@ void vtkLegacyReader::init(std::string filename)
             {
                 double tmp;
                 std::vector<double> tmpv;
-                ptDataStream << line;
-
-                while (ptDataStream >> tmp)
+                std::stringstream dataStream;
+                dataStream << line;
+                while (dataStream >> tmp)
                 {
                     tmpv.push_back(tmp);
                 }
                 this->domainFields[fieldName].push_back(tmpv);
-            }
 
+                getline(file, line, '\n');
+                lineNumber++;
+            }
+            continue;
         }
         // parse cell data field
         else if (tok == "CELL_DATA")

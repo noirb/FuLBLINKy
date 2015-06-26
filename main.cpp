@@ -148,7 +148,7 @@ int main(void)
     init_cegui(guiRoot);
 
     // load our vertex & fragment shaders so they're ready & compiled when we need them
-    GLuint programID = LoadShaders("simpleProjection.vertex", "simpleMouseColor.fragment");
+    GLuint programID = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
     GLuint axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
 
     // get a handle for our MVP matrix so we can pass it to the shaders
@@ -179,7 +179,10 @@ int main(void)
         double curTime = glfwGetTime();
         
         if (vtkReaderHasNewData)
+        {
             pointRenderer.PrepareGeometry(&(vtkReader));    /// TODO: This should be handled in a separate class, not hard-coded here
+            vtkReaderHasNewData = false;
+        }
 
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

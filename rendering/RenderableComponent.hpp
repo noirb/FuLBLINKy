@@ -22,11 +22,13 @@ class RenderableComponent
         void SetShader(GLuint programID);
 
     protected:
-        GLfloat* vertex_buffer_data;  // vertex data specific to this renderer
+        GLfloat*  vertex_buffer_data;  // vertex data specific to this renderer
+        GLfloat** vertex_attrib_data;  // collection of vertex attributes (e.g. color, density, etc)
         GLuint shaderProgram;         // shaders to use when we render
         GLuint VBO;                   // Vertex Buffer Object
         GLuint VAO;                   // Vertex Array Object
         int totalVertices = 0;        // Total # of vertices this object will draw each frame
+        int totalAttributes = 0;
 };
 
 #endif

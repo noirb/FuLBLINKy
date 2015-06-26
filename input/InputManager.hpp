@@ -2,6 +2,7 @@
 #define _INPUT_MANAGER_H
 
 #include "../common.hpp"
+#include "../rendering/Compositor.hpp"
 #include "input-mapping.hpp"
 
 class InputManager

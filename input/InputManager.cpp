@@ -135,7 +135,8 @@ void InputManager::key_callback( GLFWwindow* window, int key, int scancode, int 
      // if the user presses Escape, close the window
      if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
      {
-         glfwSetWindowShouldClose(window, GL_TRUE);
+        glfwSetWindowShouldClose(window, GL_TRUE);
+        Compositor::Instance().ShutDown();
      }
  
      // pass through to CEGUI

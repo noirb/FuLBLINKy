@@ -15,37 +15,10 @@
 using namespace glm;
 using namespace CEGUI;
 
-/// TODO: This should not be global
-vtkLegacyReader vtkReader;
-bool vtkReaderHasNewData = false;
-
 // This function is called any time GLFW encounters an error
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
-}
-
-bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
-{
-    nfdchar_t* outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog("vtk", NULL, &outPath);
-
-    if (result == NFD_OKAY)
-    {
-        std::cout << "Opening file: '" << outPath << "'" << std::endl;
-        vtkReader.init(outPath);
-        vtkReaderHasNewData = true;
-    }
-    else if (result == NFD_CANCEL)
-    {
-        std::cout << "User pressed Cancel..." << std::endl;
-    }
-    else
-    {
-        std::cout << "ERROR: " << NFD_GetError() << std::endl;
-    }
-
-    return true;
 }
 
 // Do some general initialization stuff
@@ -53,8 +26,6 @@ bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
 void init(GLFWwindow** window)
 {
     glfwSetErrorCallback(error_callback); // if glfw hits an error, it should call error_callback
-
-   // glewInit();
 
     // initialize GLFW; bail if it fails for some reason
     if (!glfwInit())
@@ -89,105 +60,28 @@ void init(GLFWwindow** window)
     glEnable(GL_ARB_vertex_array_object);
 }
 
-// setup GUI
-void init_cegui(CEGUI::Window* guiRoot)
-{
-    // set default resource paths
-    CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
-    rp->setResourceGroupDirectory("schemes", "./cegui_layout/schemes/");
-    rp->setResourceGroupDirectory("imagesets", "./cegui_layout/imagesets/");
-    rp->setResourceGroupDirectory("fonts", "./cegui_layout/fonts/");
-    rp->setResourceGroupDirectory("layouts", "./cegui_layout/layouts/");
-    rp->setResourceGroupDirectory("looknfeels", "./cegui_layout/looknfeel");
-    rp->setResourceGroupDirectory("lua_scripts", "./cegui_layout/lua_scripts");
-    CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
-    CEGUI::Font::setDefaultResourceGroup("fonts");
-    CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
-    CEGUI::WindowManager::setDefaultResourceGroup("layouts");
-    CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
-    CEGUI::Scheme::setDefaultResourceGroup("schemes");
-    CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
-
-    // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager
-    CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(-mousePos.d_x, -mousePos.d_y);
-
-    // set root window
-    CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot); 
-    guiRoot->setMousePassThroughEnabled(true);
-    // load default window layout
-    CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
-    guiRoot->addChild(fWnd);
-
-    fWnd->getChildRecursive("LoadVTKbtn")->subscribeEvent(CEGUI::PushButton::EventClicked, handle_loadvtkbtn_press);
-}
-
 int main(void)
 {
-    double time = glfwGetTime(); // time elapsed since startup
-
     glm::mat4 MVP; // model-view-projection matrix passed to renderers
-
-    CEGUI::OpenGL3Renderer* guiRenderer; // main GUI object
-    CEGUI::Window* guiRoot;              // root window for GUI
-
     GLFWwindow* window;  // the window we draw to
-
 
         /* ---------------- */
         /*  GENERAL SETUP   */
         /* ---------------- */
     init(&window);
     InputManager inputManager = InputManager(window);
-
-    guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
-    guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
-    init_cegui(guiRoot);
-
-    // load our vertex & fragment shaders so they're ready & compiled when we need them
-    GLuint programID = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
-    GLuint axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
-
-    // get a handle for our MVP matrix so we can pass it to the shaders
-    GLuint mvpID = glGetUniformLocation(programID, "MVP");
-
-    // set a default background color for any pixels we don't draw to
-    glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
-
-    DomainParameters domainParameters;
-    vtkReader.getDomainParameters(&domainParameters);
-
-    PointRenderer pointRenderer;
-    AxesRenderer axesRenderer;
-
-    axesRenderer.SetShader(axesShader);
-    axesRenderer.PrepareGeometry(&vtkReader);
-    pointRenderer.SetShader(programID);
-
-
+    Compositor::Instance().Start();
     inputManager.UpdateCameraMatrices(0, 0); // ensure camera state is correctly initialized before we start rendering
 
-    // the main rendering loop
+        /* ---------------- */
+        /*  RENDERING LOOP  */
+        /* ---------------- */
     while (!glfwWindowShouldClose(window))
     {
-        double curTime = glfwGetTime();
-        
-        if (vtkReaderHasNewData)
-        {
-            pointRenderer.PrepareGeometry(&(vtkReader));    /// TODO: This should be handled in a separate class, not hard-coded here
-            vtkReaderHasNewData = false;
-        }
-
-        // clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         MVP = inputManager.GetProjectionMatrix() * inputManager.GetViewMatrix() * glm::mat4(1.0f);
-        axesRenderer.Draw(MVP, mvpID);
-        pointRenderer.Draw(MVP, mvpID);
 
-        // Draw GUI -- must be the LAST drawing call we do!
-        CEGUI::System::getSingleton().renderAllGUIContexts();
+        // Draw!
+        Compositor::Instance().Render(MVP);
 
         // put whatever we've drawn on the screen
         glfwSwapBuffers(window);
@@ -195,11 +89,9 @@ int main(void)
         glfwPollEvents();
 
         // tell CEGUI how long its been since the last frame
-        CEGUI::System::getSingleton().injectTimePulse(curTime - time);
-        time = curTime; // update time
+        CEGUI::System::getSingleton().injectTimePulse(Compositor::Instance().DeltaTime());
     }
 
-    guiRenderer->destroySystem();
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);

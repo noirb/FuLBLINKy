@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "loadShaders.hpp"
+#include "nativefiledialog/include/nfd.h"
 #include "input/InputManager.hpp"
 #include "dataProviders/vtkLegacyReader.hpp"
 #include "rendering/PointRenderer.hpp"
@@ -20,6 +21,26 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
+bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
+{
+    nfdchar_t* outPath = NULL;
+    nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+    if (result == NFD_OKAY)
+    {
+        std::cout << "File Open Success: '" << outPath << "'" << std::endl;
+    }
+    else if (result == NFD_CANCEL)
+    {
+        std::cout << "User pressed Cancel..." << std::endl;
+    }
+    else
+    {
+        std::cout << "ERROR: " << NFD_GetError() << std::endl;
+    }
+
+    return true;
+}
 
 // Do some general initialization stuff
 // This gets us a window we can draw to
@@ -90,7 +111,9 @@ void init_cegui(CEGUI::Window* guiRoot)
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot); 
     // load default window layout
     CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
-    guiRoot->addChild(fWnd); 
+    guiRoot->addChild(fWnd);
+
+    fWnd->getChildRecursive("LoadVTKbtn")->subscribeEvent(CEGUI::PushButton::EventClicked, handle_loadvtkbtn_press);
 }
 
 int main(void)

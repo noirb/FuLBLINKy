@@ -14,12 +14,12 @@
             <AutoWindow namePath="__auto_titlebar__" >
                 <Property name="AlwaysOnTop" value="false" />
             </AutoWindow>
-            <Window type="AlfiskoSkin/Label" name="Label" >
+            <Window type="AlfiskoSkin/Label" name="Timesteplbl" >
                 <Property name="Area" value="{{0,167},{0,8},{0,295},{0,40}}" />
                 <Property name="Text" value="Timestep:" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
             </Window>
-            <Window type="AlfiskoSkin/Button" name="Button" >
+            <Window type="AlfiskoSkin/Button" name="LoadVTKbtn" >
                 <Property name="Area" value="{{0,10},{0,7},{0,106},{0,39}}" />
                 <Property name="Text" value="Load VTK" />
             </Window>

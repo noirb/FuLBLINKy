@@ -6,7 +6,7 @@ BIN = fluid-vis
 BUILD_DIR = ./build
 
 # source files
-CSRC   = $(wildcard nativefilddialog/*.c)
+CSRC   = $(wildcard nativefiledialog/*.c)
 CPPSRC = main.cpp\
         loadShaders.cpp\
         $(wildcard dataProviders/*.cpp)\
@@ -15,35 +15,42 @@ CPPSRC = main.cpp\
         $(wildcard shaders/*.cpp)
 
 
+CFLAGS   = -Wall -g
+CPPFLAGS = -Wall -g -std=c++11
+
+C_SRCFLAGS = -I./nativefiledialog/include/
+C_LDFLAGS = `pkg-config --cflags --libs gtk+-3.0`
+
 EXT_LDFLAGS  =
-VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
+VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0 $(C_LDFLAGS)
 VIS_SRCFLAGS = -I/usr/local/include/cegui-0
 
-CFLAGS = -Wall -g -std=c++11
+OBJ_C = $(CSRC:%.c=$(BUILD_DIR)/%.o)
 
-.cpp.o:  ; $(CC) -c $(CFLAGS) $<
+OBJ_CPP = $(CPPSRC:%.cpp=$(BUILD_DIR)/%.o)
 
-OBJ = $(CPPSRC:%.cpp=$(BUILD_DIR)/%.o)\
-      $(CSRC:%.c=$(BUILD_DIR)/%.o)
-
-DEP = $(OBJ:%.o=%.d)
+DEP = $(OBJ_C:%.o=%.d) $(OBJ_CPP:%.o=%.d)
 
 all : $(BIN)
 
 #$(BIN) : $(BUILD_DIR)/$(BIN)
 
-$(BIN) : $(OBJ)
+$(BIN) : $(OBJ_C) $(OBJ_CPP)
 	mkdir -p $(@D)
-	$(CC+) $(CFLAGS) $^ -o $@ $(VIS_LDFLAGS)
+	$(CC+) $(CPPFLAGS) $^ -o $@ $(VIS_LDFLAGS)
 
 -include $(DEP)
 
+$(BUILD_DIR)/%.o : %.c
+	mkdir -p $(@D) 
+	$(CC) $(CFLAGS) $(C_SRCFLAGS) -MMD -c $< -o $@ $(C_LDFLAGS)
+
 $(BUILD_DIR)/%.o : %.cpp
 	mkdir -p $(@D)
-	$(CC+) $(CFLAGS) $(VIS_SRCFLAGS) -MMD -c $< -o $@
+	$(CC+) $(CPPFLAGS) $(VIS_SRCFLAGS) -MMD -c $< -o $@
 
 .PHONY : clean
 
 clean:
-	-rm $(BIN) $(OBJ) $(DEP)
+	-rm $(BIN) $(OBJ_C) $(OBJ_CPP) $(DEP)
 

@@ -1,7 +1,7 @@
 #include "AxesRenderer.hpp"
 #include <iostream>
 
-void AxesRenderer::PrepareGeometry()
+void AxesRenderer::PrepareGeometry(DataProvider* provider)
 {
     // if we've already set up our vertices, do nothing
     if (this->totalVertices > 0)
@@ -49,11 +49,6 @@ void AxesRenderer::PrepareGeometry()
 
     this->VAO = vao;
     this->VBO = vbo;
-}
-
-void AxesRenderer::Draw()
-{
-    return;
 }
 
 void AxesRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)

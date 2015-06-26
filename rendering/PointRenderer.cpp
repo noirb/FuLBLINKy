@@ -1,11 +1,6 @@
 #include "PointRenderer.hpp"
 #include <iostream>
 
-void PointRenderer::PrepareGeometry()
-{
-    /// TODO: Finalize Interface & remove this dummy
-}
-
 void PointRenderer::PrepareGeometry(DataProvider* provider)
 {
     std::vector<std::vector<double> >* points;
@@ -116,12 +111,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     this->VBO = vbo;
 }
 
-void PointRenderer::Draw()
-{
-    /// TODO: Finalize interface & remove this dummy
-}
-
-void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID, double mouseX, double mouseY, GLuint mouseID) /// FIXME: Do NOT take mouseX, mouseY, mouseID here...
+void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
 {
     // if we have no shaders, vertices, etc., we can't render anything
     if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)

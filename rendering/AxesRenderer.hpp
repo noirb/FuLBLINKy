@@ -10,9 +10,8 @@
 class AxesRenderer : public RenderableComponent
 {
     public:
-        virtual void PrepareGeometry();
+        virtual void PrepareGeometry(DataProvider*);
 
-        virtual void Draw();
         virtual void Draw(glm::mat4 MVP, GLuint MVP_ID);
 
     private:

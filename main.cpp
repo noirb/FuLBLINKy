@@ -134,8 +134,6 @@ int main(void)
 
     GLFWwindow* window;  // the window we draw to
 
-    double mouseX, mouseY; // used to store mosue cursor position when it's over the window
-
 
         /* ---------------- */
         /*  GENERAL SETUP   */
@@ -154,9 +152,6 @@ int main(void)
     // get a handle for our MVP matrix so we can pass it to the shaders
     GLuint mvpID = glGetUniformLocation(programID, "MVP");
 
-    // get a handle for our mouse coordinates as well
-    GLuint mousePosID = glGetUniformLocation(programID, "mousePos"); // the strings refer to variable names in the shader
-
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
 
@@ -167,7 +162,7 @@ int main(void)
     AxesRenderer axesRenderer;
 
     axesRenderer.SetShader(axesShader);
-    axesRenderer.PrepareGeometry();
+    axesRenderer.PrepareGeometry(&vtkReader);
     pointRenderer.SetShader(programID);
 
 
@@ -189,7 +184,7 @@ int main(void)
 
         MVP = inputManager.GetProjectionMatrix() * inputManager.GetViewMatrix() * glm::mat4(1.0f);
         axesRenderer.Draw(MVP, mvpID);
-        pointRenderer.Draw(MVP, mvpID, mouseX, mouseY, mousePosID);
+        pointRenderer.Draw(MVP, mvpID);
 
         // Draw GUI -- must be the LAST drawing call we do!
         CEGUI::System::getSingleton().renderAllGUIContexts();
@@ -198,8 +193,6 @@ int main(void)
         glfwSwapBuffers(window);
         // check for new events (key presses, etc)
         glfwPollEvents();
-        // update mouse position
-        glfwGetCursorPos(window, &mouseX, &mouseY);
 
         // tell CEGUI how long its been since the last frame
         CEGUI::System::getSingleton().injectTimePulse(curTime - time);

@@ -185,7 +185,6 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
 void InputManager::mouseButton_callback( GLFWwindow* window, int button, int action, int mods )
 {
     InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-    bool cegui_handled = false;
 
     // pass through to CEGUI
     if (action == GLFW_PRESS)

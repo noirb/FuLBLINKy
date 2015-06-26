@@ -15,9 +15,9 @@ class RenderableComponent
         ~RenderableComponent();
 
         // must be called before Draw(). Used to generate any needed vertex buffers, etc.
-        virtual void PrepareGeometry() = 0;
+        virtual void PrepareGeometry(DataProvider*) = 0;
 
-        virtual void Draw() = 0;
+        virtual void Draw(glm::mat4, GLuint) = 0;
 
         void SetShader(GLuint programID);
 

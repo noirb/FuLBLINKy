@@ -28,7 +28,7 @@ static void error_callback(int error, const char* description)
 bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
 {
     nfdchar_t* outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+    nfdresult_t result = NFD_OpenDialog("vtk", NULL, &outPath);
 
     if (result == NFD_OKAY)
     {

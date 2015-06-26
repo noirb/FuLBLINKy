@@ -40,12 +40,12 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
-    for (std::vector<std::vector<double> >::iterator it = (*points).begin(); it != (*points).end(); ++it)
+    for (auto point : *points)
     {
         // get coords for current point
-        for (std::vector<double>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+        for (auto component : point)
         {
-            this->vertex_buffer_data[i] = *it2;
+            this->vertex_buffer_data[i] = component; // copy each x,y,z component from each point
             i++;
         }
     }
@@ -56,11 +56,11 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
     this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 density per vertex
     i = 0;
-    for (std::vector<std::vector<double> >::iterator it = (*densities).begin(); it != (*densities).end(); ++it)
+    for (auto density_vector : *densities)
     {
-        for (std::vector<double>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+        for (auto density : density_vector)
         {
-            this->vertex_attrib_data[0][i] = *it2;
+            this->vertex_attrib_data[0][i] = density; // density_vector should always just have 1 element, but this generalizes to any number of elements
             i++;
         }
     }

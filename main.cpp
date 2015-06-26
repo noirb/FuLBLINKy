@@ -15,6 +15,10 @@
 using namespace glm;
 using namespace CEGUI;
 
+/// TODO: This should not be global
+vtkLegacyReader vtkReader;
+bool vtkReaderHasNewData = false;
+
 // This function is called any time GLFW encounters an error
 static void error_callback(int error, const char* description)
 {
@@ -28,7 +32,9 @@ bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
 
     if (result == NFD_OKAY)
     {
-        std::cout << "File Open Success: '" << outPath << "'" << std::endl;
+        std::cout << "Opening file: '" << outPath << "'" << std::endl;
+        vtkReader.init(outPath);
+        vtkReaderHasNewData = true;
     }
     else if (result == NFD_CANCEL)
     {
@@ -154,7 +160,6 @@ int main(void)
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
 
-    vtkLegacyReader vtkReader = vtkLegacyReader("test.vtk");
     DomainParameters domainParameters;
     vtkReader.getDomainParameters(&domainParameters);
 
@@ -164,7 +169,6 @@ int main(void)
     axesRenderer.SetShader(axesShader);
     axesRenderer.PrepareGeometry();
     pointRenderer.SetShader(programID);
-    pointRenderer.PrepareGeometry(&(vtkReader));
 
 
     inputManager.UpdateCameraMatrices(0, 0); // ensure camera state is correctly initialized before we start rendering
@@ -173,6 +177,9 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         double curTime = glfwGetTime();
+        
+        if (vtkReaderHasNewData)
+            pointRenderer.PrepareGeometry(&(vtkReader));    /// TODO: This should be handled in a separate class, not hard-coded here
 
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

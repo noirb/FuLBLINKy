@@ -1,39 +1,56 @@
 CC = gcc
 CC+ = g++
 
+# final executable name
+BIN = fluid-vis
+BUILD_DIR = ./build
+
+# source files
+CSRC   = $(wildcard nativefiledialog/*.c)
+CPPSRC = main.cpp\
+        loadShaders.cpp\
+        $(wildcard dataProviders/*.cpp)\
+        $(wildcard input/*.cpp)\
+        $(wildcard rendering/*.cpp)\
+        $(wildcard shaders/*.cpp)
+
+
+CFLAGS   = -Wall -g
+CPPFLAGS = -Wall -g -std=c++11
+
+C_SRCFLAGS = -I./nativefiledialog/include/
+C_LDFLAGS = `pkg-config --cflags --libs gtk+-3.0`
+
 EXT_LDFLAGS  =
-VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0
+VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0 $(C_LDFLAGS)
 VIS_SRCFLAGS = -I/usr/local/include/cegui-0
 
-CFLAGS = -Wall -g -std=c++11
+OBJ_C = $(CSRC:%.c=$(BUILD_DIR)/%.o)
 
-.cpp.o:  ; $(CC) -c $(CFLAGS) $<
+OBJ_CPP = $(CPPSRC:%.cpp=$(BUILD_DIR)/%.o)
 
-OBJ =   loadShaders.o\
-        dataProviders/vtkLegacyReader.o\
-        input/input-mapping.o\
-        input/InputManager.o\
-        rendering/RenderableComponent.o\
-        rendering/PointRenderer.o\
-        rendering/AxesRenderer.o\
-        main.o
-       
+DEP = $(OBJ_C:%.o=%.d) $(OBJ_CPP:%.o=%.d)
 
-all:  $(OBJ)
-	$(CC+) -o fluid-vis $(OBJ)  $(CFLAGS) $(VIS_LDFLAGS)
+all : $(BIN)
 
-%.o : %.cpp
-	$(CC+) -c $(CFLAGS) $(VIS_SRCFLAGS) $*.cpp -o $*.o 
+#$(BIN) : $(BUILD_DIR)/$(BIN)
+
+$(BIN) : $(OBJ_C) $(OBJ_CPP)
+	mkdir -p $(@D)
+	$(CC+) $(CPPFLAGS) $^ -o $@ $(VIS_LDFLAGS)
+
+-include $(DEP)
+
+$(BUILD_DIR)/%.o : %.c
+	mkdir -p $(@D) 
+	$(CC) $(CFLAGS) $(C_SRCFLAGS) -MMD -c $< -o $@ $(C_LDFLAGS)
+
+$(BUILD_DIR)/%.o : %.cpp
+	mkdir -p $(@D)
+	$(CC+) $(CPPFLAGS) $(VIS_SRCFLAGS) -MMD -c $< -o $@
+
+.PHONY : clean
 
 clean:
-	rm $(OBJ) fluid-vis
-
-loadShaders.o         : loadShaders.hpp
-vtkLegacyReader.o     : dataProviders/vtkLegacyReader.hpp
-input-mapping.o       : input/input-mapping.hpp
-InputManager.o        : input/InputManager.hpp
-RenderableComponent.o : rendering/RenderableComponent.hpp
-PointRenderer.o       : rendering/PointRenderer.hpp rendering/RenderableComponent.hpp
-AxesRenderer.o        : rendering/AxesRenderer.hpp rendering/RenderableComponent.hpp
-main.o                : loadShaders.hpp
+	-rm $(BIN) $(OBJ_C) $(OBJ_CPP) $(DEP)
 

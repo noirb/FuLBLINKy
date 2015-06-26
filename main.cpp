@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "loadShaders.hpp"
+#include "nativefiledialog/include/nfd.h"
 #include "input/InputManager.hpp"
 #include "dataProviders/vtkLegacyReader.hpp"
 #include "rendering/PointRenderer.hpp"
@@ -14,12 +15,38 @@
 using namespace glm;
 using namespace CEGUI;
 
+/// TODO: This should not be global
+vtkLegacyReader vtkReader;
+bool vtkReaderHasNewData = false;
+
 // This function is called any time GLFW encounters an error
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
 }
 
+bool handle_loadvtkbtn_press(const CEGUI::EventArgs &e)
+{
+    nfdchar_t* outPath = NULL;
+    nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+    if (result == NFD_OKAY)
+    {
+        std::cout << "Opening file: '" << outPath << "'" << std::endl;
+        vtkReader.init(outPath);
+        vtkReaderHasNewData = true;
+    }
+    else if (result == NFD_CANCEL)
+    {
+        std::cout << "User pressed Cancel..." << std::endl;
+    }
+    else
+    {
+        std::cout << "ERROR: " << NFD_GetError() << std::endl;
+    }
+
+    return true;
+}
 
 // Do some general initialization stuff
 // This gets us a window we can draw to
@@ -67,19 +94,19 @@ void init_cegui(CEGUI::Window* guiRoot)
 {
     // set default resource paths
     CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
-    rp->setResourceGroupDirectory("schemes", "/usr/local/share/cegui-0/schemes/");
-    rp->setResourceGroupDirectory("imagesets", "/usr/local/share/cegui-0/imagesets/");
-    rp->setResourceGroupDirectory("fonts", "/usr/local/share/cegui-0/fonts/");
-    rp->setResourceGroupDirectory("layouts", "/usr/local/share/cegui-0/layouts/");
-    rp->setResourceGroupDirectory("looknfeels", "/usr/local/share/cegui-0/looknfeel");
-    rp->setResourceGroupDirectory("lua_scripts", "/usr/local/share/cegui-0/lua_scripts");
+    rp->setResourceGroupDirectory("schemes", "./cegui_layout/schemes/");
+    rp->setResourceGroupDirectory("imagesets", "./cegui_layout/imagesets/");
+    rp->setResourceGroupDirectory("fonts", "./cegui_layout/fonts/");
+    rp->setResourceGroupDirectory("layouts", "./cegui_layout/layouts/");
+    rp->setResourceGroupDirectory("looknfeels", "./cegui_layout/looknfeel");
+    rp->setResourceGroupDirectory("lua_scripts", "./cegui_layout/lua_scripts");
     CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
     CEGUI::Font::setDefaultResourceGroup("fonts");
     CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
     CEGUI::WindowManager::setDefaultResourceGroup("layouts");
     CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
     CEGUI::Scheme::setDefaultResourceGroup("schemes");
-    CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
 
     // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager
@@ -88,13 +115,12 @@ void init_cegui(CEGUI::Window* guiRoot)
 
     // set root window
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot); 
-    // create first 'real' window
-    CEGUI::FrameWindow* fWnd = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow", "testWindow"));
-    guiRoot->addChild(fWnd); 
-    fWnd->setPosition( UVector2(UDim(0.0f, 0.0f), UDim(0.2f, 0.0f)));
-    fWnd->setSize( USize(UDim(0.1f, 0.0f), UDim(0.05f, 0.0f)));
-    fWnd->setText("Hello, CEGUI!"); 
+    guiRoot->setMousePassThroughEnabled(true);
+    // load default window layout
+    CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
+    guiRoot->addChild(fWnd);
 
+    fWnd->getChildRecursive("LoadVTKbtn")->subscribeEvent(CEGUI::PushButton::EventClicked, handle_loadvtkbtn_press);
 }
 
 int main(void)
@@ -134,7 +160,6 @@ int main(void)
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
 
-    vtkLegacyReader vtkReader = vtkLegacyReader("test.vtk");
     DomainParameters domainParameters;
     vtkReader.getDomainParameters(&domainParameters);
 
@@ -144,7 +169,6 @@ int main(void)
     axesRenderer.SetShader(axesShader);
     axesRenderer.PrepareGeometry();
     pointRenderer.SetShader(programID);
-    pointRenderer.PrepareGeometry(&(vtkReader));
 
 
     inputManager.UpdateCameraMatrices(0, 0); // ensure camera state is correctly initialized before we start rendering
@@ -153,6 +177,9 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         double curTime = glfwGetTime();
+        
+        if (vtkReaderHasNewData)
+            pointRenderer.PrepareGeometry(&(vtkReader));    /// TODO: This should be handled in a separate class, not hard-coded here
 
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

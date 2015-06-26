@@ -166,13 +166,15 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
     // get a 'this' reference
     InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 
-    // inject movement to CEGUI
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(xpos - manager->mouseX, ypos - manager->mouseY);
-
     // update camera based on mouse movement if a mouse button is currently held
     if (manager->MousePressed())
     {
         manager->UpdateCameraMatrices(xpos - manager->mouseX, ypos - manager->mouseY);
+    }
+    else
+    {
+        // inject movement to CEGUI
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(xpos - manager->mouseX, ypos - manager->mouseY);
     }
 
     // store new positions
@@ -183,10 +185,16 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
 void InputManager::mouseButton_callback( GLFWwindow* window, int button, int action, int mods )
 {
     InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+    bool cegui_handled = false;
 
     // pass through to CEGUI
     if (action == GLFW_PRESS)
     {
+       if ( CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown( GlfwToCeguiButton(button) ) )
+       {
+            return; // if CEGUI handled the input, don't do anything else with it
+       }
+
        if (button == GLFW_MOUSE_BUTTON_RIGHT)
        {
             manager->_rightMouseDown = true;
@@ -198,10 +206,16 @@ void InputManager::mouseButton_callback( GLFWwindow* window, int button, int act
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
        }
 
-       CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown( GlfwToCeguiButton(button) );
     }
     else if (action == GLFW_RELEASE)
     {
+        // if we've captured input for rotation, don't talk to CEGUI
+       if (!manager->MousePressed())
+       {
+          if ( CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp( GlfwToCeguiButton(button) ) )
+            return; // if CEGUI handled the input, don't do anything else with it
+       }
+
        if (button == GLFW_MOUSE_BUTTON_RIGHT)
        {
             manager->_rightMouseDown = false;
@@ -213,7 +227,9 @@ void InputManager::mouseButton_callback( GLFWwindow* window, int button, int act
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
        }
 
-       CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp( GlfwToCeguiButton(button) );
+        // reset CEGUI's mouse position in case we're out of sync, now
+        CEGUI::Vector2<float> cegMousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(manager->mouseX - cegMousePos.d_x, manager->mouseY - cegMousePos.d_y);
     }
 
 }

@@ -69,7 +69,7 @@ void init(GLFWwindow** window)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // don't give us old ogl 2.0 stuff
 
-    *window = glfwCreateWindow(1024, 768, "Simple OpenGL Sample", NULL, NULL);
+    *window = glfwCreateWindow(1024, 768, "Best. Fluid Visualizer. Ever.", NULL, NULL);
     if (!*window)
     {
         fprintf(stderr, "ERROR: Failed to open GLFW Window!\n");

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="HorizontalLayoutContainer" name="HorizontalLayoutContainer" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="MousePassThroughEnabled" value="true" />
+        <Window type="AlfiskoSkin/FrameWindow" name="FrameWindow" >
+            <Property name="Area" value="{{0,1},{0,0},{0.3,-36},{0.3,-162}}" />
+            <Property name="AspectMode" value="Expand" />
+            <Property name="AspectRatio" value="5" />
+            <Property name="RollUpEnabled" value="false" />
+            <Property name="TitlebarEnabled" value="false" />
+            <Property name="CloseButtonEnabled" value="false" />
+            <AutoWindow namePath="__auto_titlebar__" >
+                <Property name="AlwaysOnTop" value="false" />
+            </AutoWindow>
+            <Window type="AlfiskoSkin/Label" name="Label" >
+                <Property name="Area" value="{{0,167},{0,8},{0,295},{0,40}}" />
+                <Property name="Text" value="Timestep:" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="AlfiskoSkin/Button" name="Button" >
+                <Property name="Area" value="{{0,10},{0,7},{0,106},{0,39}}" />
+                <Property name="Text" value="Load VTK" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

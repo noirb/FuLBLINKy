@@ -67,19 +67,19 @@ void init_cegui(CEGUI::Window* guiRoot)
 {
     // set default resource paths
     CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
-    rp->setResourceGroupDirectory("schemes", "/usr/local/share/cegui-0/schemes/");
-    rp->setResourceGroupDirectory("imagesets", "/usr/local/share/cegui-0/imagesets/");
-    rp->setResourceGroupDirectory("fonts", "/usr/local/share/cegui-0/fonts/");
-    rp->setResourceGroupDirectory("layouts", "/usr/local/share/cegui-0/layouts/");
-    rp->setResourceGroupDirectory("looknfeels", "/usr/local/share/cegui-0/looknfeel");
-    rp->setResourceGroupDirectory("lua_scripts", "/usr/local/share/cegui-0/lua_scripts");
+    rp->setResourceGroupDirectory("schemes", "./cegui_layout/schemes/");
+    rp->setResourceGroupDirectory("imagesets", "./cegui_layout/imagesets/");
+    rp->setResourceGroupDirectory("fonts", "./cegui_layout/fonts/");
+    rp->setResourceGroupDirectory("layouts", "./cegui_layout/layouts/");
+    rp->setResourceGroupDirectory("looknfeels", "./cegui_layout/looknfeel");
+    rp->setResourceGroupDirectory("lua_scripts", "./cegui_layout/lua_scripts");
     CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
     CEGUI::Font::setDefaultResourceGroup("fonts");
     CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
     CEGUI::WindowManager::setDefaultResourceGroup("layouts");
     CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
     CEGUI::Scheme::setDefaultResourceGroup("schemes");
-    CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
 
     // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager
@@ -88,13 +88,9 @@ void init_cegui(CEGUI::Window* guiRoot)
 
     // set root window
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot); 
-    // create first 'real' window
-    CEGUI::FrameWindow* fWnd = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow", "testWindow"));
+    // load default window layout
+    CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
     guiRoot->addChild(fWnd); 
-    fWnd->setPosition( UVector2(UDim(0.0f, 0.0f), UDim(0.2f, 0.0f)));
-    fWnd->setSize( USize(UDim(0.1f, 0.0f), UDim(0.05f, 0.0f)));
-    fWnd->setText("Hello, CEGUI!"); 
-
 }
 
 int main(void)

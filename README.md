@@ -5,6 +5,7 @@ A fluid flow visualization program focused on 3D fluid data.
   - GLFW3      (http://www.glfw.org/)
   - GLM        (http://glm.g-truc.net/0.9.6/index.html)
   - CEGUI 0.8+ (http://cegui.org.uk/)
+  - GTK 3.0+
   - A graphics driver compatible with OpenGL 3.3+
 
 # Build Instructions - Linux

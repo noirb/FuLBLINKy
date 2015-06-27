@@ -21,6 +21,10 @@ class RenderableComponent
 
         void SetShader(GLuint programID);
 
+        void Enable();
+
+        void Disable();
+
     protected:
         GLfloat*  vertex_buffer_data;  // vertex data specific to this renderer
         GLfloat** vertex_attrib_data;  // collection of vertex attributes (e.g. color, density, etc)
@@ -29,6 +33,7 @@ class RenderableComponent
         GLuint VAO;                   // Vertex Array Object
         int totalVertices = 0;        // Total # of vertices this object will draw each frame
         int totalAttributes = 0;
+        bool enabled;
 };
 
 #endif

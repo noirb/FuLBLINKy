@@ -11,6 +11,9 @@
 #include "AxesRenderer.hpp"
 #include "PointRenderer.hpp"
 
+
+
+
 /* ----------------------------------------------------------------- */
 /* A lazy singleton used to manage the state of the rendering system */
 /* and organize drawing.                                             */
@@ -24,6 +27,11 @@ class Compositor
             static Compositor _compositor;
             return _compositor;
         }
+
+        enum Renderers {
+            RENDERER_AXES,
+            RENDERER_POINTS
+        };
 
         // Begins render loop
         void Start();
@@ -42,6 +50,8 @@ class Compositor
         void DisplayChanged(int width, int height);
 
         void AddRenderer(RenderableComponent*);
+
+        void AddRenderer(Renderers);
 
     private:
         Compositor();
@@ -65,6 +75,12 @@ class Compositor
         void InitGUI(CEGUI::Window*);
         void InitShaders();
         void UpdateRenderers(DataProvider*);
+
+        // must correspond with the Renderers enum above
+        std::vector<std::string> RendererStrs = {
+            "Axes",
+            "Points"
+        };
 };
 
 #endif

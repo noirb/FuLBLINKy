@@ -19,3 +19,13 @@ void RenderableComponent::SetShader(GLuint programID)
     this->shaderProgram = programID;
 }
 
+void RenderableComponent::Enable()
+{
+    this->enabled = true;
+}
+
+void RenderableComponent::Disable()
+{
+    this->enabled = false;
+}
+

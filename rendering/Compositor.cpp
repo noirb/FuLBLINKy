@@ -14,15 +14,8 @@ void Compositor::Start()
     // set up GUI
     this->guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
     this->guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
-    this->InitGUI(guiRoot);
     this->InitShaders();
-
-    /// FIXME: These are manually added here just for testing. Remove them someday.
-    this->_renderers.push_back(new AxesRenderer());
-    this->_renderers.back()->SetShader(this->_axesShader);
-    this->_renderers.back()->PrepareGeometry(NULL);
-    this->_renderers.push_back(new PointRenderer());
-    this->_renderers.back()->SetShader(this->_scalarMapShader);
+    this->InitGUI(guiRoot);
 
     this->running = true;
 
@@ -35,6 +28,10 @@ void Compositor::Start()
         this->lastFrameTime = glfwGetTime();
     }
 */
+    // add default axes renderer
+    this->AddRenderer(RENDERER_AXES);
+    // add point renderer
+    this->AddRenderer(RENDERER_POINTS);
 }
 
 void Compositor::ShutDown()
@@ -60,6 +57,54 @@ void Compositor::DisplayChanged(int width, int height)
 void Compositor::AddRenderer(RenderableComponent* renderer)
 {
     this->_renderers.push_back(renderer);
+}
+
+void Compositor::AddRenderer(Renderers rendererType)
+{
+    RenderableComponent* newRenderer;
+    std::string rendererName;
+
+    switch (rendererType)
+    {
+        case RENDERER_AXES:
+            newRenderer = new AxesRenderer();
+            newRenderer->SetShader(this->_axesShader);
+            newRenderer->PrepareGeometry(NULL);
+            break;
+        case RENDERER_POINTS:
+            newRenderer = new PointRenderer();
+            newRenderer->SetShader(this->_scalarMapShader);
+            break;
+        default:
+            std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
+            return;
+    }
+
+    rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
+
+    // Add UI controls for the new renderer
+    CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
+    CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", rendererName));
+    entries_container->addChild(rWnd);
+    rWnd->setText(rendererName);
+    rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
+    rWnd->setSelected(true);
+
+    // subscribe to CheckStateChanged so we know when the renderer is enabled/disabled
+    rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
+                    [rWnd, newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            if (rWnd->isSelected())
+                                newRenderer->Enable();
+                            else
+                                newRenderer->Disable();
+                            return true;
+                        }
+    );
+
+    // add new renderer to compositor
+    newRenderer->Enable();
+    this->AddRenderer(newRenderer);
 }
 
 void Compositor::InitGUI(CEGUI::Window* guiRoot)
@@ -115,26 +160,11 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
-    CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(fWnd->getChildRecursive("renderers_container"));
-
-    CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", "renderer_1"));
-    entries_container->addChild(rWnd);
-    rWnd->setText("AxesRenderer");
-    rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
-
-    CEGUI::ToggleButton* rWnd2 = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", "renderer_2"));
-    entries_container->addChild(rWnd2);
-    rWnd2->setText("PointRenderer");
-    rWnd2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
-
-    entries_container->update(0.5f);
     // set mouse cursor
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
     guiRoot->setMouseCursor("TaharezLook/MouseArrow");
     fWnd->setMouseCursor("TaharezLook/MouseArrow");
 
-    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(1024, 768));
-    guiRoot->invalidate(true);
 }
 
 void Compositor::InitShaders()

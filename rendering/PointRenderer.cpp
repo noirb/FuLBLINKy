@@ -113,6 +113,8 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
 
 void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
 {
+    if (!this->enabled) { return; }
+
     // if we have no shaders, vertices, etc., we can't render anything
     if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
     {

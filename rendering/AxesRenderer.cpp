@@ -53,6 +53,8 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
 
 void AxesRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
 {
+    if (!this->enabled) { return; }
+
     if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
     {
         std::cout << "AxesRenderer::Draw FAILED" << std::endl;

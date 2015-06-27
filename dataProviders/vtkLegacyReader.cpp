@@ -1,4 +1,5 @@
 #include "vtkLegacyReader.hpp"
+#include <algorithm>
 
 vtkLegacyReader::vtkLegacyReader()
 {
@@ -47,6 +48,12 @@ void vtkLegacyReader::init(std::string filename)
     {
         this->timestep = -1;
     }
+
+    // if we found a timestep number, try to find other files from different timesteps
+    if (this->timestep >= 0)
+        this->maxTimesteps = this->GetTimeStepsInDir(filename.substr(0, filename.find_last_of("/")), this->GetBaseFilename());
+    if (this->maxTimesteps > 1)
+        this->timestep = std::find(this->timestepFilePaths.begin(), this->timestepFilePaths.end(), this->GetFilePath()) - this->timestepFilePaths.begin();
 
     // open file & read in domain parameters
     std::ifstream file(filename.c_str());
@@ -168,9 +175,70 @@ void vtkLegacyReader::init(std::string filename)
     }
 }
 
+std::string vtkLegacyReader::GetBaseFilename()
+{
+    // filter directory
+    std::string result = this->filename.substr(this->filename.find_last_of("/")+1);
+    // filter extension
+    result = result.substr(0, result.find_last_of("."));
+    // filter last .timestep
+    result = result.substr(0, result.find_last_of("."));
+
+    return result;
+}
+
+std::string vtkLegacyReader::GetFileDir()
+{
+    return this->filename.substr(0, this->filename.find_last_of("/")+1);
+}
+
+int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
+{
+    struct dirent** filenames;
+    int res = scandir(directoryName.c_str(),
+                      &filenames,
+                      0,
+                      alphasort);
+    if (res < 0)
+    {
+        std::cout << "Error scanning directory: " << directoryName << std::endl;
+    }
+    else
+    {
+        this->timestepFilePaths.clear();
+        while (res--)
+        {
+            std::string entry = std::string(filenames[res]->d_name);
+            if (entry.find(baseFileName) != std::string::npos &&
+                entry.substr(entry.find_last_of(".")+1) == "vtk")
+            {
+                this->timestepFilePaths.push_back(directoryName + "/" + std::string(filenames[res]->d_name));
+            }
+            free(filenames[res]);
+        }
+        free(filenames);
+    }
+    std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
+        [](std::string const& a, std::string const & b)
+        {
+            // compare timestep values, not filenames
+            std::string a_trimmed = a.substr(a.find_last_of("/")+1);
+            a_trimmed = a_trimmed.substr(0, a_trimmed.find_last_of("."));
+            a_trimmed = a_trimmed.substr(a_trimmed.find_last_of(".")+1);
+            std::string b_trimmed = b.substr(b.find_last_of("/")+1);
+            b_trimmed = b_trimmed.substr(0, b_trimmed.find_last_of("."));
+            b_trimmed = b_trimmed.substr(b_trimmed.find_last_of(".")+1);
+            return std::stoi(a_trimmed) < std::stoi(b_trimmed);
+        }
+    );
+
+    return this->timestepFilePaths.size();
+}
+
 // returns a struct containing all the details about the domain
 void vtkLegacyReader::getDomainParameters(DomainParameters* parameters)
 {
+    parameters = &(this->domainParameters);
 }
 
 // writes the data corresponding to the given field to the array passed in data
@@ -182,18 +250,23 @@ template<typename T> void vtkLegacyReader::getField(std::string field, T* data)
 // tells the reader to load data from the next timestep
 void vtkLegacyReader::NextTimeStep()
 {
-    if (this->timestep < this->maxTimesteps)
+    if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
+
+    if (this->timestep < this->maxTimesteps-1)
     {
         this->timestep += 1;
+        this->init(this->timestepFilePaths[this->timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
     }
 }
 
 // tells the reader to load data from the previous timestep
 void vtkLegacyReader::PrevTimeStep()
 {
+    if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
     if (this->timestep > 0)
     {
         this->timestep -= 1;
+        this->init(this->timestepFilePaths[this->timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
     }
 }
 
@@ -207,6 +280,24 @@ void vtkLegacyReader::SetTimeStep(int step)
 int vtkLegacyReader::GetTimeStep()
 {
     return this->timestep;
+}
+
+// gets maximal timestep
+int vtkLegacyReader::GetMaxTimeStep()
+{
+    return this->maxTimesteps;
+}
+
+// gets the filename of the file we're currently looking at
+std::string vtkLegacyReader::GetFileName()
+{
+    return this->filename.substr(this->filename.find_last_of("/")+1);
+}
+
+// gets the full file path of the file we're currently looking at
+std::string vtkLegacyReader::GetFilePath()
+{
+    return this->filename;
 }
 
 // retrieves data for the given field

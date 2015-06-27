@@ -69,12 +69,16 @@ class Compositor
 
         std::vector<RenderableComponent* > _renderers;
         
+        DataProvider* _dataProvider;
+
         double lastFrameTime; // time when the last frame was drawn
         bool running = false;
 
         void InitGUI(CEGUI::Window*);
         void InitShaders();
         void UpdateRenderers(DataProvider*);
+        void LoadVTK(std::string, CEGUI::Window*);
+        void UpdateDataGUI(CEGUI::Window*);
 
         // must correspond with the Renderers enum above
         std::vector<std::string> RendererStrs = {

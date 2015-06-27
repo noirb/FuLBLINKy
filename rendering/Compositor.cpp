@@ -137,24 +137,17 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
     guiRoot->addChild(fWnd);
     CEGUI::Window* data_window = fWnd->getChildRecursive("data_window"); // main window holding timestep controls, etc.
-    CEGUI::Window* timestep_label = fWnd->getChildRecursive("lblTimestep");
+
+    // Configure the Load VTK button
     fWnd->getChildRecursive("LoadVTKbtn")->subscribeEvent(CEGUI::PushButton::EventClicked, 
-                         [this, timestep_label, data_window](const CEGUI::EventArgs &e)->bool {
+                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             nfdchar_t* outPath = NULL;
                             nfdresult_t result = NFD_OpenDialog("vtk", NULL, &outPath);
 
                             if (result == NFD_OKAY)
                             {
                                 std::cout << "Opening file: '" << outPath << "'" << std::endl;
-                                std::string outPathstr = std::string(outPath);
-                                vtkLegacyReader vtkReader = vtkLegacyReader(outPath);
-                                data_window->setText(outPathstr.substr(outPathstr.find_last_of("/")+1));
-                                if (vtkReader.GetTimeStep() >= 0)
-                                    timestep_label->setText(std::to_string(vtkReader.GetTimeStep()));
-                                else
-                                    timestep_label->setText("N/A");
-
-                                this->UpdateRenderers(&vtkReader);
+                                this->LoadVTK(outPath, data_window);
                             }
                             else if (result == NFD_CANCEL)
                             {
@@ -164,6 +157,22 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                             {
                                 std::cout << "ERROR: " << NFD_GetError() << std::endl;
                             }
+                            return true;
+                        }
+    );
+
+    // Configure the next & previous timestep buttons
+    fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, data_window](const CEGUI::EventArgs &e)->bool {
+                            this->_dataProvider->NextTimeStep();
+                            this->UpdateDataGUI(data_window);
+                            return true;
+                        }
+    );
+    fWnd->getChildRecursive("btnPrevTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, data_window](const CEGUI::EventArgs &e)->bool {
+                            this->_dataProvider->PrevTimeStep();
+                            this->UpdateDataGUI(data_window);
                             return true;
                         }
     );
@@ -181,6 +190,53 @@ void Compositor::InitShaders()
     this->_scalarMapShader = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
     this->_axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
     this->mvpID = glGetUniformLocation(_scalarMapShader, "MVP");
+}
+
+void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
+{
+    if (this->_dataProvider)
+    {
+        delete this->_dataProvider;
+    }
+
+    this->_dataProvider = new vtkLegacyReader(filename);
+    vtkWindowRoot->setText(filename.substr(filename.find_last_of("/")+1));
+
+    CEGUI::Window* timestep_label = vtkWindowRoot->getChildRecursive("lblTimestep");
+    CEGUI::Window* maxTimestep_label = vtkWindowRoot->getChildRecursive("lblMaxTimestep");
+
+    if (this->_dataProvider->GetTimeStep() >= 0)
+        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
+    else
+        timestep_label->setText("N/A");
+
+    if (this->_dataProvider->GetMaxTimeStep() >= 0)
+        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep()));
+    else
+        timestep_label->setText("∞");
+
+    this->UpdateRenderers(this->_dataProvider);
+}
+
+void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
+{
+    // check to see if our dataProvider is a vtkLegacyReader
+    vtkLegacyReader* legacyReader = dynamic_cast<vtkLegacyReader*>(this->_dataProvider);
+    if (!legacyReader)
+    {
+        return; /// TODO: When we have other providers, handle them!
+    }
+
+    dataWindowRoot->setText(legacyReader->GetFileName()); //filename.substr(filename.find_last_of("/")+1));
+
+    CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
+
+    if (this->_dataProvider->GetTimeStep() >= 0)
+        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
+    else
+        timestep_label->setText("N/A");
+
+    this->UpdateRenderers(this->_dataProvider);
 }
 
 void Compositor::UpdateRenderers(DataProvider* provider)

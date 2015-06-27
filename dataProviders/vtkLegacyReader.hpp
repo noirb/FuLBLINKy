@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <cstring>
+#include <dirent.h>
 
 #include "DataProvider.hpp"
 #include "DomainParameters.h"
@@ -31,16 +32,25 @@ class vtkLegacyReader : public DataProvider
         void NextTimeStep();
 
         // tells the reader to load data from the previous timestep
-        void PrevTimeStep();
+        virtual void PrevTimeStep();
 
         // tells the reader to load data from the specified timestep
-        void SetTimeStep(int step);
+        virtual void SetTimeStep(int step);
 
         // gets the current timestep from the reader
         int GetTimeStep();
 
+        // gets the highest known timestep
+        virtual int GetMaxTimeStep();
+
         // retrieves data for the given field and returns a pointer in fieldData. Returns 0 on success, -1 on failure.
         virtual int GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData);
+
+        // retrieves the file name the reader is currently handling
+        std::string GetFileName();
+
+        // retrives the full file path of the file the reader is currently handling
+        std::string GetFilePath();
 
         // gets a list of all fields available
         virtual std::vector<std::string> GetFieldNames();
@@ -50,6 +60,7 @@ class vtkLegacyReader : public DataProvider
     private:
         DomainParameters domainParameters;
         std::string filename;
+        std::vector<std::string> timestepFilePaths;
 
         std::map<std::string, std::vector<std::vector<double> > > domainFields;
         std::map<std::string, int> fieldDimensions;
@@ -57,7 +68,11 @@ class vtkLegacyReader : public DataProvider
 
         int timestep;
         int maxTimesteps;
-
+        
+        // for a file '/dir/problem.timestep.vtk', this returns 'problem'
+        std::string GetBaseFilename();
+        std::string GetFileDir();
+        int GetTimeStepsInDir(std::string, std::string);
 };
 
 #endif

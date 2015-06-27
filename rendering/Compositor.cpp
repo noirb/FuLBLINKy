@@ -136,17 +136,19 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     // load default window layout
     CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
     guiRoot->addChild(fWnd);
+    CEGUI::Window* data_window = fWnd->getChildRecursive("data_window"); // main window holding timestep controls, etc.
     CEGUI::Window* timestep_label = fWnd->getChildRecursive("lblTimestep");
     fWnd->getChildRecursive("LoadVTKbtn")->subscribeEvent(CEGUI::PushButton::EventClicked, 
-                         [this, timestep_label](const CEGUI::EventArgs &e)->bool {
+                         [this, timestep_label, data_window](const CEGUI::EventArgs &e)->bool {
                             nfdchar_t* outPath = NULL;
                             nfdresult_t result = NFD_OpenDialog("vtk", NULL, &outPath);
 
                             if (result == NFD_OKAY)
                             {
                                 std::cout << "Opening file: '" << outPath << "'" << std::endl;
-
+                                std::string outPathstr = std::string(outPath);
                                 vtkLegacyReader vtkReader = vtkLegacyReader(outPath);
+                                data_window->setText(outPathstr.substr(outPathstr.find_last_of("/")+1));
                                 if (vtkReader.GetTimeStep() >= 0)
                                     timestep_label->setText(std::to_string(vtkReader.GetTimeStep()));
                                 else

@@ -17,6 +17,37 @@ void vtkLegacyReader::init(std::string filename)
     this->filename = filename;
     std::cout << "Parsing file: " << filename << std::endl;
 
+    // get timestep from filename
+    int len = filename.length();
+    std::string timestep = "";
+    bool hitLastDot = false;
+    for (int i = len-1; i >= 0; i--)
+    {
+        if (filename[i] == '.' && !hitLastDot)
+        {
+            hitLastDot = true;
+            continue;
+        }
+        else if (filename[i] == '.' && hitLastDot)
+        {
+            break;
+        }
+        else if (hitLastDot)
+        {
+            timestep = filename[i] + timestep;
+        }
+    }
+
+    // try to parse timestep; if we didn't get a number, set it to -1 to indicate we don't know the current timestep
+    try
+    {
+        this->timestep = std::stoi(timestep);
+    }
+    catch(const std::invalid_argument&)
+    {
+        this->timestep = -1;
+    }
+
     // open file & read in domain parameters
     std::ifstream file(filename.c_str());
     std::string line;
@@ -193,4 +224,14 @@ int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<dou
     }
 
     return 0;
+}
+
+std::vector<std::string> vtkLegacyReader::GetFieldNames()
+{
+    return this->fieldNames;
+}
+
+int vtkLegacyReader::GetFieldDimension(std::string fieldName)
+{
+    return this->fieldDimensions[fieldName];
 }

@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <cstring>
 
 #include "DataProvider.hpp"
 #include "DomainParameters.h"
@@ -41,11 +42,17 @@ class vtkLegacyReader : public DataProvider
         // retrieves data for the given field and returns a pointer in fieldData. Returns 0 on success, -1 on failure.
         virtual int GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData);
 
+        // gets a list of all fields available
+        virtual std::vector<std::string> GetFieldNames();
+
+        virtual int GetFieldDimension(std::string);
+
     private:
         DomainParameters domainParameters;
         std::string filename;
 
         std::map<std::string, std::vector<std::vector<double> > > domainFields;
+        std::map<std::string, int> fieldDimensions;
         std::vector<std::string> fieldNames;
 
         int timestep;

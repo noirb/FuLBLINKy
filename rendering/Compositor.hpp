@@ -38,6 +38,9 @@ class Compositor
 
         void UpdateCamera();
 
+        // used to notify compositor that the rendering area has changed somehow (window resized, etc)
+        void DisplayChanged(int width, int height);
+
         void AddRenderer(RenderableComponent*);
 
     private:
@@ -55,7 +58,7 @@ class Compositor
         GLuint _scalarMapShader;
 
         std::vector<RenderableComponent* > _renderers;
-
+        
         double lastFrameTime; // time when the last frame was drawn
         bool running = false;
 

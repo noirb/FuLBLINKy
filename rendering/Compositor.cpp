@@ -52,6 +52,11 @@ void Compositor::UpdateCamera()
 
 }
 
+void Compositor::DisplayChanged(int width, int height)
+{
+    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(width, height));
+}
+
 void Compositor::AddRenderer(RenderableComponent* renderer)
 {
     this->_renderers.push_back(renderer);
@@ -73,9 +78,9 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     CEGUI::WindowManager::setDefaultResourceGroup("layouts");
     CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
     CEGUI::Scheme::setDefaultResourceGroup("schemes");
-    CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
-
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("TaharezLook/Tooltip");
     // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(-mousePos.d_x, -mousePos.d_y);
@@ -109,6 +114,27 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                             return true;
                         }
     );
+
+    CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(fWnd->getChildRecursive("renderers_container"));
+
+    CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", "renderer_1"));
+    entries_container->addChild(rWnd);
+    rWnd->setText("AxesRenderer");
+    rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
+
+    CEGUI::ToggleButton* rWnd2 = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", "renderer_2"));
+    entries_container->addChild(rWnd2);
+    rWnd2->setText("PointRenderer");
+    rWnd2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
+
+    entries_container->update(0.5f);
+    // set mouse cursor
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
+    guiRoot->setMouseCursor("TaharezLook/MouseArrow");
+    fWnd->setMouseCursor("TaharezLook/MouseArrow");
+
+    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(1024, 768));
+    guiRoot->invalidate(true);
 }
 
 void Compositor::InitShaders()
@@ -129,8 +155,13 @@ void Compositor::UpdateRenderers(DataProvider* provider)
 
 void Compositor::Render(glm::mat4 MVP)
 {
+    // tell CEGUI how long its been since the last frame
+    double dt = this->DeltaTime();
+    CEGUI::System::getSingleton().injectTimePulse(dt);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(dt);
     this->lastFrameTime = glfwGetTime();
 
+    glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (auto r : this->_renderers)
@@ -138,6 +169,7 @@ void Compositor::Render(glm::mat4 MVP)
         r->Draw(MVP, this->mvpID);
     }
 
+    glDisable(GL_DEPTH_TEST); // no depth testing for GUIs
     // render GUI -- must be the LAST drawing call we make!
     CEGUI::System::getSingleton().renderAllGUIContexts();
 }

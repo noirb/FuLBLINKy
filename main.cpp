@@ -87,9 +87,6 @@ int main(void)
         glfwSwapBuffers(window);
         // check for new events (key presses, etc)
         glfwPollEvents();
-
-        // tell CEGUI how long its been since the last frame
-        CEGUI::System::getSingleton().injectTimePulse(Compositor::Instance().DeltaTime());
     }
 
     glfwDestroyWindow(window);

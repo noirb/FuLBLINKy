@@ -36,7 +36,10 @@ class InputManager
         static void mouseMove_callback( GLFWwindow* window, double xpos, double ypos );
         static void mouseButton_callback( GLFWwindow* window, int button, int action, int mods );
         static void scroll_callback( GLFWwindow* window, double xoffset, double yoffset );
-        
+        static void window_size_callback( GLFWwindow* window, int width, int height );
+        static void framebuffer_size_callback( GLFWwindow* window, int width, int height );
+
+        void ResetCEGUIMousePos();        
     public:
         // default constructor, will leave all events unassigned
         InputManager();
@@ -74,6 +77,12 @@ class InputManager
 
         // called when a scroll event (e.g. mouse wheel) occurs
         GLFWscrollfun addScrollCallback( GLFWwindow* window );
+
+        // called when the window changes size
+        GLFWwindowsizefun addWindowSizeCallback( GLFWwindow* window );
+
+        // called when the framebuffer changes size
+        GLFWframebuffersizefun addFramebufferSizeCallback( GLFWwindow* window );
 };
 
 #endif

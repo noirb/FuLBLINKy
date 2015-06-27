@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="DefaultWindow" >
+        <Property name="Area" value="{{0,0},{0,0},{1,-917},{1,-726}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="TaharezLook/Button" name="renderer_enabled" >
+            <Property name="Area" value="{{0,0},{0,0},{0,96},{0,32}}" />
+        </Window>
+    </Window>
+</GUILayout>

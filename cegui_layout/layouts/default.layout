@@ -1,27 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="HorizontalLayoutContainer" name="HorizontalLayoutContainer" >
+    <Window type="VerticalLayoutContainer" name="mainMenuContainer" >
         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
         <Property name="MousePassThroughEnabled" value="true" />
-        <Window type="AlfiskoSkin/FrameWindow" name="FrameWindow" >
-            <Property name="Area" value="{{0,1},{0,0},{0.3,-36},{0.3,-162}}" />
-            <Property name="AspectMode" value="Expand" />
-            <Property name="AspectRatio" value="5" />
+        <Window type="TaharezLook/FrameWindow" name="data_window" >
+            <Property name="Area" value="{{0,0},{0,0},{0.3,-90},{0.3,-139}}" />
             <Property name="RollUpEnabled" value="false" />
-            <Property name="TitlebarEnabled" value="false" />
+            <Property name="SizingEnabled" value="false" />
+            <Property name="DragMovingEnabled" value="false" />
             <Property name="CloseButtonEnabled" value="false" />
             <AutoWindow namePath="__auto_titlebar__" >
-                <Property name="AlwaysOnTop" value="false" />
+                <Property name="DraggingEnabled" value="false" />
             </AutoWindow>
-            <Window type="AlfiskoSkin/Label" name="Timesteplbl" >
-                <Property name="Area" value="{{0,167},{0,8},{0,295},{0,40}}" />
-                <Property name="Text" value="Timestep:" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="AlfiskoSkin/Button" name="LoadVTKbtn" >
-                <Property name="Area" value="{{0,10},{0,7},{0,106},{0,39}}" />
+            <Window type="TaharezLook/Button" name="LoadVTKbtn" >
+                <Property name="Area" value="{{0,15},{0,12},{0,111},{0,44}}" />
                 <Property name="Text" value="Load VTK" />
+                <Property name="TooltipText" value="Import a VTK File for visualization" />
+            </Window>
+        </Window>
+        <Window type="TaharezLook/FrameWindow" name="renderers_window" >
+            <Property name="Area" value="{{0,2},{0,126},{0.3,-81},{0.3,221}}" />
+            <Property name="Text" value="Renderers" />
+            <Property name="DragMovingEnabled" value="false" />
+            <Property name="CloseButtonEnabled" value="false" />
+            <AutoWindow namePath="__auto_titlebar__" >
+                <Property name="DraggingEnabled" value="false" />
+            </AutoWindow>
+            <Window type="VerticalLayoutContainer" name="renderers_container" >
+                <Property name="Area" value="{{0,1},{0,0},{1,1},{1,0}}" />
+                <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
             </Window>
         </Window>
     </Window>

@@ -235,7 +235,7 @@ void InputManager::mouseButton_callback( GLFWwindow* window, int button, int act
     }
     else if (action == GLFW_RELEASE)
     {
-       bool cegui_caught_input;
+       bool cegui_caught_input = false;
         // if we've captured input for rotation, don't talk to CEGUI
        if (!manager->MousePressed())
        {

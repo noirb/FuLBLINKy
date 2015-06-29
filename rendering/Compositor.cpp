@@ -282,9 +282,13 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
 void Compositor::InitShaders()
 {
     // load our vertex & fragment shaders so they're ready & compiled when we need them
-    this->_scalarMapShader = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
     this->_axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
+    this->_scalarMapShader = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
     this->mvpID = glGetUniformLocation(_scalarMapShader, "MVP");
+    this->scalarMinID = glGetUniformLocation(_scalarMapShader, "min_scalar");
+    this->scalarMaxID = glGetUniformLocation(_scalarMapShader, "max_scalar");
+
+    std::cout << "Uniform IDs: MVP(" << this->mvpID << "), Min(" << this->scalarMinID << "), Max(" << this->scalarMaxID << ")" << std::endl;
 }
 
 void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)

@@ -2,13 +2,16 @@
 layout(origin_upper_left) in vec4 gl_FragCoord;
 varying float scalarValue;
 
-out vec3 color;
+uniform float max_scalar;
+uniform float min_scalar;
+
+out vec4 color;
 
 void main()
 {
-    vec3 coldColor = vec3(0, 0.2, 0.5);
-    vec3 hotColor  = vec3(1, 0.4, 0.1);
+    vec4 coldColor = vec4(0, 0.2, 0.5, 1.0);
+    vec4 hotColor  = vec4(1, 0.4, 0.1, 1.0);
 
-    float a = (scalarValue - 0.989) / 0.04; // scale our input to a range around 0..1 (assumes density-like values)
+    float a = (scalarValue - min_scalar) / (max_scalar - min_scalar);
     color = mix(coldColor, hotColor, a);
 }

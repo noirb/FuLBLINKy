@@ -145,6 +145,9 @@ void vtkLegacyReader::init(std::string filename)
         {
             std::stringstream ptDataStream;
             std::string fieldName;
+            double minScalarVal = std::numeric_limits<double>::max();
+            double maxScalarVal = std::numeric_limits<double>::lowest();
+
             lineStream >> fieldName; // get next word on line for fieldName
 
             this->fieldNames.push_back(fieldName);
@@ -165,17 +168,26 @@ void vtkLegacyReader::init(std::string filename)
             {
                 double tmp;
                 std::vector<double> tmpv;
+                double tmpMag = 0;
                 std::stringstream dataStream;
                 dataStream << line;
                 while (dataStream >> tmp)
                 {
                     tmpv.push_back(tmp);
+                    tmpMag += tmp*tmp;
                 }
                 this->domainFields[fieldName].push_back(tmpv);
+
+                // check to see if the magnitude of the data at this point is larger/smaller than our current max/min
+                tmpMag = sqrt(tmpMag);
+                minScalarVal = tmpMag < minScalarVal ? tmpMag : minScalarVal;
+                maxScalarVal = tmpMag > maxScalarVal ? tmpMag : maxScalarVal;
 
                 getline(file, line, '\n');
                 lineNumber++;
             }
+            this->minFieldValues[fieldName] = minScalarVal;
+            this->maxFieldValues[fieldName] = maxScalarVal;
             continue;
         }
         // parse cell data field
@@ -299,6 +311,16 @@ int vtkLegacyReader::GetTimeStep()
 int vtkLegacyReader::GetMaxTimeStep()
 {
     return this->maxTimesteps;
+}
+
+double vtkLegacyReader::GetMinValueFromField(std::string fieldName)
+{
+    return this->minFieldValues[fieldName];
+}
+
+double vtkLegacyReader::GetMaxValueFromField(std::string fieldName)
+{
+    return this->maxFieldValues[fieldName];
 }
 
 // gets the filename of the file we're currently looking at

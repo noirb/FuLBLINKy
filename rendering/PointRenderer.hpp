@@ -13,7 +13,8 @@ class PointRenderer: public RenderableComponent
         virtual void Draw(glm::mat4 MVP, GLuint MVP_ID);
 
     private:
-
+        double maxGradientValue;
+        double minGradientValue;
 };
 
 #endif

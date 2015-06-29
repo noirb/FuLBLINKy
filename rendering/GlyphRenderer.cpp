@@ -151,6 +151,10 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
+
+    // save velocity max/min for rendering  /// TODO: These could be moved?
+    this->maxGradientValue = provider->GetMaxValueFromField("velocity");
+    this->minGradientValue = provider->GetMinValueFromField("velocity");
 }
 
 void GlyphRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
@@ -166,7 +170,8 @@ void GlyphRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
     // set shaders
     glUseProgram(this->shaderProgram);
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-
+    glUniform1f(Compositor::Instance().scalarMaxID, this->maxGradientValue);
+    glUniform1f(Compositor::Instance().scalarMinID, this->minGradientValue);
     glBindVertexArray(this->VAO);
 
     // DRAW!

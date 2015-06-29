@@ -1,4 +1,5 @@
 #include "PointRenderer.hpp"
+#include "Compositor.hpp"
 #include <iostream>
 
 void PointRenderer::PrepareGeometry(DataProvider* provider)
@@ -109,6 +110,11 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
+
+    // save min/max values for rendering colored gradients/scaling/etc
+    this->maxGradientValue = provider->GetMaxValueFromField("density");
+    this->minGradientValue = provider->GetMinValueFromField("density");
+    std::cout << "PointRenderer: Max Density: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
@@ -124,7 +130,8 @@ void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
     // set shaders
     glUseProgram(this->shaderProgram);
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-
+    glUniform1f(Compositor::Instance().scalarMaxID, this->maxGradientValue);
+    glUniform1f(Compositor::Instance().scalarMinID, this->minGradientValue);
     glBindVertexArray(this->VAO);
 
     // DRAW!

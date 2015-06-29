@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "RenderableComponent.hpp"
+#include "Compositor.hpp"
 #include "../dataProviders/DataProvider.hpp"
 
 class GlyphRenderer: public RenderableComponent
@@ -13,7 +14,8 @@ class GlyphRenderer: public RenderableComponent
         virtual void Draw(glm::mat4 MVP, GLuint MVP_ID);
 
     private:
-
+        double maxGradientValue;
+        double minGradientValue;
 };
 
 static const GLfloat g_arrow2d_vertex_buffer_data[] = {

@@ -59,6 +59,8 @@ class Compositor
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();
 
+        GLuint scalarMinID;     /// TODO: Abstract this away in a Shader wrapper class
+        GLuint scalarMaxID;
     private:
         Compositor();
         ~Compositor();

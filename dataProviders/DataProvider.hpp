@@ -9,6 +9,8 @@ class DataProvider
 //        virtual ~DataProvider();
         virtual int GetField(std::string, std::vector<std::vector<double> >**) = 0;
         virtual std::vector<std::string> GetFieldNames() = 0;
+        virtual double GetMaxValueFromField(std::string) = 0;
+        virtual double GetMinValueFromField(std::string) = 0;
         virtual int GetFieldDimension(std::string) = 0;
         virtual double* GetExtents() = 0;
         virtual void NextTimeStep() = 0;

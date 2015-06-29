@@ -10,7 +10,7 @@
 #include "RenderableComponent.hpp"
 #include "AxesRenderer.hpp"
 #include "PointRenderer.hpp"
-
+#include "GlyphRenderer.hpp"
 
 
 
@@ -30,7 +30,8 @@ class Compositor
 
         enum Renderers {
             RENDERER_AXES,
-            RENDERER_POINTS
+            RENDERER_POINTS,
+            RENDERER_GLYPHS
         };
 
         // Begins render loop
@@ -83,7 +84,8 @@ class Compositor
         // must correspond with the Renderers enum above
         std::vector<std::string> RendererStrs = {
             "Axes",
-            "Points"
+            "Points",
+            "Arrow Glyphs"
         };
 };
 

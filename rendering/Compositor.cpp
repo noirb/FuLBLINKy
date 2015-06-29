@@ -32,6 +32,8 @@ void Compositor::Start()
     this->AddRenderer(RENDERER_AXES);
     // add point renderer
     this->AddRenderer(RENDERER_POINTS);
+    // add glyph renderer
+    this->AddRenderer(RENDERER_GLYPHS);
 }
 
 void Compositor::ShutDown()
@@ -73,6 +75,10 @@ void Compositor::AddRenderer(Renderers rendererType)
             break;
         case RENDERER_POINTS:
             newRenderer = new PointRenderer();
+            newRenderer->SetShader(this->_scalarMapShader);
+            break;
+        case RENDERER_GLYPHS:
+            newRenderer = new GlyphRenderer();
             newRenderer->SetShader(this->_scalarMapShader);
             break;
         default:

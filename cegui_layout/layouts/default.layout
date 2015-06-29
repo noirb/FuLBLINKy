@@ -38,9 +38,9 @@
             </Window>
             <Window type="HorizontalLayoutContainer" name="status_container" >
                 <Property name="Area" value="{{0,117},{0,0},{1,-16},{1,-52}}" />
-                <Window type="TaharezLook/Label" name="lblslashtxt" >
-                    <Property name="Area" value="{{0,120},{0,1},{0,131},{0,33}}" />
-                    <Property name="Text" value="/" />
+                <Window type="TaharezLook/Label" name="lblTimesteptxt" >
+                    <Property name="Area" value="{{0,15},{0,2},{0,80},{0,34}}" />
+                    <Property name="Text" value="Time:" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 </Window>
                 <Window type="TaharezLook/Label" name="lblTimestep" >
@@ -49,9 +49,9 @@
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="NormalTextColour" value="FF9BF9C8" />
                 </Window>
-                <Window type="TaharezLook/Label" name="lblTimesteptxt" >
-                    <Property name="Area" value="{{0,15},{0,2},{0,80},{0,34}}" />
-                    <Property name="Text" value="Time:" />
+                <Window type="TaharezLook/Label" name="lblslashtxt" >
+                    <Property name="Area" value="{{0,120},{0,1},{0,131},{0,33}}" />
+                    <Property name="Text" value="/" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 </Window>
                 <Window type="TaharezLook/Label" name="lblMaxTimestep" >

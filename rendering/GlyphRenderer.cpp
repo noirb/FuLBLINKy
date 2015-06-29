@@ -53,18 +53,19 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         }
 	
         glm::mat4 M = glm::mat4(1.0f);
+        M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
+                                         (points->at(loopVarVertices))[1],
+                                         (points->at(loopVarVertices))[2]));
         glm::vec3 source_vec = glm::normalize(glm::vec3(0.0, 0.0, 1.0));                      // our current direction (all glyphs face +Z by default)
         glm::vec3 target_vec = glm::vec3(velTemp[0], velTemp[1], velTemp[2]); // vector facing direction we want to face
         if (glm::length(target_vec) > 0.0)
-	{
-		target_vec = glm::normalize(target_vec);
+        {
+            target_vec = glm::normalize(target_vec);
         	glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
         	float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
-        	M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
-                                         (points->at(loopVarVertices))[1],
-                                         (points->at(loopVarVertices))[2]));
         	M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
-	}
+        }
+
         // Loop through the arrow skeleton
         for (int loopVarGlyphPts = 0; loopVarGlyphPts < ArrowGlyphSize *3; loopVarGlyphPts += 3)
         {

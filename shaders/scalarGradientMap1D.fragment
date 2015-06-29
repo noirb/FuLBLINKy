@@ -13,5 +13,10 @@ void main()
     vec4 hotColor  = vec4(1, 0.4, 0.1, 1.0);
 
     float a = (scalarValue - min_scalar) / (max_scalar - min_scalar);
-    color = mix(coldColor, hotColor, a);
+
+        // straight linear interpolation
+//    color = mix(coldColor, hotColor, a);
+
+        // eased interpolation
+    color = mix(coldColor, hotColor, a * a * (3.0 - 2.0 * a));
 }

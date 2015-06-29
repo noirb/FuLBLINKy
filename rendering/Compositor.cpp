@@ -167,7 +167,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
-    // Configure the next & previous timestep buttons
+    // Configure the timestep control buttons
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->NextTimeStep();
@@ -179,6 +179,21 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->PrevTimeStep();
                             this->UpdateDataGUI(data_window);
+                            return true;
+                        }
+    );
+    fWnd->getChildRecursive("btnPlay")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, data_window](const CEGUI::EventArgs &e)->bool {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            if (this->autoplay)
+                            {
+                                wargs.window->setText(">>");
+                            }
+                            else
+                            {
+                                wargs.window->setText("||");
+                            }
+                            this->autoplay = !this->autoplay;
                             return true;
                         }
     );
@@ -217,7 +232,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
         timestep_label->setText("N/A");
 
     if (this->_dataProvider->GetMaxTimeStep() >= 0)
-        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep()));
+        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep()-1));
     else
         timestep_label->setText("∞");
 
@@ -255,6 +270,8 @@ void Compositor::UpdateRenderers(DataProvider* provider)
 
 void Compositor::Render(glm::mat4 MVP)
 {
+    static double timer = 0.0;
+
     // tell CEGUI how long its been since the last frame
     double dt = this->DeltaTime();
     CEGUI::System::getSingleton().injectTimePulse(dt);
@@ -272,4 +289,18 @@ void Compositor::Render(glm::mat4 MVP)
     glDisable(GL_DEPTH_TEST); // no depth testing for GUIs
     // render GUI -- must be the LAST drawing call we make!
     CEGUI::System::getSingleton().renderAllGUIContexts();
+
+    timer += dt;
+    if (this->autoplay && timer >= this->autoplay_interval)
+    {
+        timer = 0;
+        this->_dataProvider->NextTimeStep();
+        this->UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
+        // if we've reached the maximal timestep, stop autoplaying
+        if (this->_dataProvider->GetMaxTimeStep()-1 == this->_dataProvider->GetTimeStep())
+        {
+            this->autoplay = false;
+            this->guiRoot->getChildRecursive("btnPlay")->setText(">>"); /// HACK: Should probably have start/stop autoplaying functions to avoid so many hardcoded strings...
+        }
+    }
 }

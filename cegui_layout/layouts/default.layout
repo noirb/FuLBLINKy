@@ -32,7 +32,7 @@
                 <Property name="Text" value="Load LBM" />
                 <Property name="Disabled" value="true" />
             </Window>
-            <Window type="TaharezLook/Button" name="Button" >
+            <Window type="TaharezLook/Button" name="btnPlay" >
                 <Property name="Area" value="{{0,221},{0,40},{0,317},{0,72}}" />
                 <Property name="Text" value="&gt;&gt;" />
             </Window>

@@ -74,6 +74,8 @@ class Compositor
 
         double lastFrameTime; // time when the last frame was drawn
         bool running = false;
+        bool autoplay = false; // if true, we load the next timestep automatically
+        double autoplay_interval = 0.5f; // time, in seconds, before we load the next timestep in autoplay mode
 
         void InitGUI(CEGUI::Window*);
         void InitShaders();

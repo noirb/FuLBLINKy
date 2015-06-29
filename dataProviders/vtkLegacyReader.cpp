@@ -1,5 +1,6 @@
 #include "vtkLegacyReader.hpp"
 #include <algorithm>
+#include <iterator>
 
 vtkLegacyReader::vtkLegacyReader()
 {
@@ -15,6 +16,7 @@ vtkLegacyReader::vtkLegacyReader(std::string filename)
 // initializes the reader to pull data from the given file
 void vtkLegacyReader::init(std::string filename)
 {
+
     this->filename = filename;
     std::cout << "Parsing file: " << filename << std::endl;
 
@@ -96,6 +98,9 @@ void vtkLegacyReader::init(std::string filename)
         // parse point locations
         else if (tok == "POINTS")
         {
+            double newExtents[6] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),  // minX, maxX
+                                    std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),  // minY, maxY
+                                    std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest()}; // minZ, maxZ
             this->fieldNames.push_back("points");
             this->domainFields["points"] = std::vector<std::vector<double> >();
 
@@ -121,10 +126,18 @@ void vtkLegacyReader::init(std::string filename)
                     tmpv.push_back(tmp);
                 }
                 this->domainFields["points"].push_back(tmpv);
-
+                // check new point to see if we need to adjust our extents
+                newExtents[0] = tmpv[0] < newExtents[0] ? tmpv[0] : newExtents[0]; // -X
+                newExtents[1] = tmpv[0] > newExtents[1] ? tmpv[0] : newExtents[1]; // +X
+                newExtents[2] = tmpv[1] < newExtents[2] ? tmpv[1] : newExtents[2]; // -Y
+                newExtents[3] = tmpv[1] > newExtents[3] ? tmpv[1] : newExtents[3]; // +Y
+                newExtents[4] = tmpv[2] < newExtents[4] ? tmpv[2] : newExtents[4]; // -Z
+                newExtents[5] = tmpv[2] > newExtents[5] ? tmpv[2] : newExtents[5]; // +Z
                 getline(file, line, '\n');
                 lineNumber++;
             }
+            std::copy(std::begin(newExtents), std::end(newExtents), this->extents);
+            std::cout << "New extents: " << newExtents[0] << " -- " << newExtents[1] << ", " << newExtents[2] << " -- " << newExtents[3] << ", " << newExtents[4] << " -- " << newExtents[5] << std::endl;
             continue;
         }
         // parse point data field
@@ -315,6 +328,11 @@ int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<dou
     }
 
     return 0;
+}
+
+double* vtkLegacyReader::GetExtents()
+{
+    return this->extents;
 }
 
 std::vector<std::string> vtkLegacyReader::GetFieldNames()

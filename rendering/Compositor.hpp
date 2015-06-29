@@ -45,7 +45,9 @@ class Compositor
         // gets time since the last frame was drawn
         double DeltaTime();
 
-        void UpdateCamera();
+        void UpdateCamera(double dx, double dy);
+
+        void UpdateAspectRatio(int width, int height);
 
         // used to notify compositor that the rendering area has changed somehow (window resized, etc)
         void DisplayChanged(int width, int height);
@@ -53,6 +55,9 @@ class Compositor
         void AddRenderer(RenderableComponent*);
 
         void AddRenderer(Renderers);
+
+        glm::mat4 GetProjectionMatrix();
+        glm::mat4 GetViewMatrix();
 
     private:
         Compositor();
@@ -78,10 +83,12 @@ class Compositor
         double autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
 
         void InitGUI(CEGUI::Window*);
+        void InitCamera();
         void InitShaders();
         void UpdateRenderers(DataProvider*);
         void LoadVTK(std::string, CEGUI::Window*);
         void UpdateDataGUI(CEGUI::Window*);
+        void CenterCameraOnExtents(double*);
 
         // must correspond with the Renderers enum above
         std::vector<std::string> RendererStrs = {
@@ -89,6 +96,22 @@ class Compositor
             "Points",
             "Arrow Glyphs"
         };
+
+        glm::mat4 _projectionMatrix;
+        glm::mat4 _viewMatrix;
+
+        struct camera_parms {
+            glm::vec3 cameraPos;    // where the camera is
+            glm::vec3 cameraTarget; // where the camera is looking
+            float horizontalAngle;
+            float verticalAngle;
+            float orbitRadius;      // distance from cameraTarget
+            float initialFoV;
+            float near;
+            float far;
+            float speed;
+            float mouseSpeed;
+        } camera;
 };
 
 #endif

@@ -28,6 +28,9 @@ class vtkLegacyReader : public DataProvider
         // writes the data corresponding to the given field to the array passed in data
         template<typename T> void getField(std::string field, T* data);
 
+        // gets the bounds of the domain: [-X, +X, -Y, +Y, -Z, +Z]
+        double* GetExtents();
+
         // tells the reader to load data from the next timestep
         void NextTimeStep();
 

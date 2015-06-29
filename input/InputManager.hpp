@@ -12,17 +12,6 @@ class InputManager
         double mouseX;
         double mouseY;
 
-        glm::mat4 _projectionMatrix;
-        glm::mat4 _viewMatrix;
-
-        // camera-related variables
-        glm::vec3 cameraPos;   // position
-        float horizontalAngle;
-        float verticalAngle;
-        float initialFoV;      // default FoV
-        float speed;
-        float mouseSpeed;
-
         bool _leftMouseDown;
         bool _rightMouseDown;
 

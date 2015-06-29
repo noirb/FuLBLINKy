@@ -31,21 +31,6 @@ void InputManager::init()
     this->mouseY = 0;
     this->_leftMouseDown = false;
     this->_rightMouseDown = false;
-
-    this->_projectionMatrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f); // perspective projection
-    this->_viewMatrix = glm::lookAt( // camera matrix
-        glm::vec3(-12, 50, -8), // camera's location in space
-        glm::vec3(15, 15, 10), // location camera is pointing at (origin in this case)
-        glm::vec3(0, 1, 0)  // which direction is "up" from the camera's perspective
-    );
-
-    this->cameraPos = glm::vec3(-12, 50, -8);
-    this->horizontalAngle = 3.0 * 3.14f/2.0f;
-    this->verticalAngle = 0.0f;
-    this->initialFoV = 45.0f;
-    this->speed = 3.0f;
-    this->mouseSpeed = 0.005f;
-
 }
 
 void InputManager::GetMousePosition(double* pos_x, double* pos_y)
@@ -59,44 +44,14 @@ bool InputManager::MousePressed()
     return this->_leftMouseDown || this->_rightMouseDown;
 }
 
-glm::mat4 InputManager::GetProjectionMatrix()
-{
-    return this->_projectionMatrix;
-}
-
-glm::mat4 InputManager::GetViewMatrix()
-{
-    return this->_viewMatrix;
-}
-
 // updates _projectionMatrix & _viewMatrix according to current input state
 void InputManager::UpdateCameraMatrices(double dx, double dy)
 {
-    // compute new camera orientation
-    this->horizontalAngle += this->mouseSpeed * dx; /// TODO: Should include some kind of deltatime here..
-    this->verticalAngle   -= this->mouseSpeed * dy;
-
-    // compute new camera position
-    this->cameraPos = glm::vec3(
-        15.0 + 40.0 * cos(verticalAngle) * sin(horizontalAngle),    /// TODO: fix this
-        15.0 + 40.0 * sin(verticalAngle),
-        10.0 + 40.0 * cos(horizontalAngle)
-    );
-
-    this->_projectionMatrix = glm::perspective(this->initialFoV, 4.0f / 3.0f, 0.1f, 500.0f);
-    this->_viewMatrix = glm::lookAt(
-        this->cameraPos,
-        glm::vec3(15.0, 15.0, 10.0),
-        glm::vec3(0, 1, 0)
-    );
-
+    Compositor::Instance().UpdateCamera(dx, dy);
 }
 
 void InputManager::window_size_callback( GLFWwindow* window, int width, int height )
 {
-    InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-    float aspect_ratio = (float)width / (float)height;
-    manager->_projectionMatrix = glm::perspective(manager->initialFoV, aspect_ratio, 0.1f, 500.0f);
     Compositor::Instance().DisplayChanged(width, height);
 }
 
@@ -195,13 +150,11 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
     // update camera based on mouse movement if a mouse button is currently held
     if (manager->MousePressed())
     {
-        manager->UpdateCameraMatrices(xpos - manager->mouseX, ypos - manager->mouseY);
+        Compositor::Instance().UpdateCamera(xpos - manager->mouseX, ypos - manager->mouseY);
     }
     else
     {
         manager->ResetCEGUIMousePos();
-        // inject movement to CEGUI
-//        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(xpos - manager->mouseX, ypos - manager->mouseY);
     }
 
     // store new positions

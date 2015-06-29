@@ -15,6 +15,7 @@ void Compositor::Start()
     this->guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
     this->guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
     this->InitShaders();
+    this->InitCamera();
     this->InitGUI(guiRoot);
 
     this->running = true;
@@ -46,9 +47,82 @@ double Compositor::DeltaTime()
     return glfwGetTime() - this->lastFrameTime;
 }
 
-void Compositor::UpdateCamera()
+void Compositor::InitCamera()
 {
+    this->camera.cameraPos = glm::vec3(-12, 50, -8);
+    this->camera.cameraTarget = glm::vec3(0, 0, 0);
+    this->camera.orbitRadius = 40.0f;
+    this->camera.horizontalAngle = 3.0 * 3.14f/2.0f;
+    this->camera.verticalAngle = 0.0f;
+    this->camera.initialFoV = 45.0f;
+    this->camera.near = 0.1f;
+    this->camera.far  = 1000.0f;
+    this->camera.speed = 3.0f;
+    this->camera.mouseSpeed = 0.005f;
 
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.near, this->camera.far);
+    this->_viewMatrix = glm::lookAt(
+        this->camera.cameraPos,     // camera's default location in space
+        this->camera.cameraTarget,  // location camera is pointing at
+        glm::vec3(0, 1, 0)          // "up" relative to camera
+    );
+
+}
+
+// update camera pose & projection matrices based on input
+void Compositor::UpdateCamera(double dx, double dy)
+{
+    // compute new camera orientation
+    this->camera.horizontalAngle += this->camera.mouseSpeed * dx; /// TODO: Should include a reference to DeltaTime() here for stable movement
+    this->camera.verticalAngle   -= this->camera.mouseSpeed * dy;
+
+    // compute new camera position
+    this->camera.cameraPos = this->camera.orbitRadius * glm::vec3(
+        cos(this->camera.verticalAngle) * sin(this->camera.horizontalAngle),
+        sin(this->camera.verticalAngle),
+        cos(this->camera.horizontalAngle)
+    );
+    this->camera.cameraPos = this->camera.cameraPos + this->camera.cameraTarget;
+
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.near, this->camera.far);
+    this->_viewMatrix = glm::lookAt(
+        this->camera.cameraPos,
+        this->camera.cameraTarget,
+        glm::vec3(0, 1, 0)
+    );
+}
+
+void Compositor::CenterCameraOnExtents(double* extents)
+{
+    // compute center of bounds
+    glm::vec3 center = glm::vec3(
+                      extents[0] + (extents[1] - extents[0]) / 2.0f, // (xmax - xmin) / 2
+                      extents[2] + (extents[3] - extents[2]) / 2.0f, // (ymax - ymin) / 2
+                      extents[4] + (extents[5] - extents[4]) / 2.0f);// (zmax - zmin) / 2
+    this->camera.cameraTarget = center;
+    std::cout << "New camera orbit point: " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
+    // compute widest radius necessary to enclose bounds
+    this->camera.orbitRadius = glm::max( center[0] + extents[1],
+                                         glm::max( center[1] + extents[3], center[2] + extents[5])
+                                       );
+    this->UpdateCamera(0, 0);
+}
+
+// update rendering parameters based on new window aspect ratio
+void Compositor::UpdateAspectRatio(int width, int height)
+{
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, (float)width / (float)height, this->camera.near, this->camera.far);
+    this->DisplayChanged(width, height);
+}
+
+glm::mat4 Compositor::GetProjectionMatrix()
+{
+    return this->_projectionMatrix;
+}
+
+glm::mat4 Compositor::GetViewMatrix()
+{
+    return this->_viewMatrix;
 }
 
 void Compositor::DisplayChanged(int width, int height)
@@ -94,7 +168,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     entries_container->addChild(rWnd);
     rWnd->setText(rendererName);
     rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
-    rWnd->setSelected(true);
+    rWnd->setSelected(false);
 
     // subscribe to CheckStateChanged so we know when the renderer is enabled/disabled
     rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
@@ -109,7 +183,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     );
 
     // add new renderer to compositor
-    newRenderer->Enable();
+    newRenderer->Disable(); // renderer OFF by default//Enable();
     this->AddRenderer(newRenderer);
 }
 
@@ -236,6 +310,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     else
         timestep_label->setText("∞");
 
+    this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
     this->UpdateRenderers(this->_dataProvider);
 }
 

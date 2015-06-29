@@ -78,7 +78,7 @@ int main(void)
         /* ---------------- */
     while (!glfwWindowShouldClose(window))
     {
-        MVP = inputManager.GetProjectionMatrix() * inputManager.GetViewMatrix() * glm::mat4(1.0f);
+        MVP = Compositor::Instance().GetProjectionMatrix() * Compositor::Instance().GetViewMatrix() * glm::mat4(1.0f);
 
         // Draw!
         Compositor::Instance().Render(MVP);

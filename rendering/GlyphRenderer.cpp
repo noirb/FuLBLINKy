@@ -155,6 +155,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     // save velocity max/min for rendering  /// TODO: These could be moved?
     this->maxGradientValue = provider->GetMaxValueFromField("velocity");
     this->minGradientValue = provider->GetMinValueFromField("velocity");
+    std::cout << "GlyphRenderer: Max Velocity: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void GlyphRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)

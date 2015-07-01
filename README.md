@@ -74,3 +74,7 @@ A fluid flow visualization program focused on 3D fluid data.
   #### Build the Visualizer
 
     If everything went well with the above steps, you should now have everything you need to build the project. Just make sure your LD_LIBRARY_PATH points to the location the GLFW and CEGUI libs were installed to (/usr/local/lib by default) and  run `make` from the project directory.
+    
+  ###### Taking the visualizer out of the source tree
+    Apart from the final executable, fluid-vis, you also need to copy the `shaders` and `cegui_layout` directories, which contain files necessary for the program to function.
+    The `build` directory just contains object and dependency files generated during the build, and can safely be deleted or ignored.

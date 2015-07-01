@@ -9,12 +9,18 @@ A fluid flow visualization program focused on 3D fluid data.
   - A graphics driver compatible with OpenGL 3.3+
 
 # Build Instructions - Linux
-  - Install dependencies for GLFW & CEGUI first (includes GLM, so you don't need to install it separately):
+  - Install dependencies for OpenGL development, GTK, GLFW & CEGUI first (this includes GLM, so there's no need to build & install it separately):
 
     ```
-    sudo apt-get install cmake xorg-dev libglu1-mesa-dev cmake-curses-gui libglew-dev libglm-dev
+    sudo apt-get install cmake xorg-dev libglu1-mesa-dev cmake-curses-gui libglew-dev libglm-dev libgtk-3-dev
     ```
+    NOTE: CEGUI also requires an image codec (like libfreeimage or DevIL) and an XML reader. Many systems will already have both, but if not you should be able to apt-get the library of your choice. e.g.
+    ```
+    sudo apt-get install libfreeimage-dev libxml2-dev libexpat1-dev
+    ```
+    
   #### Build GLFW
+    GLFW 3 is not available in package form for all distributions. If you can't find it in your package manager (most only have GLFW 2), you'll have to build & install it from source.
   
   - Download & extract the GLFW source from here: http://www.glfw.org/download.html
   - Create a directory to build in:
@@ -41,7 +47,8 @@ A fluid flow visualization program focused on 3D fluid data.
     ```
 
   #### Build CEGUI
-
+    CEGUI 0.8 is not currently available in package form, and needs to be built & installed from source
+    
   - Download & extract the CEGUI source from here: http://cegui.org.uk/download
   - Instructions are available in the README.md file in their source package, but I'll summarize them here
   - Create a directory to build in:

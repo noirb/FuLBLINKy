@@ -92,6 +92,14 @@ void Compositor::UpdateCamera(double dx, double dy)
     );
 }
 
+// update camera pose & preojection matrices based on zoom input
+void Compositor::ZoomCamera(double dz)
+{
+    this->camera.orbitRadius += dz;
+
+    this->UpdateCamera(0, 0);
+}
+
 void Compositor::CenterCameraOnExtents(double* extents)
 {
     // compute center of bounds

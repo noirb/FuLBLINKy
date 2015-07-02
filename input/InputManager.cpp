@@ -117,6 +117,14 @@ void InputManager::key_callback( GLFWwindow* window, int key, int scancode, int 
         glfwSetWindowShouldClose(window, GL_TRUE);
         Compositor::Instance().ShutDown();
      }
+     else if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+     {
+        Compositor::Instance().ZoomCamera(-10);
+     }
+     else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+     {
+        Compositor::Instance().ZoomCamera(10);
+     }
  
      // pass through to CEGUI
      if (action == GLFW_PRESS)
@@ -184,7 +192,6 @@ void InputManager::mouseButton_callback( GLFWwindow* window, int button, int act
             manager->_leftMouseDown = true;
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
        }
-
     }
     else if (action == GLFW_RELEASE)
     {
@@ -213,7 +220,7 @@ void InputManager::mouseButton_callback( GLFWwindow* window, int button, int act
 
 void InputManager::scroll_callback( GLFWwindow* window, double xoffset, double yoffset )
 {
-    /// TODO
+    Compositor::Instance().ZoomCamera(yoffset * -2.0);
     return;
 }
 

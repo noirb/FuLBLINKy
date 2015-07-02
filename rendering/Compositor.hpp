@@ -47,6 +47,8 @@ class Compositor
 
         void UpdateCamera(double dx, double dy);
 
+        void ZoomCamera(double dz);
+
         void UpdateAspectRatio(int width, int height);
 
         // used to notify compositor that the rendering area has changed somehow (window resized, etc)

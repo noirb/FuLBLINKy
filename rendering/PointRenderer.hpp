@@ -10,7 +10,7 @@ class PointRenderer: public RenderableComponent
     public:
         virtual void PrepareGeometry(DataProvider* provider);
 
-        virtual void Draw(glm::mat4 MVP, GLuint MVP_ID);
+        virtual void Draw(glm::mat4 MVP);
 
     private:
         double maxGradientValue;

@@ -14,9 +14,9 @@ RenderableComponent::~RenderableComponent()
 }
 
 
-void RenderableComponent::SetShader(GLuint programID)
+void RenderableComponent::SetShader(ShaderProgram* program)
 {
-    this->shaderProgram = programID;
+    this->shaderProgram = program;
 }
 
 void RenderableComponent::SetMaxColor(float r, float g, float b, float a)

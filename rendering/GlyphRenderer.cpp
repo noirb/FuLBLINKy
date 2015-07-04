@@ -156,38 +156,38 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     this->maxGradientValue = provider->GetMaxValueFromField("velocity");
     this->minGradientValue = provider->GetMinValueFromField("velocity");
     std::cout << "GlyphRenderer: Max Velocity: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
-
-    this->maxColorID = glGetUniformLocation(this->shaderProgram, "hotColor");
-    this->minColorID = glGetUniformLocation(this->shaderProgram, "coldColor");
-
 }
 
-void GlyphRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
+void GlyphRenderer::Draw(glm::mat4 MVP)
 {
     if (!this->enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
+    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    glUseProgram(this->shaderProgram);
-    glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(Compositor::Instance().scalarMaxID, this->maxGradientValue);
-    glUniform1f(Compositor::Instance().scalarMinID, this->minGradientValue);
-    glUniform4fv(this->maxColorID, 1, this->maxColor);
-    glUniform4fv(this->minColorID, 1, this->minColor);
+    this->shaderProgram->enable();
+
+    // send uniforms to shaders
+    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
+    glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
+    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
+    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
+
+    // bind VAO
     glBindVertexArray(this->VAO);
 
     // DRAW!
     glDrawArrays(GL_TRIANGLES, 0, (this->totalVertices)*9);
 
-    // unset shaders
-    glUseProgram(0);
-
     // unbind VAO
     glBindVertexArray(0);
+
+    // unset shaders
+    this->shaderProgram->disable();
 }
 

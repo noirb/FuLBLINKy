@@ -156,16 +156,16 @@ void Compositor::AddRenderer(Renderers rendererType)
     {
         case RENDERER_AXES:
             newRenderer = new AxesRenderer();
-            newRenderer->SetShader(this->_axesShader);
+            newRenderer->SetShader(&(this->_axesShader));
             newRenderer->PrepareGeometry(NULL);
             break;
         case RENDERER_POINTS:
             newRenderer = new PointRenderer();
-            newRenderer->SetShader(this->_scalarMapShader);
+            newRenderer->SetShader(&(this->_scalarMapShader));
             break;
         case RENDERER_GLYPHS:
             newRenderer = new GlyphRenderer();
-            newRenderer->SetShader(this->_scalarMapShader);
+            newRenderer->SetShader(&(this->_scalarMapShader));
             break;
         default:
             std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
@@ -346,13 +346,15 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
 void Compositor::InitShaders()
 {
     // load our vertex & fragment shaders so they're ready & compiled when we need them
-    this->_axesShader = LoadShaders("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
-    this->_scalarMapShader = LoadShaders("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
-    this->mvpID = glGetUniformLocation(_scalarMapShader, "MVP");
-    this->scalarMinID = glGetUniformLocation(_scalarMapShader, "min_scalar");
-    this->scalarMaxID = glGetUniformLocation(_scalarMapShader, "max_scalar");
+    this->_axesShader.loadAndLink("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
+    this->_axesShader.addUniform("MVP");
 
-    std::cout << "Uniform IDs: MVP(" << this->mvpID << "), Min(" << this->scalarMinID << "), Max(" << this->scalarMaxID << ")" << std::endl;
+    this->_scalarMapShader.loadAndLink("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
+    this->_scalarMapShader.addUniform("MVP");
+    this->_scalarMapShader.addUniform("min_scalar");
+    this->_scalarMapShader.addUniform("max_scalar");
+    this->_scalarMapShader.addUniform("hotColor");
+    this->_scalarMapShader.addUniform("coldColor");
 }
 
 void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
@@ -426,7 +428,7 @@ void Compositor::Render(glm::mat4 MVP)
 
     for (auto r : this->_renderers)
     {
-        r->Draw(MVP, this->mvpID);
+        r->Draw(MVP);
     }
 
     glDisable(GL_DEPTH_TEST); // no depth testing for GUIs

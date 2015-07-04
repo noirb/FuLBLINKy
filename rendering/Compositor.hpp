@@ -7,6 +7,7 @@
 #include "../dataProviders/vtkLegacyReader.hpp"
 #include "../common.hpp"
 #include "../loadShaders.hpp"
+#include "ShaderProgram.hpp"
 #include "RenderableComponent.hpp"
 #include "AxesRenderer.hpp"
 #include "PointRenderer.hpp"
@@ -61,8 +62,6 @@ class Compositor
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();
 
-        GLuint scalarMinID;     /// TODO: Abstract this away in a Shader wrapper class
-        GLuint scalarMaxID;
     private:
         Compositor();
         ~Compositor();
@@ -73,9 +72,8 @@ class Compositor
         CEGUI::Window* guiRoot;
 
         glm::mat4 MVP;
-        GLuint mvpID;
-        GLuint _axesShader;
-        GLuint _scalarMapShader;
+        ShaderProgram _axesShader;
+        ShaderProgram _scalarMapShader;
 
         std::vector<RenderableComponent* > _renderers;
         

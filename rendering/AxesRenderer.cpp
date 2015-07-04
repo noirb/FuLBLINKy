@@ -51,18 +51,18 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
     this->VBO = vbo;
 }
 
-void AxesRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
+void AxesRenderer::Draw(glm::mat4 MVP)
 {
     if (!this->enabled) { return; }
 
-    if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
+    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
     {
         std::cout << "AxesRenderer::Draw FAILED" << std::endl;
         return;
     }
 
-    glUseProgram(this->shaderProgram);
-    glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
+    this->shaderProgram->enable();
+    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
     glBindVertexArray(this->VAO); 
 
@@ -70,6 +70,6 @@ void AxesRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
     glDrawArrays(GL_LINES, 0, this->totalVertices);
 
     // cleanup
-    glUseProgram(0);
+    shaderProgram->disable();
     glBindVertexArray(0);
 }

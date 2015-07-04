@@ -115,35 +115,32 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     this->maxGradientValue = provider->GetMaxValueFromField("density");
     this->minGradientValue = provider->GetMinValueFromField("density");
     std::cout << "PointRenderer: Max Density: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
-
-    this->maxColorID = glGetUniformLocation(this->shaderProgram, "hotColor");
-    this->minColorID = glGetUniformLocation(this->shaderProgram, "coldColor");
 }
 
-void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
+void PointRenderer::Draw(glm::mat4 MVP)
 {
     if (!this->enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram <= 0 || this->VBO <= 0 || this->VAO <= 0)
+    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    glUseProgram(this->shaderProgram);
-    glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(Compositor::Instance().scalarMaxID, this->maxGradientValue);
-    glUniform1f(Compositor::Instance().scalarMinID, this->minGradientValue);
-    glUniform4fv(this->maxColorID, 1, this->maxColor);
-    glUniform4fv(this->minColorID, 1, this->minColor);
+    shaderProgram->enable();
+    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
+    glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
+    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
+    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
     glBindVertexArray(this->VAO);
 
     // DRAW!
     glDrawArrays(GL_POINTS, 0, this->totalVertices);
 
     // unset shaders
-    glUseProgram(0);
+    shaderProgram->disable();
 
     // unbind VAO
     glBindVertexArray(0);

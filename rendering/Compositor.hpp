@@ -12,7 +12,7 @@
 #include "AxesRenderer.hpp"
 #include "PointRenderer.hpp"
 #include "GlyphRenderer.hpp"
-
+#include "LineRenderer.hpp"
 
 
 /* ----------------------------------------------------------------- */
@@ -32,7 +32,8 @@ class Compositor
         enum Renderers {
             RENDERER_AXES,
             RENDERER_POINTS,
-            RENDERER_GLYPHS
+            RENDERER_GLYPHS,
+            RENDERER_LINES
         };
 
         // Begins render loop
@@ -96,7 +97,8 @@ class Compositor
         std::vector<std::string> RendererStrs = {
             "Axes",
             "Points",
-            "Arrow Glyphs"
+            "Arrow Glyphs",
+            "Lines"
         };
 
         glm::mat4 _projectionMatrix;

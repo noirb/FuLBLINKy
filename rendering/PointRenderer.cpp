@@ -115,6 +115,9 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     this->maxGradientValue = provider->GetMaxValueFromField("density");
     this->minGradientValue = provider->GetMinValueFromField("density");
     std::cout << "PointRenderer: Max Density: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
+
+    this->maxColorID = glGetUniformLocation(this->shaderProgram, "hotColor");
+    this->minColorID = glGetUniformLocation(this->shaderProgram, "coldColor");
 }
 
 void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
@@ -132,6 +135,8 @@ void PointRenderer::Draw(glm::mat4 MVP, GLuint MVP_ID)
     glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &MVP[0][0]);
     glUniform1f(Compositor::Instance().scalarMaxID, this->maxGradientValue);
     glUniform1f(Compositor::Instance().scalarMinID, this->minGradientValue);
+    glUniform4fv(this->maxColorID, 1, this->maxColor);
+    glUniform4fv(this->minColorID, 1, this->minColor);
     glBindVertexArray(this->VAO);
 
     // DRAW!

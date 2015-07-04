@@ -21,6 +21,9 @@ class RenderableComponent
 
         void SetShader(GLuint programID);
 
+        void SetMaxColor(float, float, float, float);
+        void SetMinColor(float, float, float, float);
+
         void Enable();
 
         void Disable();
@@ -34,6 +37,11 @@ class RenderableComponent
         int totalVertices = 0;        // Total # of vertices this object will draw each frame
         int totalAttributes = 0;
         bool enabled;
+
+        GLuint maxColorID;
+        GLuint minColorID;
+        float maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        float minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 };
 
 #endif

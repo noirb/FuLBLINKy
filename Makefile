@@ -22,7 +22,7 @@ C_SRCFLAGS = -I./nativefiledialog/include/
 C_LDFLAGS = `pkg-config --cflags --libs gtk+-3.0`
 
 EXT_LDFLAGS  =
-VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0 $(C_LDFLAGS)
+VIS_LDFLAGS  = -L $(LD_LIBRARY_PATH) -lglfw -lGL -lGLEW -lCEGUIBase-0 -lCEGUIOpenGLRenderer-0 -lCEGUICommonDialogs-0 $(C_LDFLAGS)
 VIS_SRCFLAGS = `pkg-config --cflags CEGUI-0-OPENGL3`
 
 OBJ_C = $(CSRC:%.c=$(BUILD_DIR)/%.o)

@@ -1,4 +1,7 @@
 #include "Compositor.hpp"
+#include "CEGUI/CommonDialogs/Module.h"
+#include "CEGUI/CommonDialogs/ColourPicker/Controls.h"
+#include "CEGUI/CommonDialogs/ColourPicker/ColourPicker.h"
 
 Compositor::Compositor()
 {
@@ -12,6 +15,7 @@ Compositor::~Compositor()
 void Compositor::Start()
 {
     // set up GUI
+    initialiseCEGUICommonDialogs();
     this->guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
     this->guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
     this->InitShaders();
@@ -190,6 +194,56 @@ void Compositor::AddRenderer(Renderers rendererType)
                         }
     );
 
+    // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors
+    if (rendererType != RENDERER_AXES)
+    {
+        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+        entries_container->addChild(colourPicker_max);
+        colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
+        colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 30), CEGUI::UDim(0, 30)));
+        colourPicker_max->setColour(CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f));
+        colourPicker_max->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
+                    [newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+                            CEGUI::Colour c = picker->getColour();
+                            newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+                            return true;
+                        }
+        );
+
+        // label for the colourpicker
+        CEGUI::Window* colourPickerLabel_max = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
+        entries_container->addChild(colourPickerLabel_max);
+        colourPickerLabel_max->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
+        colourPickerLabel_max->setText("Max Val Color");
+
+         CEGUI::ColourPicker* colourPicker = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+         entries_container->addChild(colourPicker);
+         colourPicker->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
+         colourPicker->setSize(CEGUI::USize(CEGUI::UDim(0, 30), CEGUI::UDim(0, 30))); 
+         colourPicker->setColour(CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f));
+         colourPicker->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
+                    [newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+                            CEGUI::Colour c = picker->getColour();
+                            newRenderer->SetMinColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+                            return true;
+                        }
+        );
+     
+         // label for the colourpicker
+         CEGUI::Window* colourPickerLabel = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
+         entries_container->addChild(colourPickerLabel);
+         colourPickerLabel->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
+         colourPickerLabel->setText("Min Val Color");
+
+    }
+
+
     // add new renderer to compositor
     newRenderer->Disable(); // renderer OFF by default//Enable();
     this->AddRenderer(newRenderer);
@@ -212,6 +266,8 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
     CEGUI::Scheme::setDefaultResourceGroup("schemes");
     CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("VanillaSkin.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("VanillaCommonDialogs.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("TaharezLook/Tooltip");
     // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager

@@ -216,9 +216,59 @@ void Compositor::AddRenderer(Renderers rendererType)
                         }
     );
 
-    // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors
+    // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
     if (rendererType != RENDERER_AXES)
     {
+        /*  Interpolation ComboBox */
+        CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
+        entries_container->addChild(combobox);
+        combobox->setAutoSizeListHeightToContent(true);
+        combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 200)));
+        combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
+                                         CEGUI::UDim(0, 0),
+                                         CEGUI::UDim(0, -175),  // fix bottom margin of combobox to avoid breaking layout
+                                         CEGUI::UDim(0, 0) ));
+        CEGUI::ListboxTextItem* comboEntry1 = new CEGUI::ListboxTextItem("Linear", Interpolation::LINEAR);
+        CEGUI::ListboxTextItem* comboEntry2 = new CEGUI::ListboxTextItem("Smooth", Interpolation::SMOOTH);
+        CEGUI::ListboxTextItem* comboEntry3 = new CEGUI::ListboxTextItem("Exponential", Interpolation::EXPONENTIAL);
+
+        combobox->addItem(comboEntry1);
+        combobox->addItem(comboEntry2);
+        combobox->addItem(comboEntry3);
+        combobox->setItemSelectState(comboEntry1, true);
+
+        // register for selection changed event
+        combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
+                    [newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
+                            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
+                            newRenderer->SetInterpolator(Interpolation(selected->getID()));
+                            return true;
+                        }
+        );        
+
+        /*  Interpolation Bias setter */
+        CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
+        entries_container->addChild(spinner);
+        spinner->setMinimumValue(-4.0);
+        spinner->setMaximumValue(4.0);
+        spinner->setStepSize(0.1);
+        spinner->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
+        spinner->setCurrentValue(0.5);
+        spinner->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+                    [newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
+                            newRenderer->SetInterpolationBias(spinner->getCurrentValue());
+                            return true;
+                        }
+        );
+
+
+        /*  COLOR PICKERS */
         CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
         entries_container->addChild(colourPicker_max);
         colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
@@ -381,6 +431,8 @@ void Compositor::InitShaders()
     this->_scalarMapShader.addUniform("max_scalar");
     this->_scalarMapShader.addUniform("hotColor");
     this->_scalarMapShader.addUniform("coldColor");
+    this->_scalarMapShader.addUniform("bias");         // used for exponential interpolation
+    this->_scalarMapShader.addUniform("interpolator"); // used to select an interpolation mode
 }
 
 void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)

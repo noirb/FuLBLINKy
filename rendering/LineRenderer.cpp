@@ -164,6 +164,8 @@ void LineRenderer::Draw(glm::mat4 MVP)
     glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
     glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
     glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
+    glUniform1f(shaderProgram->getUniform("bias"), this->bias);
+    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
 
     // bind VAO
     glBindVertexArray(this->VAO);

@@ -24,6 +24,8 @@ class RenderableComponent
 
         void SetMaxColor(float, float, float, float);
         void SetMinColor(float, float, float, float);
+        void SetInterpolator(Interpolation);
+        void SetInterpolationBias(float);
 
         void Enable();
 
@@ -41,8 +43,10 @@ class RenderableComponent
 
         GLuint maxColorID;
         GLuint minColorID;
-        float maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-        float minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+        float maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
+        float minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
+        Interpolation interpolator = Interpolation::LINEAR;
+        float bias = 2.5f;
 };
 
 #endif

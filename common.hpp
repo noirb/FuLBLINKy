@@ -19,5 +19,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
+    /// FIXME: This should NOT be here, omg... -.-
+enum Interpolation {
+    LINEAR,
+    SMOOTH,
+    EXPONENTIAL
+};
+
 
 #endif

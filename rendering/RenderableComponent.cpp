@@ -21,7 +21,6 @@ void RenderableComponent::SetShader(ShaderProgram* program)
 
 void RenderableComponent::SetMaxColor(float r, float g, float b, float a)
 {
-    std::cout << "New Max Color: " << r << "," << g << "," << b << "," << a << std::endl;
     this->maxColor[0] = r;
     this->maxColor[1] = g;
     this->maxColor[2] = b;
@@ -30,12 +29,22 @@ void RenderableComponent::SetMaxColor(float r, float g, float b, float a)
 
 void RenderableComponent::SetMinColor(float r, float g, float b, float a)
 {
-    std::cout << "New Min Color: " << r << "," << g << "," << b << "," << a << std::endl;
     this->minColor[0] = r;
     this->minColor[1] = g;
     this->minColor[2] = b;
     this->minColor[3] = a;
 }
+
+void RenderableComponent::SetInterpolator(Interpolation i)
+{
+    this->interpolator = i;
+}
+
+void RenderableComponent::SetInterpolationBias(float b)
+{
+    this->bias = b;
+}
+
 void RenderableComponent::Enable()
 {
     this->enabled = true;

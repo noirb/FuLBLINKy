@@ -222,7 +222,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
         entries_container->addChild(colourPicker_max);
         colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
-        colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 30), CEGUI::UDim(0, 30)));
+        colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
         colourPicker_max->setColour(CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f));
         colourPicker_max->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
                     [newRenderer] (const CEGUI::EventArgs &e)->bool
@@ -237,16 +237,18 @@ void Compositor::AddRenderer(Renderers rendererType)
 
         // label for the colourpicker
         CEGUI::Window* colourPickerLabel_max = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
-        entries_container->addChild(colourPickerLabel_max);
+        colourPicker_max->addChild(colourPickerLabel_max);
         colourPickerLabel_max->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
-        colourPickerLabel_max->setText("Max Val Color");
+        colourPickerLabel_max->setText("Max");
+        colourPickerLabel_max->setMousePassThroughEnabled(true);
+        colourPickerLabel_max->setAlwaysOnTop(true);
 
-         CEGUI::ColourPicker* colourPicker = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
-         entries_container->addChild(colourPicker);
-         colourPicker->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
-         colourPicker->setSize(CEGUI::USize(CEGUI::UDim(0, 30), CEGUI::UDim(0, 30))); 
-         colourPicker->setColour(CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f));
-         colourPicker->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
+         CEGUI::ColourPicker* colourPicker_min = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+         entries_container->addChild(colourPicker_min);
+         colourPicker_min->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
+         colourPicker_min->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30))); 
+         colourPicker_min->setColour(CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f));
+         colourPicker_min->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
                     [newRenderer] (const CEGUI::EventArgs &e)->bool
                         {
                             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
@@ -258,10 +260,12 @@ void Compositor::AddRenderer(Renderers rendererType)
         );
      
          // label for the colourpicker
-         CEGUI::Window* colourPickerLabel = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
-         entries_container->addChild(colourPickerLabel);
-         colourPickerLabel->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
-         colourPickerLabel->setText("Min Val Color");
+         CEGUI::Window* colourPickerLabel_min = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
+         colourPicker_min->addChild(colourPickerLabel_min);
+         colourPickerLabel_min->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
+         colourPickerLabel_min->setText("Min");
+         colourPickerLabel_min->setMousePassThroughEnabled(true);
+         colourPickerLabel_min->setAlwaysOnTop(true);
 
     }
 

@@ -63,21 +63,22 @@
             </Window>
         </Window>
         <Window type="TaharezLook/FrameWindow" name="renderers_window" >
-            <Property name="Area" value="{{0,2},{0,126},{0.3,-117},{0.3,221}}" />
+            <Property name="Area" value="{{0,2},{0,126},{0.3,-116},{0.3,347}}" />
             <Property name="Text" value="Renderers" />
             <Property name="DragMovingEnabled" value="false" />
             <Property name="CloseButtonEnabled" value="false" />
             <AutoWindow namePath="__auto_titlebar__" >
                 <Property name="DraggingEnabled" value="false" />
             </AutoWindow>
+            <Window type="TaharezLook/Button" name="AddRendererbtn" >
+                <Property name="Area" value="{{0,8},{0,-2},{0,92},{0,25}}" />
+                <Property name="Text" value="Add" />
+                <Property name="Disabled" value="true" />
+                <Property name="VerticalAlignment" value="Bottom" />
+            </Window>
             <Window type="VerticalLayoutContainer" name="renderers_container" >
                 <Property name="Area" value="{{0,1},{0,0},{1,1},{1,-32}}" />
                 <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
-            </Window>
-            <Window type="TaharezLook/Button" name="AddRendererbtn" >
-                <Property name="Area" value="{{0,6},{0,268},{0,90},{0,292}}" />
-                <Property name="Text" value="Add" />
-                <Property name="Disabled" value="true" />
             </Window>
         </Window>
     </Window>

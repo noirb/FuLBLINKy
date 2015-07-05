@@ -44,6 +44,16 @@ bool InputManager::MousePressed()
     return this->_leftMouseDown || this->_rightMouseDown;
 }
 
+bool InputManager::LeftMousePressed()
+{
+    return this->_leftMouseDown;
+}
+
+bool InputManager::RightMousePressed()
+{
+    return this->_rightMouseDown;
+}
+
 // updates _projectionMatrix & _viewMatrix according to current input state
 void InputManager::UpdateCameraMatrices(double dx, double dy)
 {
@@ -156,9 +166,13 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
     InputManager* manager = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 
     // update camera based on mouse movement if a mouse button is currently held
-    if (manager->MousePressed())
+    if (manager->LeftMousePressed())
     {
         Compositor::Instance().UpdateCamera(xpos - manager->mouseX, ypos - manager->mouseY);
+    }
+    else if (manager->RightMousePressed())
+    {
+        Compositor::Instance().PanCamera(xpos - manager->mouseX, ypos - manager->mouseY);
     }
     else
     {

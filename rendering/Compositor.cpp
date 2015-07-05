@@ -65,6 +65,7 @@ void Compositor::InitCamera()
     this->camera.far  = 1000.0f;
     this->camera.speed = 3.0f;
     this->camera.mouseSpeed = 0.005f;
+    this->camera.panSpeed = 0.015f;
 
     this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.near, this->camera.far);
     this->_viewMatrix = glm::lookAt(
@@ -96,6 +97,21 @@ void Compositor::UpdateCamera(double dx, double dy)
         this->camera.cameraTarget,
         glm::vec3(0, 1, 0)
     );
+}
+
+// update camera pose & projection matrices based on panning input
+void Compositor::PanCamera(double dx, double dy)
+{
+    glm::vec3 lookDir = glm::normalize(this->camera.cameraPos - this->camera.cameraTarget); // direction camera is looking in
+    glm::vec3 cameraRight = glm::cross(lookDir, glm::vec3(0, 1, 0));                        // "right" w.r.t. the camera
+    glm::vec3 cameraUp = glm::cross(lookDir, cameraRight);                                  // "up" w.r.t. the camera
+    glm::vec3 translation = this->camera.panSpeed * ((float)dx * cameraRight - (float)dy * cameraUp);
+
+    // need to update cameraPos & cameraTarget together or else we'd get a rotation after performing UpdateCamera!
+    this->camera.cameraPos += translation;
+    this->camera.cameraTarget += translation;
+
+    this->UpdateCamera(0, 0);
 }
 
 // update camera pose & preojection matrices based on zoom input

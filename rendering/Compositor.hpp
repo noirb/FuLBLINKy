@@ -49,6 +49,8 @@ class Compositor
 
         void UpdateCamera(double dx, double dy);
 
+        void PanCamera(double dx, double dy);
+
         void ZoomCamera(double dz);
 
         void UpdateAspectRatio(int width, int height);
@@ -115,6 +117,7 @@ class Compositor
             float far;
             float speed;
             float mouseSpeed;
+            float panSpeed;
         } camera;
 };
 

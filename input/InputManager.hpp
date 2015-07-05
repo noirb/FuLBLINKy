@@ -42,6 +42,12 @@ class InputManager
         // returns TRUE if the left or right mouse button is pressed
         bool MousePressed();
 
+        // returns TRUE if the left mouse button is pressed
+        bool LeftMousePressed();
+
+        // returns TRUE if the right mouse button is pressed
+        bool RightMousePressed();
+
         // updates _projectionMatrix & _viewMatrix based on mouse movement
         void UpdateCameraMatrices(double dx, double dy);
 

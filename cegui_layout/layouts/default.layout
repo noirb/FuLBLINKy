@@ -76,9 +76,23 @@
                 <Property name="Disabled" value="true" />
                 <Property name="VerticalAlignment" value="Bottom" />
             </Window>
-            <Window type="VerticalLayoutContainer" name="renderers_container" >
-                <Property name="Area" value="{{0,1},{0,0},{1,1},{1,-32}}" />
-                <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
+            <Window type="TaharezLook/ScrollablePane" name="ScrollablePane" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,-32}}" />
+                <Property name="ContentArea" value="l:0 t:0 r:178 b:390" />
+                <AutoWindow namePath="__auto_container__" >
+                    <Property name="ContentArea" value="l:0 t:0 r:178 b:390" />
+                    <Property name="MouseInputPropagationEnabled" value="true" />
+                    <Window type="VerticalLayoutContainer" name="renderers_container" >
+                        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                        <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
+                    </Window>
+                </AutoWindow>
+                <AutoWindow namePath="__auto_hscrollbar__" >
+                    <Property name="AlwaysOnTop" value="true" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_vscrollbar__" >
+                    <Property name="AlwaysOnTop" value="true" />
+                </AutoWindow>
             </Window>
         </Window>
     </Window>

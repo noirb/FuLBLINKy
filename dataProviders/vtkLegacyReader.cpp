@@ -13,6 +13,10 @@ vtkLegacyReader::vtkLegacyReader(std::string filename)
     init(filename);
 }
 
+vtkLegacyReader::~vtkLegacyReader()
+{
+}
+
 // initializes the reader to pull data from the given file
 void vtkLegacyReader::init(std::string filename)
 {

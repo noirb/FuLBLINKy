@@ -19,6 +19,8 @@ class vtkLegacyReader : public DataProvider
         vtkLegacyReader();
         vtkLegacyReader(std::string filename);
 
+        virtual ~vtkLegacyReader();
+
         // initializes the reader to pull data from the given file
         void init(std::string filename);
 

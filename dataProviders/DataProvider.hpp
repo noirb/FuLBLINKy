@@ -6,7 +6,7 @@
 class DataProvider
 {
     public:
-//        virtual ~DataProvider();
+        virtual ~DataProvider() {};
         virtual int GetField(std::string, std::vector<std::vector<double> >**) = 0;
         virtual std::vector<std::string> GetFieldNames() = 0;
         virtual double GetMaxValueFromField(std::string) = 0;

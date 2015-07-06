@@ -210,7 +210,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
     CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", rendererName));
     entries_container->addChild(rWnd);
-    rWnd->setText(rendererName);
+    rWnd->setText(this->RendererStrs[rendererType]);
     rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
     rWnd->setSelected(false);
 

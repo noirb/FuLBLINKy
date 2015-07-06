@@ -13,6 +13,7 @@
 #include "PointRenderer.hpp"
 #include "GlyphRenderer.hpp"
 #include "LineRenderer.hpp"
+#include "StreamLineRenderer.hpp"
 
 
 /* ----------------------------------------------------------------- */
@@ -33,7 +34,8 @@ class Compositor
             RENDERER_AXES,
             RENDERER_POINTS,
             RENDERER_GLYPHS,
-            RENDERER_LINES
+            RENDERER_LINES,
+	    RENDERER_STREAMLINES
         };
 
         // Begins render loop
@@ -100,7 +102,8 @@ class Compositor
             "Axes",
             "Points",
             "Arrow Glyphs",
-            "Lines"
+            "Lines",
+	    "Stream Lines"
         };
 
         glm::mat4 _projectionMatrix;

@@ -41,6 +41,8 @@ void Compositor::Start()
     this->AddRenderer(RENDERER_GLYPHS);
     // add line renderer
     this->AddRenderer(RENDERER_LINES);
+    // add streamline renderer
+    this->AddRenderer(RENDERER_STREAMLINES);
 }
 
 void Compositor::ShutDown()
@@ -189,6 +191,10 @@ void Compositor::AddRenderer(Renderers rendererType)
             newRenderer = new LineRenderer();
             newRenderer->SetShader(&(this->_scalarMapShader));
             break;
+        case RENDERER_STREAMLINES:
+            newRenderer = new StreamLineRenderer();
+            newRenderer->SetShader(&(this->_scalarMapShader));
+            break;
         default:
             std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
             return;
@@ -217,7 +223,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     );
 
     // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
-    if (rendererType != RENDERER_AXES)
+    if (!1)//rendererType != RENDERER_AXES)
     {
         /*  Interpolation ComboBox */
         CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
@@ -269,7 +275,7 @@ void Compositor::AddRenderer(Renderers rendererType)
 
 
         /*  COLOR PICKERS */
-        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+/*        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
         entries_container->addChild(colourPicker_max);
         colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
         colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
@@ -316,7 +322,7 @@ void Compositor::AddRenderer(Renderers rendererType)
          colourPickerLabel_min->setText("Min");
          colourPickerLabel_min->setMousePassThroughEnabled(true);
          colourPickerLabel_min->setAlwaysOnTop(true);
-
+*/
     }
 
 

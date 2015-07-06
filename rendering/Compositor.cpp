@@ -169,6 +169,8 @@ void Compositor::AddRenderer(RenderableComponent* renderer)
 
 void Compositor::AddRenderer(Renderers rendererType)
 {
+    std::cout << "Adding GUI for new Renderer to scene (" << rendererType << ")" << std::endl;
+
     RenderableComponent* newRenderer;
     std::string rendererName;
 
@@ -202,6 +204,8 @@ void Compositor::AddRenderer(Renderers rendererType)
 
     rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
 
+    std::cout << "\tAdding ToggleButton...";
+
     // Add UI controls for the new renderer
     CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
     CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", rendererName));
@@ -209,6 +213,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     rWnd->setText(rendererName);
     rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
     rWnd->setSelected(false);
+
 
     // subscribe to CheckStateChanged so we know when the renderer is enabled/disabled
     rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
@@ -222,9 +227,13 @@ void Compositor::AddRenderer(Renderers rendererType)
                         }
     );
 
+    std::cout << "Done!" << std::endl;
+
     // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
-    if (!1)//rendererType != RENDERER_AXES)
+    if (rendererType != RENDERER_AXES)
     {
+        std::cout << "\tAdding color interpolation combobox...";
+
         /*  Interpolation ComboBox */
         CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
         entries_container->addChild(combobox);
@@ -255,6 +264,9 @@ void Compositor::AddRenderer(Renderers rendererType)
                         }
         );        
 
+        std::cout << "Done!" << std::endl;
+        std::cout << "\tAdding bias spinner...";
+
         /*  Interpolation Bias setter */
         CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
         entries_container->addChild(spinner);
@@ -273,9 +285,11 @@ void Compositor::AddRenderer(Renderers rendererType)
                         }
         );
 
+        std::cout << "Done!" << std::endl;
+        std::cout << "\tAdding color pickers...";
 
         /*  COLOR PICKERS */
-/*        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
         entries_container->addChild(colourPicker_max);
         colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
         colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
@@ -322,13 +336,17 @@ void Compositor::AddRenderer(Renderers rendererType)
          colourPickerLabel_min->setText("Min");
          colourPickerLabel_min->setMousePassThroughEnabled(true);
          colourPickerLabel_min->setAlwaysOnTop(true);
-*/
+
+        std::cout << "Done!" << std::endl;
+
     }
 
 
     // add new renderer to compositor
     newRenderer->Disable(); // renderer OFF by default//Enable();
     this->AddRenderer(newRenderer);
+
+    std::cout << "Done setting things up for the new renderer :D (" << newRenderer << ")" << std::endl;
 }
 
 void Compositor::InitGUI(CEGUI::Window* guiRoot)

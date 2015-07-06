@@ -6,7 +6,9 @@ BIN = fluid-vis
 BUILD_DIR = ./build
 
 # source files
-CSRC   = $(wildcard nativefiledialog/*.c)
+CSRC   = $(wildcard nativefiledialog/*.c)\
+         $(filter-out lbsim/main.c, $(wildcard lbsim/*.c))
+
 CPPSRC = main.cpp\
         loadShaders.cpp\
         $(wildcard dataProviders/*.cpp)\
@@ -15,7 +17,7 @@ CPPSRC = main.cpp\
         $(wildcard shaders/*.cpp)
 
 
-CFLAGS   = -Wall -g
+CFLAGS   = -Wall -g -std=c99
 CPPFLAGS = -Wall -g -std=c++11
 
 C_SRCFLAGS = -I./nativefiledialog/include/

@@ -405,6 +405,25 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
+    // Configure the Load LBD button
+    fWnd->getChildRecursive("LoadLBMbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, data_window](const CEGUI::EventArgs &e)->bool {
+                            nfdchar_t* outPath = NULL;
+                            nfdresult_t result = NFD_OpenDialog("dat", NULL, &outPath);
+
+                            if (result == NFD_OKAY)
+                            {
+                                std::cout << "Opening file: '" << outPath << "'" << std::endl;
+                                this->LoadLBM(outPath, data_window);
+                            }
+                            else if (result != NFD_CANCEL)
+                            {
+                                std::cout << "ERROR: " << NFD_GetError() << std::endl;
+                            }
+                            return true;
+                        }
+    );
+
     // Configure the timestep control buttons
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
@@ -486,16 +505,38 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     this->UpdateRenderers(this->_dataProvider);
 }
 
+void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
+{
+    if (this->_dataProvider)
+    {
+        delete this->_dataProvider;
+    }
+
+    this->_dataProvider = new lbsimWrapper(filename);
+    dataWindowRoot->setText(filename.substr(filename.find_last_of("/")+1));
+
+    CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
+    CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
+
+    if (this->_dataProvider->GetTimeStep() >= 0)
+        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
+    else
+        timestep_label->setText("N/A");
+
+    maxTimestep_label->setText("∞"); // LBM always has infinite timesteps
+
+    this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
+    this->UpdateRenderers(this->_dataProvider);
+}
+
 void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
 {
     // check to see if our dataProvider is a vtkLegacyReader
     vtkLegacyReader* legacyReader = dynamic_cast<vtkLegacyReader*>(this->_dataProvider);
-    if (!legacyReader)
+    if (legacyReader)
     {
-        return; /// TODO: When we have other providers, handle them!
+        dataWindowRoot->setText(legacyReader->GetFileName());
     }
-
-    dataWindowRoot->setText(legacyReader->GetFileName()); //filename.substr(filename.find_last_of("/")+1));
 
     CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
 

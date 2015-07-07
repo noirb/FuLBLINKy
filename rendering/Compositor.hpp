@@ -5,6 +5,7 @@
 #include <vector>
 #include "../nativefiledialog/include/nfd.h"
 #include "../dataProviders/vtkLegacyReader.hpp"
+#include "../dataProviders/lbsimWrapper.hpp"
 #include "../common.hpp"
 #include "../loadShaders.hpp"
 #include "ShaderProgram.hpp"
@@ -94,6 +95,7 @@ class Compositor
         void InitShaders();
         void UpdateRenderers(DataProvider*);
         void LoadVTK(std::string, CEGUI::Window*);
+        void LoadLBM(std::string, CEGUI::Window*);
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);
 

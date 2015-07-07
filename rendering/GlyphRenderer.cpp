@@ -16,6 +16,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("velocity", &velocities) != 0)
     {
         std::cout << "ERROR<GlyphRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
+        return;
     }
 
     std::cout << "GlyphRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " velocities" << std::endl;

@@ -19,7 +19,7 @@ extern "C" {
 #include "../lbsim/collision.h"
 #include "../lbsim/boundary.h"
 #include "../lbsim/streaming.h"
-}
+};
 
 class lbsimWrapper : public DataProvider
 {

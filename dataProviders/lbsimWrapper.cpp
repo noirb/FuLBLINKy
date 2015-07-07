@@ -1,7 +1,7 @@
 #include "lbsimWrapper.hpp"
 #include <algorithm>
 #include <iterator>
-
+#include <glm/glm.hpp>
 lbsimWrapper::lbsimWrapper()
 {
     this->timestep = 0;
@@ -34,11 +34,12 @@ void lbsimWrapper::init(std::string filename)
     this->filename = filename;
     std::cout << "Loading lbsim input file: " << filename << std::endl;
 
+    setlocale(LC_ALL, "C"); // REQUIRED for sscanf used by readParameters to recognize decimal points on all systems
+
     // read domain parameters from input
     if (readParameters(&xlength, &ylength, &zlength, &tau, &timesteps, &timestepsPerPlotting, 2, c_filename) == -1)
     {
         std::cout << "ERROR: Could not read lbsim parameter file: " << filename << std::endl;
-        return;
     }
 
     totalElements = (xlength+2) * (ylength+2) * (zlength+2);
@@ -85,6 +86,11 @@ void lbsimWrapper::init(std::string filename)
 // extracts field data so it's ready for a renderer to pick up
 void lbsimWrapper::Update()
 {
+    double minDensity = 100;
+    double maxDensity = -100;
+    double minVelocity = 100;
+    double maxVelocity = -100;
+
     this->domainFields["points"].clear();
     this->domainFields["density"].clear();
     this->domainFields["velocity"].clear();
@@ -110,10 +116,20 @@ void lbsimWrapper::Update()
                 this->domainFields["density"].push_back( d_tmp );
                 this->domainFields["velocity"].push_back( v_tmp );
                 count++;
+
+                minDensity = density < minDensity ? density : minDensity;
+                maxDensity = density > maxDensity ? density : maxDensity;
+                double velocityMag = glm::length(glm::vec3(velocity[0], velocity[1], velocity[2]));
+                minVelocity = velocityMag < minVelocity ? velocityMag : minVelocity;
+                maxVelocity = velocityMag > maxVelocity ? velocityMag : maxVelocity;
             }
         }
     }
-    std::cout << " >>> Created " << count << " Points!" << std::endl;
+
+    this->minFieldValues["density"] = minDensity;
+    this->maxFieldValues["density"] = maxDensity;
+    this->minFieldValues["velocity"] = minVelocity;
+    this->maxFieldValues["velocity"] = maxVelocity;
 }
 
 std::string lbsimWrapper::GetBaseFilename()

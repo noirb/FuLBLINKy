@@ -499,7 +499,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     if (this->_dataProvider->GetMaxTimeStep() >= 0)
         maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep()-1));
     else
-        timestep_label->setText("∞");
+        timestep_label->setText("--");
 
     this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
     this->UpdateRenderers(this->_dataProvider);
@@ -523,7 +523,7 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     else
         timestep_label->setText("N/A");
 
-    maxTimestep_label->setText("∞"); // LBM always has infinite timesteps
+    maxTimestep_label->setText("--"); // LBM always has infinite timesteps
 
     this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
     this->UpdateRenderers(this->_dataProvider);

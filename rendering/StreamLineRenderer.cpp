@@ -159,10 +159,12 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("velocity", &velocities) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
+        return;
     }
     if ( provider->GetField("dimensions", &domainSize) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Dimensions Field could not be retrieved!" << std::endl;
+        return;
     }
 
     std::cout << "StreamLineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " velocities" << std::endl;

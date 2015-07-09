@@ -36,7 +36,7 @@ class Compositor
             RENDERER_POINTS,
             RENDERER_GLYPHS,
             RENDERER_LINES,
-	    RENDERER_STREAMLINES
+            RENDERER_STREAMLINES
         };
 
         // Begins render loop
@@ -96,6 +96,7 @@ class Compositor
         void UpdateRenderers(DataProvider*);
         void LoadVTK(std::string, CEGUI::Window*);
         void LoadLBM(std::string, CEGUI::Window*);
+        CEGUI::Window* AddRendererPopup();
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);
 
@@ -105,7 +106,7 @@ class Compositor
             "Points",
             "Arrow Glyphs",
             "Lines",
-	    "Stream Lines"
+            "Stream Lines"
         };
 
         glm::mat4 _projectionMatrix;

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="TaharezLook/FrameWindow" name="AddRenderer_Popup" >
+        <Property name="Area" value="{{0,0},{0,0},{0.3,0},{0.3,0}}" />
+        <Property name="Text" value="Add Renderer" />
+        <Property name="Visible" value="false" />
+        <Property name="RollUpEnabled" value="false" />
+        <Window type="TaharezLook/ScrollablePane" name="ScrollablePane" >
+            <Property name="Area" value="{{0,0},{0,0},{1,0},{1,-32}}" />
+            <Property name="ContentArea" value="l:0 t:0 r:296 b:169" />
+            <AutoWindow namePath="__auto_container__" >
+                <Property name="ContentArea" value="l:0 t:0 r:296 b:169" />
+                <Property name="MouseInputPropagationEnabled" value="true" />
+                <Window type="TaharezLook/Listbox" name="renderer_list" >
+                    <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                </Window>
+            </AutoWindow>
+            <AutoWindow namePath="__auto_hscrollbar__" >
+                <Property name="AlwaysOnTop" value="true" />
+            </AutoWindow>
+            <AutoWindow namePath="__auto_vscrollbar__" >
+                <Property name="AlwaysOnTop" value="true" />
+            </AutoWindow>
+        </Window>
+        <Window type="TaharezLook/Button" name="btnAddRenderer" >
+            <Property name="Area" value="{{0,25},{0,-3},{0,114},{0,21}}" />
+            <Property name="Text" value="Add" />
+            <Property name="VerticalAlignment" value="Bottom" />
+        </Window>
+        <Window type="TaharezLook/Button" name="btnCancel" >
+            <Property name="Area" value="{{0,180},{0,-1},{0,270},{0,26}}" />
+            <Property name="Text" value="Cancel" />
+            <Property name="VerticalAlignment" value="Bottom" />
+        </Window>
+    </Window>
+</GUILayout>

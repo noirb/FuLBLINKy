@@ -72,7 +72,6 @@
             <Window type="TaharezLook/Button" name="AddRendererbtn" >
                 <Property name="Area" value="{{0,8},{0,-2},{0,92},{0,25}}" />
                 <Property name="Text" value="Add" />
-                <Property name="Disabled" value="true" />
                 <Property name="VerticalAlignment" value="Bottom" />
             </Window>
             <Window type="TaharezLook/ScrollablePane" name="ScrollablePane" >

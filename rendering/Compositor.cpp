@@ -35,14 +35,6 @@ void Compositor::Start()
 */
     // add default axes renderer
     this->AddRenderer(RENDERER_AXES);
-    // add point renderer
-    this->AddRenderer(RENDERER_POINTS);
-    // add glyph renderer
-    this->AddRenderer(RENDERER_GLYPHS);
-    // add line renderer
-    this->AddRenderer(RENDERER_LINES);
-    // add streamline renderer
-    this->AddRenderer(RENDERER_STREAMLINES);
 }
 
 void Compositor::ShutDown()
@@ -169,7 +161,7 @@ void Compositor::AddRenderer(RenderableComponent* renderer)
 
 void Compositor::AddRenderer(Renderers rendererType)
 {
-    std::cout << "Adding GUI for new Renderer to scene (" << rendererType << ")" << std::endl;
+    std::cout << "Adding GUI for new Renderer to scene (" << this->RendererStrs[rendererType] << ")" << std::endl;
 
     RenderableComponent* newRenderer;
     std::string rendererName;
@@ -200,6 +192,12 @@ void Compositor::AddRenderer(Renderers rendererType)
         default:
             std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
             return;
+    }
+
+    // if we already have data to visualize, send it to the new renderer
+    if (this->_dataProvider)
+    {
+        newRenderer->PrepareGeometry(this->_dataProvider);
     }
 
     rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
@@ -440,7 +438,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
     fWnd->getChildRecursive("btnPlay")->subscribeEvent(CEGUI::PushButton::EventClicked,
-                        [this, data_window](const CEGUI::EventArgs &e)->bool {
+                        [this](const CEGUI::EventArgs &e)->bool {
                             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
                             if (this->autoplay)
                             {
@@ -451,6 +449,17 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                                 wargs.window->setText("||");
                             }
                             this->autoplay = !this->autoplay;
+                            return true;
+                        }
+    );
+
+
+    CEGUI::Window* add_popup = this->AddRendererPopup();
+
+    // Configure the Add Renderer button
+    fWnd->getChildRecursive("AddRendererbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [add_popup](const CEGUI::EventArgs &e)->bool {
+                            add_popup->show();
                             return true;
                         }
     );
@@ -546,6 +555,52 @@ void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
         timestep_label->setText("N/A");
 
     this->UpdateRenderers(this->_dataProvider);
+}
+
+CEGUI::Window* Compositor::AddRendererPopup()
+{
+    CEGUI::Window* addWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("add_renderer.layout");
+    CEGUI::Listbox* renderer_list = static_cast<CEGUI::Listbox*>(addWnd->getChildRecursive("renderer_list"));
+
+    // set selection highlight to a half transparent blue to red gradient.
+    CEGUI::Colour selectColor1(0.0, 0.8, 0.5, 0.4);
+    CEGUI::Colour selectColor2(0.1, 0.0, 0.0, 0.1);
+
+    // Add list of renderers w/ IDs
+    for (uint i = 1; i < this->RendererStrs.size(); i++) // start from 1 to skip Axes Renderer
+    {
+        CEGUI::ListboxTextItem* renderer_entry = new CEGUI::ListboxTextItem(this->RendererStrs[i], i);
+        renderer_entry->setSelectionColours(selectColor1, selectColor2, selectColor1, selectColor2);
+        renderer_entry->setSelectionBrushImage("TaharezLook/ListboxSelectionBrush");
+        renderer_list->addItem(renderer_entry);
+    }
+
+    // setup event for the AddRenderer button
+    addWnd->getChildRecursive("btnAddRenderer")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, addWnd, renderer_list](const CEGUI::EventArgs &e)->bool {
+                            CEGUI::ListboxItem* selected = renderer_list->getFirstSelectedItem();
+
+                            if (selected)
+                            {
+                                this->AddRenderer((Renderers)selected->getID());
+                                addWnd->hide();
+                            }
+                            return true;
+                        }
+    );
+
+    // setup event for the Cancel button
+    addWnd->getChildRecursive("btnCancel")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, addWnd](const CEGUI::EventArgs &e)->bool {
+                              addWnd->hide();
+                            return true;
+                        }
+    );
+
+    guiRoot->addChild(addWnd);
+    addWnd->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+
+    return addWnd;
 }
 
 void Compositor::UpdateRenderers(DataProvider* provider)

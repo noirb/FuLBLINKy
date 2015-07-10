@@ -876,7 +876,7 @@
             </Area>
             <Property name="AlwaysOnTop" value="false" />
         </Child>
-        <Child type="DefaultWindow" nameSuffix="__auto_clientarea__">
+        <Child type="VerticalLayoutContainer" nameSuffix="__auto_clientarea__">
              <Area>
                  <Dim type="LeftEdge">
                      <PropertyDim name="SizingBorderThickness" />

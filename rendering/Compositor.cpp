@@ -233,15 +233,51 @@ void Compositor::AddRenderer(Renderers rendererType)
 
         // Parameters list toggle switch
         CEGUI::FrameWindow* paramBox_parent = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow_Auto"));
-//        CEGUI::Window* paramBox = paramBox_parent->getChild("__auto_clientarea__");
-        CEGUI::VerticalLayoutContainer* paramBox = static_cast<CEGUI::VerticalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("VerticalLayoutContainer"));
-        paramBox_parent->getChild("__auto_clientarea__")->addChild(paramBox);
+        CEGUI::Window* paramBox = paramBox_parent->getChild("__auto_clientarea__");
         paramBox_parent->setFrameEnabled(false);
         paramBox_parent->setTitleBarEnabled(false);
         paramBox_parent->setSizingEnabled(false);
         paramBox_parent->setCloseButtonEnabled(false);
         paramBox_parent->setDragMovingEnabled(false);
         paramBox_parent->setRollupEnabled(true);
+        std::cout << "Done!" << std::endl;
+
+        std::cout << "\tAdding color scalar field selection combobox...";
+
+        /* Scalar Field selection combobox for colors */
+        CEGUI::Combobox* colorField_combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
+        paramBox->addChild(colorField_combobox);
+        colorField_combobox->setAutoSizeListHeightToContent(true);
+        colorField_combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 100)));
+        colorField_combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
+                                                    CEGUI::UDim(0, 0),
+                                                    CEGUI::UDim(0, -60), // fix bottom margin to avoid breaking layout
+                                                    CEGUI::UDim(0, 0) ));
+        colorField_combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
+                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
+                            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
+                            newRenderer->SetColorField(selected->getText().c_str());
+                            newRenderer->PrepareGeometry(this->_dataProvider);
+                            return true;
+                        }
+        );
+
+        if (_dataProvider)
+        {
+            for (auto field : _dataProvider->GetFieldNames())
+            {
+                colorField_combobox->addItem(new CEGUI::ListboxTextItem(field, RenderableComponent::ScalarParamType::VECTOR_MAGNITUDE));
+            }
+
+            // if we have at least 1 field, select the first one by default
+            if (colorField_combobox->getItemCount() > 0)
+            {
+                colorField_combobox->setItemSelectState((size_t)0, true);
+            }
+        }
         std::cout << "Done!" << std::endl;
 
         std::cout << "\tAdding color interpolation combobox...";
@@ -253,7 +289,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 200)));
         combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
                                          CEGUI::UDim(0, 0),
-                                         CEGUI::UDim(0, -175),  // fix bottom margin of combobox to avoid breaking layout
+                                         CEGUI::UDim(0, -165),  // fix bottom margin of combobox to avoid breaking layout
                                          CEGUI::UDim(0, 0) ));
         CEGUI::ListboxTextItem* comboEntry1 = new CEGUI::ListboxTextItem("Linear", Interpolation::LINEAR);
         CEGUI::ListboxTextItem* comboEntry2 = new CEGUI::ListboxTextItem("Smooth", Interpolation::SMOOTH);

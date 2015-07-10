@@ -12,8 +12,6 @@ class StreamLineRenderer: public RenderableComponent
 
         virtual void Draw(glm::mat4 MVP);
 
-        double streamLinePointCounter;
-
     private:
         double maxGradientValue;
         double minGradientValue;

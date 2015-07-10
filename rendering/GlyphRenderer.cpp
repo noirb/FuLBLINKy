@@ -43,6 +43,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
+    double max_velocity = provider->GetMaxValueFromField("velocity");
     //for (auto point : *points)
     for (int loopVarVertices = 0; loopVarVertices < this->totalVertices; loopVarVertices++)
     {
@@ -51,6 +52,12 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         {
             velTemp[loopVarComponents] = (velocities->at(loopVarVertices))[loopVarComponents];
         }
+	double local_scaling;
+	if (max_velocity != 0){
+		local_scaling = exp(sqrt(velTemp[0]*velTemp[0] + velTemp[1]*velTemp[1] + velTemp[2]*velTemp[2])/max_velocity)/exp(1);
+	}
+	else{
+		local_scaling = 0.1;}
 	
         glm::mat4 M = glm::mat4(1.0f);
         M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
@@ -71,9 +78,9 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         {
             // get coords for current vertex
             glm::vec4 glyphPointTemp = glm::vec4(
-                            velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
-                            velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
-                            velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
+                            local_scaling*velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
+                            local_scaling*velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
+                            local_scaling*velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
                             1.0);
             // apply rotation & translation transforms
             glyphPointTemp = M * glyphPointTemp;

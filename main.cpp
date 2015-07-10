@@ -68,7 +68,6 @@ int main(void)
         /* ---------------- */
         /*  GENERAL SETUP   */
         /* ---------------- */
-    std::setlocale(LC_ALL, "C");
     init(&window);
     InputManager inputManager = InputManager(window);
     Compositor::Instance().Start();

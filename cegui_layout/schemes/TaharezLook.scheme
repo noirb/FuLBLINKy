@@ -11,6 +11,7 @@
 	<FalagardMapping windowType="TaharezLook/ImageButton" targetType="CEGUI/PushButton"  renderer="Core/Button"       lookNFeel="TaharezLook/ImageButton" />
 	<FalagardMapping windowType="TaharezLook/RadioButton" targetType="CEGUI/RadioButton" renderer="Core/ToggleButton" lookNFeel="TaharezLook/RadioButton" />
 	<FalagardMapping windowType="TaharezLook/FrameWindow"  targetType="CEGUI/FrameWindow" renderer="Core/FrameWindow"  lookNFeel="TaharezLook/FrameWindow" />
+	<FalagardMapping windowType="TaharezLook/FrameWindow_Auto"  targetType="CEGUI/FrameWindow" renderer="Core/FrameWindow"  lookNFeel="TaharezLook/FrameWindow_Auto" />
 	<FalagardMapping windowType="TaharezLook/Titlebar"     targetType="CEGUI/Titlebar"    renderer="Core/Titlebar"     lookNFeel="TaharezLook/Titlebar" />
 	<FalagardMapping windowType="TaharezLook/Editbox"          targetType="CEGUI/Editbox"          renderer="Core/Editbox"          lookNFeel="TaharezLook/Editbox" />
 	<FalagardMapping windowType="TaharezLook/MultiLineEditbox" targetType="CEGUI/MultiLineEditbox" renderer="Core/MultiLineEditbox" lookNFeel="TaharezLook/MultiLineEditbox" />

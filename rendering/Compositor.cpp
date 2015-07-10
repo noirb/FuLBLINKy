@@ -212,7 +212,6 @@ void Compositor::AddRenderer(Renderers rendererType)
     rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
     rWnd->setSelected(false);
 
-
     // subscribe to CheckStateChanged so we know when the renderer is enabled/disabled
     rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
                     [rWnd, newRenderer] (const CEGUI::EventArgs &e)->bool
@@ -230,11 +229,26 @@ void Compositor::AddRenderer(Renderers rendererType)
     // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
     if (rendererType != RENDERER_AXES)
     {
+        std::cout << "\tAdding parameters Container...";
+
+        // Parameters list toggle switch
+        CEGUI::FrameWindow* paramBox_parent = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow_Auto"));
+//        CEGUI::Window* paramBox = paramBox_parent->getChild("__auto_clientarea__");
+        CEGUI::VerticalLayoutContainer* paramBox = static_cast<CEGUI::VerticalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("VerticalLayoutContainer"));
+        paramBox_parent->getChild("__auto_clientarea__")->addChild(paramBox);
+        paramBox_parent->setFrameEnabled(false);
+        paramBox_parent->setTitleBarEnabled(false);
+        paramBox_parent->setSizingEnabled(false);
+        paramBox_parent->setCloseButtonEnabled(false);
+        paramBox_parent->setDragMovingEnabled(false);
+        paramBox_parent->setRollupEnabled(true);
+        std::cout << "Done!" << std::endl;
+
         std::cout << "\tAdding color interpolation combobox...";
 
         /*  Interpolation ComboBox */
         CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
-        entries_container->addChild(combobox);
+        paramBox->addChild(combobox);
         combobox->setAutoSizeListHeightToContent(true);
         combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 200)));
         combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
@@ -267,7 +281,7 @@ void Compositor::AddRenderer(Renderers rendererType)
 
         /*  Interpolation Bias setter */
         CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
-        entries_container->addChild(spinner);
+        paramBox->addChild(spinner);
         spinner->setMinimumValue(-4.0);
         spinner->setMaximumValue(4.0);
         spinner->setStepSize(0.1);
@@ -288,7 +302,7 @@ void Compositor::AddRenderer(Renderers rendererType)
 
         /*  COLOR PICKERS */
         CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
-        entries_container->addChild(colourPicker_max);
+        paramBox->addChild(colourPicker_max);
         colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
         colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
         colourPicker_max->setColour(CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f));
@@ -312,7 +326,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         colourPickerLabel_max->setAlwaysOnTop(true);
 
          CEGUI::ColourPicker* colourPicker_min = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
-         entries_container->addChild(colourPicker_min);
+         paramBox->addChild(colourPicker_min);
          colourPicker_min->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
          colourPicker_min->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30))); 
          colourPicker_min->setColour(CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f));
@@ -335,16 +349,36 @@ void Compositor::AddRenderer(Renderers rendererType)
          colourPickerLabel_min->setMousePassThroughEnabled(true);
          colourPickerLabel_min->setAlwaysOnTop(true);
 
+        entries_container->addChild(paramBox_parent);
+        paramBox_parent->toggleRollup();
+        paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0, 150)));
         std::cout << "Done!" << std::endl;
 
-    }
+        // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
+        rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
+                        [rWnd, paramBox_parent] (const CEGUI::EventArgs &e)->bool
+                            {
+                                if (rWnd->isSelected())
+                                {
+                                    paramBox_parent->setRolledup(false);
+                                    paramBox_parent->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+                                }
+                                else
+                                {
+                                    paramBox_parent->setRolledup(true);
+                                    paramBox_parent->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -150), CEGUI::UDim(0,0)));
+                                }
+                                return true;
+                            }
+        );
 
+    }
 
     // add new renderer to compositor
     newRenderer->Disable(); // renderer OFF by default//Enable();
     this->AddRenderer(newRenderer);
 
-    std::cout << "Done setting things up for the new renderer :D (" << newRenderer << ")" << std::endl;
+    std::cout << "Done setting things up for the new renderer :D (" << this->RendererStrs[rendererType] << ")" << std::endl;
 }
 
 void Compositor::InitGUI(CEGUI::Window* guiRoot)

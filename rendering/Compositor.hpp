@@ -15,7 +15,7 @@
 #include "GlyphRenderer.hpp"
 #include "LineRenderer.hpp"
 #include "StreamLineRenderer.hpp"
-
+#include "ProbabilitiesRenderer.hpp"
 
 /* ----------------------------------------------------------------- */
 /* A lazy singleton used to manage the state of the rendering system */
@@ -36,7 +36,8 @@ class Compositor
             RENDERER_POINTS,
             RENDERER_GLYPHS,
             RENDERER_LINES,
-            RENDERER_STREAMLINES
+            RENDERER_STREAMLINES,
+	    RENDERER_PROBABILITIES,
         };
 
         // Begins render loop
@@ -106,7 +107,8 @@ class Compositor
             "Points",
             "Arrow Glyphs",
             "Lines",
-            "Stream Lines"
+            "Stream Lines",
+	    "Probabilities",
         };
 
         glm::mat4 _projectionMatrix;

@@ -189,6 +189,10 @@ void Compositor::AddRenderer(Renderers rendererType)
             newRenderer = new StreamLineRenderer();
             newRenderer->SetShader(&(this->_scalarMapShader));
             break;
+        case RENDERER_PROBABILITIES:
+            newRenderer = new ProbabilitiesRenderer();
+            newRenderer->SetShader(&(this->_scalarMapShader));
+            break;
         default:
             std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
             return;

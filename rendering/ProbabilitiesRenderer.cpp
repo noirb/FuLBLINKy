@@ -3,9 +3,13 @@
 #include <iostream>
 
 #define COMPUTEINDEXOF(x, y, z) ( (x) * (ylength) * (zlength) + (y) * (zlength) + (z) )
+std::vector<double> velocityMagnitudes;
 
 void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 {    
+    double maxProbability = -0.1;
+    //double minProbability = 2.0;
+    velocityMagnitudes.clear();
     float VectorScale = 0.5;	
     // Start coordinate indices for directions:
     std::vector<double> startPoint;
@@ -130,12 +134,22 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 			                // apply rotation & translation transforms
 			                glyphPointTemp = M * glyphPointTemp;
 
-			                // store (x,y,z) components of current vertex
+					//current probability
+
+					double probability = (probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
+					if (probability > maxProbability)
+						maxProbability = probability;
+					/*if (probability < minProbability)
+						minProbability = probability;
+			                // store (x,y,z) components of current vertex*/
+					velocityMagnitudes.push_back(probability);
+					cout << probability;
 			                for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
 			                {
 					    if (glyphPointTemp[loopVarComponents] != glyphPointTemp[loopVarComponents]){
 						std::cout << "\nDebug!\n";
 					    }
+
 			                    this->vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];
 					    globalCounter++;
 			                }
@@ -156,7 +170,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     this->vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
     for (int i = 0; i < num_of_vertices; i++)
     {
-        this->vertex_attrib_data[0][i] = 0.01;
+        this->vertex_attrib_data[0][i] = velocityMagnitudes[i];
     }
 
     GLuint vao, vbo, velocity_buf;
@@ -203,8 +217,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
-    this->minGradientValue = 0.005;
-    this->maxGradientValue = 0.015;
+    this->minGradientValue = 0;//minProbability;
+    this->maxGradientValue = maxProbability;
 }
 
 void ProbabilitiesRenderer::Draw(glm::mat4 MVP)

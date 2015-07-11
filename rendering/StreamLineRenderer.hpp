@@ -9,7 +9,11 @@ class StreamLineRenderer: public RenderableComponent
 {
     public:
         virtual void PrepareGeometry(DataProvider* provider);
-
+	//void pushCoordinate(double value, int coord, bool ifEnd);
+	double startPoint[3] = {3.0, 3.0, 3.0};
+	double endPoint[3] = {5.0, 5.0, 5.0};
+	int lineSourceSize = 15;
+	double maxStreamlineLength = 500.0;
         virtual void Draw(glm::mat4 MVP);
 
     private:

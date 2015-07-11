@@ -7,8 +7,25 @@
 // Create a counter for how far we are on the streamLine
 std::vector<int> streamLinePointCounter;
 std::vector<double> velocity_magnitudes;
-const int lineSourceSize = 15;
 
+//double startPoint[3] = {2.0, 2.0, 2.0};
+//double endPoint[3] = {5.0, 5.0, 5.0};
+//void StreamLineRenderer::pushCoordinate(double value, int coord, bool ifEnd)
+//{
+//	if (ifEnd){
+		//startPoint[coord] = value;	
+	//}else{
+//		endPoint[coord] = value;	
+//	}
+//}
+
+//double* getStartPoint(){
+//	return startPoint;
+//}
+
+//double* getEndPoint(){
+//	return endPoint;
+//}
 std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double deltaX, 
                                                           double deltaY, 
 							  double deltaZ,
@@ -194,17 +211,18 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     // determine needed number of vertices & allocate space for them
     // StreamLineRenderer only needs ONE vertex per data point
     this->totalVertices = (*points).size();
-
+  // double* startPointNew = getStartPoint();
+   // double* endPointNew = getEndPoint();
     // for now, create local deltaX/Y/Z, streamlineSource, maxStreamLineLength, dt
     // create the end-points of the lines
     std::vector<double> lineSourcePoint1;
-	lineSourcePoint1.push_back(3.0);
-	lineSourcePoint1.push_back(3.0);
-	lineSourcePoint1.push_back(3.0);
+	lineSourcePoint1.push_back(startPoint[0]);
+	lineSourcePoint1.push_back(startPoint[1]);
+	lineSourcePoint1.push_back(startPoint[2]);
     std::vector<double> lineSourcePoint2;
-	lineSourcePoint2.push_back(10.0);
-	lineSourcePoint2.push_back(10.0);
-	lineSourcePoint2.push_back(10.5);
+	lineSourcePoint2.push_back(endPoint[0]);
+	lineSourcePoint2.push_back(endPoint[1]);
+	lineSourcePoint2.push_back(endPoint[2]);
     std::vector<double> steps;
 	steps.push_back( (lineSourcePoint2[0] - lineSourcePoint1[0])/(lineSourceSize-1) );
 	steps.push_back( (lineSourcePoint2[1] - lineSourcePoint1[1])/(lineSourceSize-1) );
@@ -214,7 +232,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     int k = 0;
 
     double dt = 100;
-    double maxStreamLineLength = 200.0;
+  //  double maxStreamLineLength = 200.0;
     double deltaX = 1.0;
     double deltaY = 1.0;
     double deltaZ = 1.0;
@@ -259,9 +277,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 	while( streamLinePoints[k - 3] < xlength-1 && streamLinePoints[k - 3] > 1 &&
 	       streamLinePoints[k - 2] < ylength-1 && streamLinePoints[k - 2] > 1 &&
 	       streamLinePoints[k - 1] < zlength-1 && streamLinePoints[k - 1] > 1 &&
-	       streamLineLength[i] < maxStreamLineLength &&
-
-	       streamLinePointCounter[i] < 5000)
+	       streamLineLength[i] < maxStreamlineLength)
 	{	
 		currPoint.clear();
 	        currPoint.push_back(streamLinePoints[k - 3]);

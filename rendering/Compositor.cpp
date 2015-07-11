@@ -1,7 +1,9 @@
 #include "Compositor.hpp"
 #include "CEGUI/CommonDialogs/Module.h"
 #include "CEGUI/CommonDialogs/ColourPicker/Controls.h"
+#include <iostream>
 #include "CEGUI/CommonDialogs/ColourPicker/ColourPicker.h"
+//#include "CEGUI.h"
 
 Compositor::Compositor()
 {
@@ -322,17 +324,34 @@ void Compositor::AddRenderer(Renderers rendererType)
 
 	if (rendererType == RENDERER_STREAMLINES)
 	{
+
+		//Label for the start point
+		CEGUI::Window* startPoint = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText"));
+		startPoint->setText("Start Point:");
+		startPoint->setProperty("VertFormatting", "WordWrapLeftAligned");
+		startPoint->setTooltipText("Staring point of the line streamline source");
+		startPoint->setSize(CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)));
+		paramBox->addChild(startPoint);
+
+		//Coordinates of start point
 		CEGUI::HorizontalLayoutContainer* hcon = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
 		paramBox->addChild(hcon);
 		/*  Point Editbox 1 */
 		CEGUI::Editbox* editbox1 = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
 		hcon->addChild(editbox1);
-		editbox1->setText("Hello :D");
+		editbox1->setText("X:");
+		editbox1->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
 		editbox1->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-				[newRenderer] (const CEGUI::EventArgs &e)->bool
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
 					{
 						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
 						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->startPoint[0] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
 						std::cout << "Edit box has: '" << box->getText() << "'" << std::endl;
 						return true;
 					}
@@ -341,14 +360,177 @@ void Compositor::AddRenderer(Renderers rendererType)
 		/* Point Editbox 2 */
 		CEGUI::Editbox* editbox2 = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
 		hcon->addChild(editbox2);
-		editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
-		editbox2->setText(" :< ");
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		editbox2->setText("Y: ");
+		editbox2->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
 		editbox2->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-				[newRenderer] (const CEGUI::EventArgs &e)->bool
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
 					{
 						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
 						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->startPoint[1] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
 						std::cout << "Edit box 2 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+		
+		CEGUI::Editbox* editbox3 = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		hcon->addChild(editbox3);
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		editbox3->setText("Z: ");
+		editbox3->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		editbox3->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->startPoint[2] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						//(static_cast<StreamLineRenderer*>(newRenderer))->pushCoordinate(value, 2, 0);
+						std::cout << "Edit box 3 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+
+				/* Label for the end point */
+		CEGUI::Window* endPoint = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText"));
+		endPoint->setText("End Point:");
+		endPoint->setProperty("VertFormatting", "WordWrapLeftAligned");
+		endPoint->setTooltipText("End point of the line streamline source");
+		endPoint->setSize(CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)));
+		paramBox->addChild(endPoint);
+
+		//Coordinates of end point
+		CEGUI::HorizontalLayoutContainer* CoordEndPoint = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+		paramBox->addChild(CoordEndPoint);
+		/*  Point Editbox 1 */
+		CEGUI::Editbox* editbox_X_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		CoordEndPoint->addChild(editbox_X_end);
+		editbox_X_end->setText("X:");
+		editbox_X_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		editbox_X_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->endPoint[0] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						//(static_cast<StreamLineRenderer*>(newRenderer))->pushCoordinate(value, 0, 1);
+						std::cout << "Edit box has: '" << box->getText() << "'" << std::endl;
+						return true;
+					}
+		);
+
+		/* Point Editbox 2 */
+		CEGUI::Editbox* editbox_Y_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		CoordEndPoint->addChild(editbox_Y_end );
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		editbox_Y_end->setText("Y: ");
+		editbox_Y_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		editbox_Y_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->endPoint[1] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						std::cout << "Edit box 2 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+		
+		CEGUI::Editbox* editbox_Z_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		CoordEndPoint->addChild(editbox_Z_end );
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		editbox_Z_end->setText("Z: ");
+		editbox_Z_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		editbox_Z_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->startPoint[2] = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						std::cout << "Edit box 3 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+
+		// Label for number of points on the streamline line source
+		CEGUI::Window* NumOfPoints = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText"));
+		NumOfPoints->setText("Number of points:");
+		NumOfPoints->setProperty("VertFormatting", "WordWrapLeftAligned");
+		NumOfPoints->setTooltipText("Number of points on the source line");
+		NumOfPoints->setSize(CEGUI::USize(CEGUI::UDim(0, 150), CEGUI::UDim(0, 30)));
+		paramBox->addChild(NumOfPoints);
+
+		CEGUI::Editbox* numberOfSourcePoints = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		paramBox->addChild(numberOfSourcePoints);
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		numberOfSourcePoints->setText(" ");
+		numberOfSourcePoints->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		numberOfSourcePoints->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->lineSourceSize = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						std::cout << "Edit box 3 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+
+		// Label for the maximum length of the streamline
+		CEGUI::Window* maxLength = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/StaticText"));
+		maxLength->setText("Max length:");
+		maxLength->setProperty("VertFormatting", "WordWrapLeftAligned");
+		maxLength->setTooltipText("Maximal lenght of streamlines");
+		maxLength->setSize(CEGUI::USize(CEGUI::UDim(0, 150), CEGUI::UDim(0, 30)));
+		paramBox->addChild(maxLength);
+
+		CEGUI::Editbox* length = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		paramBox->addChild(length);
+		//editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		length->setText(" ");
+		length->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+		length->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[this, newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::stringstream sstm;
+						sstm << box->getText();
+						double value;
+						sstm >> value;
+						(static_cast<StreamLineRenderer*>(newRenderer))->maxStreamlineLength = value;
+						newRenderer->PrepareGeometry(this->_dataProvider);
+						std::cout << "Edit box 3 has: " << box->getText() << std::endl;
 						return true;
 					}
 		);

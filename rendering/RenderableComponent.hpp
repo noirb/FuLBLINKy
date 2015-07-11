@@ -27,25 +27,39 @@ class RenderableComponent
         void SetInterpolator(Interpolation);
         void SetInterpolationBias(float);
 
+        void SetColorField(std::string);
+        void SetScaleField(std::string);
+
         void Enable();
 
         void Disable();
 
+        enum ScalarParamType {
+            VECTOR_MAGNITUDE,
+            VECTOR_X,
+            VECTOR_Y,
+            VECTOR_Z
+        };
+
     protected:
         GLfloat*  vertex_buffer_data;  // vertex data specific to this renderer
         GLfloat** vertex_attrib_data;  // collection of vertex attributes (e.g. color, density, etc)
-        ShaderProgram* shaderProgram;         // shaders to use when we render
+        ShaderProgram* shaderProgram;  // shaders to use when we render
         GLuint VBO;                   // Vertex Buffer Object
         GLuint VAO;                   // Vertex Array Object
         int totalVertices = 0;        // Total # of vertices this object will draw each frame
         int totalAttributes = 0;
         bool enabled;
 
+        std::string colorParamField;  // used to select the scalar field coloring & scaling is defined by
+        std::string scaleParamField;
+
         GLuint maxColorID;
         GLuint minColorID;
         float maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
         float minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
         Interpolation interpolator = Interpolation::LINEAR;
+        ScalarParamType scalarParamType = VECTOR_MAGNITUDE;
         float bias = 2.5f;
 };
 

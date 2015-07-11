@@ -5,19 +5,21 @@
 void PointRenderer::PrepareGeometry(DataProvider* provider)
 {
     std::vector<std::vector<double> >* points;
-    std::vector<std::vector<double> >* densities;
+    std::vector<std::vector<double> >* color_scalarField; // scalar values for determining shading of points
 
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField("density", &densities) != 0)
+    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
     {
-        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Scalar Field '" << this->colorParamField << "' could not be retrieved!" << std::endl;
+        return;
     }
 
-    std::cout << "PointRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*densities).size() << " densities" << std::endl;
+    std::cout << "<PointRenderer::PrepareGeometry>: processing " << (*points).size() << " points and " << (*color_scalarField).size() << " scalars" << std::endl;
+
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -51,22 +53,54 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         }
     }
 
-    /** Copy density data **/
+    /** Copy scalar data **/
 
     this->totalAttributes = 1; // TODO: don't hard-code this...
     this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 density per vertex
+    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 scalar per vertex
     i = 0;
-    for (auto density_vector : *densities)
+    for (auto scalar_vector : *color_scalarField)
     {
-        for (auto density : density_vector)
-        {
-            this->vertex_attrib_data[0][i] = density; // density_vector should always just have 1 element, but this generalizes to any number of elements
-            i++;
-        }
+         switch(this->scalarParamType)
+         {
+             case VECTOR_MAGNITUDE:
+             {
+                 glm::vec4 val(0);
+                 int c = 0;
+                 for (auto component : scalar_vector)
+                 {
+                     val[c] = component;
+                     c++;
+                 }
+                 this->vertex_attrib_data[0][i] = glm::length(val);
+                 break;
+             }
+             case VECTOR_X:
+             {
+                 this->vertex_attrib_data[0][i] = scalar_vector[0];
+                 break;
+             }
+             case VECTOR_Y:
+             {
+                 this->vertex_attrib_data[0][i] = scalar_vector[1];
+                 break;
+             }
+             case VECTOR_Z:
+             {
+                 this->vertex_attrib_data[0][i] = scalar_vector[2];
+                 break;
+             }
+             default:
+             {
+                 std::cout << "ERROR: <PointRenderer::PrepareGeometry>: Unknown ScalarParamType '" << this->scalarParamType << "'!" << std::endl;
+                 this->vertex_attrib_data[0][i] = 0;
+                 break;
+             }
+         }
+         i++;
     }
 
-    GLuint vao, vbo, density_buf;
+    GLuint vao, vbo, scalar_buf;
 
     /** copy vertex data to GPU & save VAO and VBO handles **/
     glGenVertexArrays(1, &vao);
@@ -88,13 +122,13 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     );
 
     /** Buffer density data **/
-    glGenBuffers(1, &density_buf);
-    glBindBuffer(GL_ARRAY_BUFFER, density_buf);
+    glGenBuffers(1, &scalar_buf);
+    glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices, this->vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, density_buf);
+    glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
     glVertexAttribPointer(
         1,
         1,
@@ -112,9 +146,9 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     this->VBO = vbo;
 
     // save min/max values for rendering colored gradients/scaling/etc
-    this->maxGradientValue = provider->GetMaxValueFromField("density");
-    this->minGradientValue = provider->GetMinValueFromField("density");
-    std::cout << "PointRenderer: Max Density: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
+    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
+    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    std::cout << "PointRenderer: Max Scalar Value: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void PointRenderer::Draw(glm::mat4 MVP)

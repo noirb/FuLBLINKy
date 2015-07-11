@@ -244,6 +244,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         paramBox_parent->setCloseButtonEnabled(false);
         paramBox_parent->setDragMovingEnabled(false);
         paramBox_parent->setRollupEnabled(true);
+	paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,300)));
         std::cout << "Done!" << std::endl;
 
         std::cout << "\tAdding color scalar field selection combobox...";
@@ -319,6 +320,40 @@ void Compositor::AddRenderer(Renderers rendererType)
         std::cout << "Done!" << std::endl;
         std::cout << "\tAdding bias spinner...";
 
+	if (rendererType == RENDERER_STREAMLINES)
+	{
+		CEGUI::HorizontalLayoutContainer* hcon = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+		paramBox->addChild(hcon);
+		/*  Point Editbox 1 */
+		CEGUI::Editbox* editbox1 = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		hcon->addChild(editbox1);
+		editbox1->setText("Hello :D");
+		editbox1->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::cout << "Edit box has: '" << box->getText() << "'" << std::endl;
+						return true;
+					}
+		);
+
+		/* Point Editbox 2 */
+		CEGUI::Editbox* editbox2 = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+		hcon->addChild(editbox2);
+		editbox2->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 40)));
+		editbox2->setText(" :< ");
+		editbox2->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+				[newRenderer] (const CEGUI::EventArgs &e)->bool
+					{
+						const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+						CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+						std::cout << "Edit box 2 has: " << box->getText() << std::endl;
+						return true;
+					}
+		);
+	}
+
         /*  Interpolation Bias setter */
         CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
         paramBox->addChild(spinner);
@@ -391,7 +426,6 @@ void Compositor::AddRenderer(Renderers rendererType)
 
         entries_container->addChild(paramBox_parent);
         paramBox_parent->toggleRollup();
-        paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0, 150)));
         std::cout << "Done!" << std::endl;
 
         // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists

@@ -21,9 +21,9 @@ std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double del
 	    double x0 = ((int)(currPoint[0]/deltaX)) * deltaX;
 	    double y0 = ((int)(currPoint[1]/deltaY)) * deltaY;
 	    double z0 = ((int)(currPoint[2]/deltaZ)) * deltaZ;
-	    double x1 = x0 + deltaX;
-	    double y1 = y0 + deltaY;
-	    double z1 = z0 + deltaZ;
+	    double x1 = glm::min(x0 + deltaX, xlength-1);
+	    double y1 = glm::min(y0 + deltaY, ylength-1);
+	    double z1 = glm::min(z0 + deltaZ, zlength-1);
 	
 	    // Determine local coordinates of THE point
 	    double dx = currPoint[0] - x0;
@@ -186,7 +186,9 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
         }
     }
 
-
+	streamLinePointCounter.clear();
+	velocity_magnitudes.clear();
+    
     /** Copy point data **/
 
     // determine needed number of vertices & allocate space for them
@@ -209,7 +211,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 	steps.push_back( (lineSourcePoint2[2] - lineSourcePoint1[2])/(lineSourceSize-1) );
     
     // create a global counter
-    int k;
+    int k = 0;
 
     double dt = 100;
     double maxStreamLineLength = 200.0;
@@ -251,6 +253,8 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 	streamLinePoints.push_back(streamLineSource[i][1]);
 	streamLinePoints.push_back(streamLineSource[i][2]);
 
+	// Create a copy of the current point
+	std::vector<double> currPoint;
 	// ith while loop starts here..
 	while( streamLinePoints[k - 3] < xlength-1 && streamLinePoints[k - 3] > 1 &&
 	       streamLinePoints[k - 2] < ylength-1 && streamLinePoints[k - 2] > 1 &&
@@ -258,9 +262,8 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 	       streamLineLength[i] < maxStreamLineLength &&
 
 	       streamLinePointCounter[i] < 5000)
-	{
-		// Create a copy of the current point
-		std::vector<double> currPoint;
+	{	
+		currPoint.clear();
 	        currPoint.push_back(streamLinePoints[k - 3]);
 	        currPoint.push_back(streamLinePoints[k - 2]);
 	        currPoint.push_back(streamLinePoints[k - 1]);
@@ -276,6 +279,9 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 					    (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
                                      	    (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
     	}
+	std::vector<std::vector<double> > localVelocities;
+	std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
+	velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
     }
 
     // we want to render points exactly at the locations specified by points, so just copy them

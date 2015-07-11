@@ -51,8 +51,8 @@ class RenderableComponent
         int totalAttributes = 0;
         bool enabled;
 
-        std::string colorParamField;  // used to select the scalar field coloring & scaling is defined by
-        std::string scaleParamField;
+        std::string colorParamField = "INITIAL VALUES";  // used to select the scalar field coloring & scaling is defined by
+        std::string scaleParamField = "INITIAL VALUES";
 
         GLuint maxColorID;
         GLuint minColorID;

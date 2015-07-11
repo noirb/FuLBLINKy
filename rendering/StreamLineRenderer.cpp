@@ -2,7 +2,7 @@
 #include "Compositor.hpp"
 #include <iostream>
 
-#define INDEXOF(x, y, z) ( (x) * (ylength) * (zlength) + (y) * (zlength) + (z) )
+#define COMPUTEINDEXOF(x, y, z) ( (x) * (ylength) * (zlength) + (y) * (zlength) + (z) )
 int streamLinePointCounter;
 
 std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double deltaX, 
@@ -30,65 +30,65 @@ std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double del
 	    // For POINT-0
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z0)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z0)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z0)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-1
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z0)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z0)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z0)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-2
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z1)))[0]);        // Find x-velocity
-        	pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z1)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y0, z1)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[0]);        // Find x-velocity
+        	pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-3
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z1)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z1)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y0, z1)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[2]);        // Find z-velocity
         	localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
     	    // For POINT-4
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z0)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z0)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z0)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-5
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z0)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z0)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z0)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-6
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z1)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z1)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x1, y1, z1)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 	    // For POINT-7
 	    {
 	        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z1)))[0]);        // Find x-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z1)))[1]);        // Find y-velocity
-	        pointVelocity.push_back((velocities->at(INDEXOF(x0, y1, z1)))[2]);        // Find z-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[0]);        // Find x-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[1]);        // Find y-velocity
+	        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[2]);        // Find z-velocity
 	        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
 	    }
 

@@ -675,6 +675,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                          [this, data_window](const CEGUI::EventArgs &e)->bool {
                             nfdchar_t* outPath = NULL;
                             nfdresult_t result = NFD_OpenDialog("vtk", NULL, &outPath);
+                            setlocale(LC_NUMERIC, "C"); // GTK stomps on our locale and can break CEGUI, so reset it here
 
                             if (result == NFD_OKAY)
                             {

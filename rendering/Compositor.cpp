@@ -452,11 +452,11 @@ void Compositor::AddRenderer(Renderers rendererType)
         scale_container->addChild(scaleBox_min);
         scaleBox_min->setMinimumValue(0.0);
         scaleBox_min->setMaximumValue(10.0);
-        scaleBox_min->setStepSize(0.1);
+        scaleBox_min->setStepSize(0.001);
         scaleBox_min->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        scaleBox_min->setCurrentValue(0.1);
+        scaleBox_min->setCurrentValue(1.0);
         scaleBox_min->setTooltipText("Minimum interpolation value");
-        scaleBox_min->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
+        scaleBox_min->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
         scaleBox_min->setDisabled(true);
         scaleBox_min->subscribeEvent(CEGUI::Spinner::EventValueChanged,
                     [this, newRenderer] (const CEGUI::EventArgs &e)->bool
@@ -473,11 +473,11 @@ void Compositor::AddRenderer(Renderers rendererType)
         scale_container->addChild(scaleBox_max);
         scaleBox_max->setMinimumValue(0.0);
         scaleBox_max->setMaximumValue(10.0);
-        scaleBox_max->setStepSize(0.1);
+        scaleBox_max->setStepSize(0.001);
         scaleBox_max->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        scaleBox_max->setCurrentValue(0.2);
+        scaleBox_max->setCurrentValue(1.0);
         scaleBox_max->setTooltipText("Maximum interpolation value");
-        scaleBox_max->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
+        scaleBox_max->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
         scaleBox_max->setDisabled(true);
         scaleBox_max->subscribeEvent(CEGUI::Spinner::EventValueChanged,
                     [this, newRenderer] (const CEGUI::EventArgs &e)->bool
@@ -493,6 +493,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         CEGUI::ToggleButton* btnAutoScale = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox"));
         scale_container->addChild(btnAutoScale);
         btnAutoScale->setText("Auto");
+        btnAutoScale->setTooltipText("Automatically detect min/max values from dataset");
         btnAutoScale->setSelected(true);
         btnAutoScale->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
                     [this, newRenderer, scaleBox_min, scaleBox_max] (const CEGUI::EventArgs &e)->bool
@@ -878,6 +879,8 @@ void Compositor::InitShaders()
     this->_scalarMapShader.addUniform("MVP");
     this->_scalarMapShader.addUniform("min_scalar");
     this->_scalarMapShader.addUniform("max_scalar");
+    this->_scalarMapShader.addUniform("min_sizeScalar");
+    this->_scalarMapShader.addUniform("max_sizeScalar");
     this->_scalarMapShader.addUniform("hotColor");
     this->_scalarMapShader.addUniform("coldColor");
     this->_scalarMapShader.addUniform("bias");         // used for exponential interpolation

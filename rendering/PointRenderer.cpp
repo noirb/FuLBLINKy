@@ -150,6 +150,14 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     // save min/max values for rendering colored gradients/scaling/etc
     this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
     this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+
+    // save min/max values for scaling
+    if (this->autoScale)
+    {
+        this->scaleFactorMin = this->minGradientValue;
+        this->scaleFactorMax = this->maxGradientValue;
+    }
+
     std::cout << "PointRenderer: Max Scalar Value: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
@@ -168,6 +176,8 @@ void PointRenderer::Draw(glm::mat4 MVP)
     glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
     glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
+    glUniform1f(shaderProgram->getUniform("max_sizeScalar"), this->scaleFactorMax);
+    glUniform1f(shaderProgram->getUniform("min_sizeScalar"), this->scaleFactorMin);
     glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
     glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
     glUniform1f(shaderProgram->getUniform("bias"), this->bias);

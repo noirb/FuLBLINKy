@@ -5,9 +5,10 @@
 
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in float scalarParm1;  // could be density, velocity magnitude, etc.
+layout(location = 2) in float scalarParm2;
 uniform mat4 MVP;
-uniform float max_scalar;
-uniform float min_scalar;
+uniform float max_sizeScalar;
+uniform float min_sizeScalar;
 
 varying float scalarValue;
 
@@ -16,6 +17,17 @@ void main()
     // transform the vertext with the MVP matrix and output the result
     vec4 v = vec4(vertexPosition_modelspace, 1); // 1 is needed to complete the 4D vector
     gl_Position = MVP * v;
-    gl_PointSize = 10.0 * mix(0.0, 1.0, (scalarParm1 - min_scalar) / (max_scalar - min_scalar));
+
+    float a;
+    if (max_sizeScalar == min_sizeScalar)
+    {
+        a = max_sizeScalar;
+    }
+    else
+    {
+        a = (scalarParm1 - min_sizeScalar) / (max_sizeScalar - min_sizeScalar);
+    }
+
+    gl_PointSize = 10.0 * mix(0.0, 1.0, a);
     scalarValue = scalarParm1;
 }

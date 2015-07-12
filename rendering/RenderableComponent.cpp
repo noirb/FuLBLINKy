@@ -62,8 +62,11 @@ void RenderableComponent::SetAutoScale(bool b)
 
 void RenderableComponent::SetScale(double min, double max)
 {
-    this->scaleFactorMin = min;
-    this->scaleFactorMax = max;
+    if (min >= 0)
+        this->scaleFactorMin = min;
+
+    if (max >= 0)
+        this->scaleFactorMax = max;
 }
 
 void RenderableComponent::Enable()

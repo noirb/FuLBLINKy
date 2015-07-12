@@ -34,13 +34,19 @@ void lbsimWrapper::init(std::string filename)
     this->filename = filename;
     std::cout << "Loading lbsim input file: " << filename << std::endl;
 
-    setlocale(LC_ALL, "C"); // REQUIRED for sscanf used by readParameters to recognize decimal points on all systems
+    setlocale(LC_NUMERIC, "C"); // REQUIRED for sscanf used by readParameters to recognize decimal points on all systems
 
     // read domain parameters from input
     if (readParameters(&xlength, &ylength, &zlength, &tau, &timesteps, &timestepsPerPlotting, 2, c_filename) == -1)
     {
         std::cout << "ERROR: Could not read lbsim parameter file: " << filename << std::endl;
     }
+
+    // store domain parameters
+    this->domainParameters.size[0] = xlength;
+    this->domainParameters.size[1] = ylength;
+    this->domainParameters.size[2] = zlength;
+    this->domainParameters.numPoints = xlength * ylength * zlength; // # of OUTPUT points, not including actual boundary cells
 
     totalElements = (xlength+2) * (ylength+2) * (zlength+2);
     // allocate space for simulation
@@ -66,10 +72,22 @@ void lbsimWrapper::init(std::string filename)
     this->fieldNames.push_back("points");
     this->fieldNames.push_back("density");
     this->fieldNames.push_back("velocity");
-//    this->fieldNames.push_back("distributions");
+
+    /// TODO: Store all distributions in a SINGLE field!
+    for (int i = 0; i < 19; i++)
+    {
+        this->fieldNames.push_back("distributions" + std::to_string(i));
+    }
+
     this->domainFields["points"] = std::vector<std::vector<double> >();
     this->domainFields["density"] = std::vector<std::vector<double> >();
     this->domainFields["velocity"] = std::vector<std::vector<double> >();
+
+    /// TODO: Store all distributions in a SINGLE field!
+    for (int i = 0; i < 19; i++)
+    {
+        this->domainFields["probability" + std::to_string(i)] = std::vector<std::vector<double> >();
+    }
 
     this->extents[0] = 0;
     this->extents[1] = xlength;
@@ -95,6 +113,11 @@ void lbsimWrapper::Update()
     this->domainFields["density"].clear();
     this->domainFields["velocity"].clear();
 
+    for (int l = 0; l < 19; l++)
+    {
+        this->domainFields["probability" + std::to_string(l)].clear();
+    }
+
     int count = 0;
     for (int i = 1; i <= xlength; i++)
     {
@@ -115,6 +138,14 @@ void lbsimWrapper::Update()
                 this->domainFields["points"].push_back( p_tmp );
                 this->domainFields["density"].push_back( d_tmp );
                 this->domainFields["velocity"].push_back( v_tmp );
+
+                for (int l = 0; l < 19; l++)
+                {
+                    std::vector<double> prob;
+                    prob.push_back(collideField[indexOf(i, j, k, l)]);
+                    this->domainFields["probability" + std::to_string(l)].push_back( prob );
+                }
+
                 count++;
 
                 minDensity = density < minDensity ? density : minDensity;
@@ -152,7 +183,7 @@ std::string lbsimWrapper::GetFileDir()
 // returns a struct containing all the details about the domain
 void lbsimWrapper::getDomainParameters(DomainParameters* parameters)
 {
-    parameters = &(this->domainParameters);
+    *parameters = this->domainParameters;
 }
 
 // writes the data corresponding to the given field to the array passed in data

@@ -40,16 +40,18 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     provider->getDomainParameters(&domainParameters);
 
     // Read Probabilities
-    for (int i = 0; i < 19; i++){
-	std::stringstream sstm;
-	sstm << "probability" << i;
-	std::string probName = sstm.str();
-	std::vector<std::vector<double> >* probDump;
-	// Push the ith probability field
-	probabilities.push_back(probDump);
-	if ( provider->GetField(probName, &probabilities[i]) != 0)
+    for (int i = 0; i < 19; i++)
+    {
+        std::stringstream sstm;
+        sstm << "probability" << i;
+        std::string probName = sstm.str();
+        std::vector<std::vector<double> >* probDump = new std::vector<std::vector<double> >();
+        // Push the ith probability field
+        probabilities.push_back(probDump);
+    
+        if ( provider->GetField(probName, &probabilities[i]) != 0)
     	{
-            std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+            std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: " << probName << " Field could not be retrieved!" << std::endl;
             return;
     	}
     }

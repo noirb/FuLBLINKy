@@ -839,6 +839,8 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     this->_dataProvider = new lbsimWrapper(filename);
     dataWindowRoot->setText(filename.substr(filename.find_last_of("/")+1));
 
+    (static_cast<lbsimWrapper*>(this->_dataProvider))->Update();
+
     CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
     CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
 

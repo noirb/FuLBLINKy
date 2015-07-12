@@ -4,6 +4,8 @@
 
 void LineRenderer::PrepareGeometry(DataProvider* provider)
 {
+    if (!provider) { return; } // do not attempt to generate geometry without a provider!
+
     float velVectorScale = 1;
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* velocities;

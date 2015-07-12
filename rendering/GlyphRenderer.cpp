@@ -3,7 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 {
-    float velVectorScale = this->scaleFactor; //0.1;
+    if (!provider) { return; } // do not attempt to generate geometry without a provider!
+
+    float velVectorScale = this->scaleFactorMin;
     static const int ArrowGlyphSize = 9;//sizeof(g_arrow2d_vertex_buffer_data)/sizeof(float);
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* velocities;

@@ -7,6 +7,8 @@ std::vector<double> velocityMagnitudes;
 
 void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 {    
+    if (!provider) { return; } // do not attempt to generate geometry without a provider!
+
     double maxProbability = -0.1;
     //double minProbability = 2.0;
     velocityMagnitudes.clear();

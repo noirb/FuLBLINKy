@@ -4,6 +4,8 @@
 
 void PointRenderer::PrepareGeometry(DataProvider* provider)
 {
+    if (!provider) { return; } // do not try to generate geometry without a data provider!
+
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* color_scalarField; // scalar values for determining shading of points
 

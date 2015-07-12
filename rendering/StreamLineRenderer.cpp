@@ -174,6 +174,8 @@ void StreamLineRenderer::RK45(double deltaX,
 
 void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 {
+    if (!provider) { return; } // do not attempt to generate geometry without a provider!
+
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;

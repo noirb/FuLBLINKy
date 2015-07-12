@@ -19,7 +19,6 @@ class ProbabilitiesRenderer: public RenderableComponent
         double minGradientValue;
         std::vector<std::vector<double> >* points;
         std::vector<std::vector<double> >* densities;
-        std::vector<std::vector<double> >* domainSize;
         std::vector<std::vector<std::vector<double> >* > probabilities;
 };
 

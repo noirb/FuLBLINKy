@@ -33,13 +33,11 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("density", &densities) != 0)
     {
         std::cout << "ERROR<PointRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
-    }
-    
-    if ( provider->GetField("dimensions", &domainSize) != 0)
-    {
-        std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Dimensions Field could not be retrieved!" << std::endl;
         return;
     }
+
+    DomainParameters domainParameters;
+    provider->getDomainParameters(&domainParameters);
 
     // Read Probabilities
     for (int i = 0; i < 19; i++){
@@ -70,9 +68,9 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     }
 
     // Get domain size
-    double xlength = (domainSize->at(0))[0];
-    double ylength = (domainSize->at(0))[1];
-    double zlength = (domainSize->at(0))[2];
+    double xlength = domainParameters.size[0];
+    double ylength = domainParameters.size[1];
+    double zlength = domainParameters.size[2];
 
     /** Copy point data **/
 
@@ -94,71 +92,69 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
                                          (points->at(COMPUTEINDEXOF(i, j, k)))[2]));
 			            glm::vec3 source_vec = glm::normalize(glm::vec3(0.0, 0.0, 1.0));                      // our current direction (all glyphs face +Z by default)
 			            glm::vec3 target_vec = glm::vec3(LATTICEVELOCITIES[l][0], LATTICEVELOCITIES[l][1], LATTICEVELOCITIES[l][2]); // vector facing direction we want to face
-    			            if (glm::length(target_vec) > 0.0)
+
+                        if (glm::length(target_vec) > 0.0)
 			            {
 			                target_vec = glm::normalize(target_vec);
-			          	glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
-					if ((rot_axis[0])*(rot_axis[0]) <= 0.0000001 && (rot_axis[1])*(rot_axis[1]) <= 0.0000001 && (rot_axis[2])*(rot_axis[2]) <= 0.0000001){
-					    if (glm::dot(source_vec, target_vec) < 0){
-						glm::vec3 temp = target_vec;
-						temp[0] = temp[0] + 1.432342; temp[1] = temp[1] + 1.234235342; temp[2] = temp[2] + 1.1244325;
-						rot_axis = glm::cross(source_vec, temp);
-						M = glm::rotate(M, 3.1415f, rot_axis);
-					    }
-					}
-					else {
-			        	    float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
-			        	    M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
-					}
+                            glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
+
+        					if ((rot_axis[0])*(rot_axis[0]) <= 0.0000001 && (rot_axis[1])*(rot_axis[1]) <= 0.0000001 && (rot_axis[2])*(rot_axis[2]) <= 0.0000001){
+		        			    if (glm::dot(source_vec, target_vec) < 0){
+				            		glm::vec3 temp = target_vec;
+            						temp[0] = temp[0] + 1.432342; temp[1] = temp[1] + 1.234235342; temp[2] = temp[2] + 1.1244325;
+			            			rot_axis = glm::cross(source_vec, temp);
+            						M = glm::rotate(M, 3.1415f, rot_axis);
+			        		    }
+					        }
+        					else
+                            {
+    			        	    float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
+	    		        	    M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
+		        			}
 			            }
 
 			            // Loop through the arrow skeleton
 			            for (int loopVarGlyphPts = 0; loopVarGlyphPts < ArrowGlyphSize * 3; loopVarGlyphPts += 3)
 			            {
-					glm::vec4 glyphPointTemp;
+        					glm::vec4 glyphPointTemp;
 			                // get coords for current vertex
-					if (l == 2 || l == 6 || l == 9 || l == 10 || l == 12 || l == 16){
+		        			if (l == 2 || l == 6 || l == 9 || l == 10 || l == 12 || l == 16){
 				                glyphPointTemp = glm::vec4(
-		                                    ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
-	                	                    ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
-	                               	            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
-	                            		    1.0);
-					}
-					else {
-				                glyphPointTemp = glm::vec4(
-		                                    1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
-        	        	                    1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
-        	                       	            1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
-        	                    		    1.0);
-					}
-			                // apply rotation & translation transforms
-			                glyphPointTemp = M * glyphPointTemp;
+                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
+                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
+                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
+                                            1.0);
+        					}
+                            else
+                            {
+                                glyphPointTemp = glm::vec4(
+                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
+                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
+                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
+                                                1.0);
+                            }
+                            // apply rotation & translation transforms
+                            glyphPointTemp = M * glyphPointTemp;
 
-					//current probability
+                            //current probability
+                            double probability = (probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
+                            if (probability > maxProbability)
+                                maxProbability = probability;
 
-					double probability = (probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
-					if (probability > maxProbability)
-						maxProbability = probability;
-					/*if (probability < minProbability)
-						minProbability = probability;
 			                // store (x,y,z) components of current vertex*/
-					velocityMagnitudes.push_back(probability);
-					cout << probability;
+                            velocityMagnitudes.push_back(probability);
+                            cout << probability;
 			                for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
 			                {
-					    if (glyphPointTemp[loopVarComponents] != glyphPointTemp[loopVarComponents]){
-						std::cout << "\nDebug!\n";
-					    }
-
-			                    this->vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];
-					    globalCounter++;
-			                }
-			            }
-			       }
-		          }
-		    }
-	     }
-     }
+                                this->vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];
+                                globalCounter++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 
 

@@ -146,7 +146,6 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
 			                // store (x,y,z) components of current vertex*/
                             velocityMagnitudes.push_back(probability);
-                            cout << probability;
 			                for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
 			                {
                                 this->vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];

@@ -212,11 +212,29 @@ void Compositor::AddRenderer(Renderers rendererType)
 
     // Add UI controls for the new renderer
     CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
+    CEGUI::VerticalLayoutContainer* params_root = static_cast<CEGUI::VerticalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("VerticalLayoutContainer"));
+    entries_container->addChild(params_root);
+
+    CEGUI::HorizontalLayoutContainer* title_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer", rendererName));
+    params_root->addChild(title_container);
+
     CEGUI::ToggleButton* rWnd = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox", rendererName));
-    entries_container->addChild(rWnd);
+    title_container->addChild(rWnd);
     rWnd->setText(this->RendererStrs[rendererType]);
-    rWnd->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 50)));
+    rWnd->setSize(CEGUI::USize(CEGUI::UDim(0.75, 0), CEGUI::UDim(0, 50)));
     rWnd->setSelected(false);
+
+    CEGUI::PushButton* btnClose = static_cast<CEGUI::PushButton*>(CEGUI::WindowManager::getSingleton().loadLayoutFromFile("closeButton.layout"));
+    title_container->addChild(btnClose);
+    btnClose->subscribeEvent(CEGUI::PushButton::EventClicked,
+                    [this, params_root, newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            this->_renderers.erase(std::remove(this->_renderers.begin(), this->_renderers.end(), newRenderer ), this->_renderers.end());
+                            CEGUI::WindowManager::getSingleton().destroyWindow(params_root);
+                            delete(newRenderer);
+                            return true;
+                        }
+    );
 
     // subscribe to CheckStateChanged so we know when the renderer is enabled/disabled
     rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
@@ -246,7 +264,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         paramBox_parent->setCloseButtonEnabled(false);
         paramBox_parent->setDragMovingEnabled(false);
         paramBox_parent->setRollupEnabled(true);
-	paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,300)));
+        paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,300)));
         std::cout << "Done!" << std::endl;
 
         std::cout << "\tAdding color scalar field selection combobox...";
@@ -606,7 +624,7 @@ void Compositor::AddRenderer(Renderers rendererType)
          colourPickerLabel_min->setMousePassThroughEnabled(true);
          colourPickerLabel_min->setAlwaysOnTop(true);
 
-        entries_container->addChild(paramBox_parent);
+        params_root->addChild(paramBox_parent);
         paramBox_parent->toggleRollup();
         std::cout << "Done!" << std::endl;
 

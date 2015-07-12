@@ -13,7 +13,7 @@
 class RenderableComponent
 {
     public:
-        ~RenderableComponent();
+        virtual ~RenderableComponent();
 
         // must be called before Draw(). Used to generate any needed vertex buffers, etc.
         virtual void PrepareGeometry(DataProvider*) = 0;

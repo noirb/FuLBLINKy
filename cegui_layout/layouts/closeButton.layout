@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="TaharezLook/ImageButton" name="ImageButton" >
+        <Property name="Area" value="{{0,0},{0,-1},{0,20},{0,20}}" />
+        <Property name="HoverImage" value="TaharezLook/CloseButtonHover" />
+        <Property name="NormalImage" value="TaharezLook/CloseButtonNormal" />
+        <Property name="PushedImage" value="TaharezLook/CloseButtonPressed" />
+    </Window>
+</GUILayout>

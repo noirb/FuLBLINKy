@@ -57,6 +57,7 @@ void init(GLFWwindow** window)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glPointSize(5);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_ARB_vertex_array_object);
 }
 

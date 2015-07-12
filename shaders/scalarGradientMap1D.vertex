@@ -1,8 +1,13 @@
 #version 330 core
+    // ----------------- //
+    //   VERTEX SHADER   //
+    // ----------------- //
 
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in float scalarParm1;  // could be density, velocity magnitude, etc.
 uniform mat4 MVP;
+uniform float max_scalar;
+uniform float min_scalar;
 
 varying float scalarValue;
 
@@ -11,6 +16,6 @@ void main()
     // transform the vertext with the MVP matrix and output the result
     vec4 v = vec4(vertexPosition_modelspace, 1); // 1 is needed to complete the 4D vector
     gl_Position = MVP * v;
-
+    gl_PointSize = 10.0 * mix(0.0, 1.0, (scalarParm1 - min_scalar) / (max_scalar - min_scalar));
     scalarValue = scalarParm1;
 }

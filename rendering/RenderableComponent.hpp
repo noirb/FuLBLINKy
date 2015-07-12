@@ -29,7 +29,8 @@ class RenderableComponent
 
         void SetColorField(std::string);
         void SetScaleField(std::string);
-        void SetScale(double);
+        void SetAutoScale(bool);
+        void SetScale(double, double);
 
         void Enable();
 
@@ -59,7 +60,9 @@ class RenderableComponent
         GLuint minColorID;
         float  maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
         float  minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
-        double scaleFactor = 0.1;
+        double autoScale = true;
+        double scaleFactorMin = 0.1;
+        double scaleFactorMax = 0.2;
         Interpolation interpolator = Interpolation::LINEAR;
         ScalarParamType scalarParamType = VECTOR_MAGNITUDE;
         float bias = 2.5f;

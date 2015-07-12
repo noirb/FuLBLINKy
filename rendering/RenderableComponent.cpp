@@ -55,9 +55,15 @@ void RenderableComponent::SetScaleField(std::string fieldName)
     this->scaleParamField = fieldName;
 }
 
-void RenderableComponent::SetScale(double scale)
+void RenderableComponent::SetAutoScale(bool b)
 {
-    this->scaleFactor = scale;
+    this->autoScale = b;
+}
+
+void RenderableComponent::SetScale(double min, double max)
+{
+    this->scaleFactorMin = min;
+    this->scaleFactorMax = max;
 }
 
 void RenderableComponent::Enable()

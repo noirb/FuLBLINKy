@@ -437,27 +437,82 @@ void Compositor::AddRenderer(Renderers rendererType)
                             }
         );
 
+        /*  Scale Parameters */
         CEGUI::Window* lblScale = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
         paramBox->addChild(lblScale);
         lblScale->setText("Scale:");
         lblScale->setProperty("HorzFormatting", "Left");
         lblScale->setTooltipText("Absolute scale of points");
 
-        CEGUI::Spinner* scaleBox = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
-        paramBox->addChild(scaleBox);
-        scaleBox->setMinimumValue(0.0);
-        scaleBox->setMaximumValue(10.0);
-        scaleBox->setStepSize(0.1);
-        scaleBox->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        scaleBox->setCurrentValue(0.1);
-        scaleBox->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
-        scaleBox->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+        CEGUI::HorizontalLayoutContainer* scale_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+        paramBox->addChild(scale_container);
+
+
+        CEGUI::Spinner* scaleBox_min = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
+        scale_container->addChild(scaleBox_min);
+        scaleBox_min->setMinimumValue(0.0);
+        scaleBox_min->setMaximumValue(10.0);
+        scaleBox_min->setStepSize(0.1);
+        scaleBox_min->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
+        scaleBox_min->setCurrentValue(0.1);
+        scaleBox_min->setTooltipText("Minimum interpolation value");
+        scaleBox_min->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
+        scaleBox_min->setDisabled(true);
+        scaleBox_min->subscribeEvent(CEGUI::Spinner::EventValueChanged,
                     [this, newRenderer] (const CEGUI::EventArgs &e)->bool
                         {
                             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
                             CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
-                            newRenderer->SetScale(box->getCurrentValue());
+                            newRenderer->SetScale(box->getCurrentValue(), -1);
                             newRenderer->PrepareGeometry(this->_dataProvider);
+                            return true;
+                        }
+        );
+
+        CEGUI::Spinner* scaleBox_max = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
+        scale_container->addChild(scaleBox_max);
+        scaleBox_max->setMinimumValue(0.0);
+        scaleBox_max->setMaximumValue(10.0);
+        scaleBox_max->setStepSize(0.1);
+        scaleBox_max->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
+        scaleBox_max->setCurrentValue(0.2);
+        scaleBox_max->setTooltipText("Maximum interpolation value");
+        scaleBox_max->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
+        scaleBox_max->setDisabled(true);
+        scaleBox_max->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
+                            newRenderer->SetScale(-1, box->getCurrentValue());
+                            newRenderer->PrepareGeometry(this->_dataProvider);
+                            return true;
+                        }
+        );
+
+        CEGUI::ToggleButton* btnAutoScale = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox"));
+        scale_container->addChild(btnAutoScale);
+        btnAutoScale->setText("Auto");
+        btnAutoScale->setSelected(true);
+        btnAutoScale->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
+                    [this, newRenderer, scaleBox_min, scaleBox_max] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::ToggleButton* chkBox = static_cast<CEGUI::ToggleButton*>(wargs.window);
+                            if (chkBox->isSelected())
+                            {
+                                scaleBox_min->setDisabled(true);
+                                scaleBox_max->setDisabled(true);
+                                newRenderer->SetAutoScale(true);
+                                newRenderer->PrepareGeometry(this->_dataProvider);
+                            }
+                            else
+                            {
+                                scaleBox_min->setDisabled(false);
+                                scaleBox_max->setDisabled(false);
+                                newRenderer->SetAutoScale(false);
+                                newRenderer->SetScale(scaleBox_min->getCurrentValue(), scaleBox_max->getCurrentValue());
+                            }
                             return true;
                         }
         );

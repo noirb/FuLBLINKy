@@ -55,6 +55,11 @@ void RenderableComponent::SetScaleField(std::string fieldName)
     this->scaleParamField = fieldName;
 }
 
+void RenderableComponent::SetScale(double scale)
+{
+    this->scaleFactor = scale;
+}
+
 void RenderableComponent::Enable()
 {
     this->enabled = true;

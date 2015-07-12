@@ -264,7 +264,7 @@ void Compositor::AddRenderer(Renderers rendererType)
         paramBox_parent->setCloseButtonEnabled(false);
         paramBox_parent->setDragMovingEnabled(false);
         paramBox_parent->setRollupEnabled(true);
-        paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,150)));
+        paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,200)));
         std::cout << "Done!" << std::endl;
 
         std::cout << "\tAdding color scalar field selection combobox...";
@@ -435,6 +435,31 @@ void Compositor::AddRenderer(Renderers rendererType)
                                 }
                                 return true;
                             }
+        );
+
+        CEGUI::Window* lblScale = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
+        paramBox->addChild(lblScale);
+        lblScale->setText("Scale:");
+        lblScale->setProperty("HorzFormatting", "Left");
+        lblScale->setTooltipText("Absolute scale of points");
+
+        CEGUI::Spinner* scaleBox = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
+        paramBox->addChild(scaleBox);
+        scaleBox->setMinimumValue(0.0);
+        scaleBox->setMaximumValue(10.0);
+        scaleBox->setStepSize(0.1);
+        scaleBox->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
+        scaleBox->setCurrentValue(0.1);
+        scaleBox->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 30)));
+        scaleBox->subscribeEvent(CEGUI::Spinner::EventValueChanged,
+                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
+                        {
+                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+                            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
+                            newRenderer->SetScale(box->getCurrentValue());
+                            newRenderer->PrepareGeometry(this->_dataProvider);
+                            return true;
+                        }
         );
 
         /* --------------------------------

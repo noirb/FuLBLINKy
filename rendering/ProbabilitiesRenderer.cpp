@@ -26,13 +26,13 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
     if ( provider->GetField("points", &points) != 0)
     {
-        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
+        std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
 
     if ( provider->GetField("density", &densities) != 0)
     {
-        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+        std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
         return;
     }
 
@@ -49,11 +49,12 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 	probabilities.push_back(probDump);
 	if ( provider->GetField(probName, &probabilities[i]) != 0)
     	{
-            std::cout << "ERROR<PointRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+            std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
+            return;
     	}
     }
 
-    std::cout << "PointRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*densities).size() << " densities" << std::endl;
+    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*densities).size() << " densities" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {

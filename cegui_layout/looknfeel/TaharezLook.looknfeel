@@ -882,7 +882,11 @@
                      <PropertyDim name="SizingBorderThickness" />
                  </Dim>
                  <Dim type="TopEdge">
-                     <WidgetDim widget="__auto_titlebar__" dimension="BottomEdge" />
+                     <UnifiedDim scale="0" type="TopEdge">
+                        <DimOperator op="Subtract">
+                            <PropertyDim name="SizingBorderThickness" />
+                        </DimOperator>
+                     </UnifiedDim>
                  </Dim>
                  <Dim type="RightEdge">
                      <UnifiedDim scale="1" type="RightEdge">

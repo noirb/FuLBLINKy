@@ -2,6 +2,7 @@
 #define _DATA_PROVIDER_H
 
 #include <vector>
+#include "DomainParameters.h"
 
 class DataProvider
 {
@@ -11,6 +12,7 @@ class DataProvider
         virtual std::vector<std::string> GetFieldNames() = 0;
         virtual double GetMaxValueFromField(std::string) = 0;
         virtual double GetMinValueFromField(std::string) = 0;
+        virtual void getDomainParameters(DomainParameters*) = 0;
         virtual int GetFieldDimension(std::string) = 0;
         virtual double* GetExtents() = 0;
         virtual void NextTimeStep() = 0;
@@ -25,6 +27,7 @@ class DataProvider
         int timestep;
 
     protected:
+        DomainParameters domainParameters;
         double extents[6];  // size of domain: [-X, +X, -Y, +Y, -Z, +Z]
 };
 #endif

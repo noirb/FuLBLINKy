@@ -25,7 +25,7 @@ class vtkLegacyReader : public DataProvider
         void init(std::string filename);
 
         // returns a struct containing all the details about the domain
-        void getDomainParameters(DomainParameters* parameters);
+        virtual void getDomainParameters(DomainParameters* parameters);
 
         // writes the data corresponding to the given field to the array passed in data
         template<typename T> void getField(std::string field, T* data);
@@ -66,7 +66,6 @@ class vtkLegacyReader : public DataProvider
         virtual int GetFieldDimension(std::string);
 
     private:
-        DomainParameters domainParameters;
         std::string filename;
         std::vector<std::string> timestepFilePaths;
 

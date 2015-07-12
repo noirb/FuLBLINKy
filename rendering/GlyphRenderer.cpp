@@ -37,15 +37,14 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     /** Copy point data **/
 
     // determine needed number of vertices & allocate space for them
-    // GlyphRenderer only needs SEVEN vertex per data point
+    // GlyphRenderer needs ArrowGlyphSize vertices per data point
     this->totalVertices = (*points).size();
-    this->vertex_buffer_data = new GLfloat[ArrowGlyphSize * 3 * this->totalVertices]; // 3 floats per triangle vertex (9 vertices per point)
+    this->vertex_buffer_data = new GLfloat[ArrowGlyphSize * 3 * this->totalVertices];
 
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
     double max_velocity = provider->GetMaxValueFromField("velocity");
-    //for (auto point : *points)
     for (int loopVarVertices = 0; loopVarVertices < this->totalVertices; loopVarVertices++)
     {
         float velTemp[3];

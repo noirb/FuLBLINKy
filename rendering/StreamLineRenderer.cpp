@@ -26,8 +26,9 @@ std::vector<double> velocity_magnitudes;
 //double* getEndPoint(){
 //	return endPoint;
 //}
-std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double deltaX, 
-                                                          double deltaY, 
+std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(
+                              double deltaX, 
+                              double deltaY, 
 							  double deltaZ,
 							  double xlength,
 							  double ylength,
@@ -133,7 +134,7 @@ std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(double del
 }
 
 void StreamLineRenderer::RK45(double deltaX, 
-                                                          double deltaY, 
+                              double deltaY, 
 							  double deltaZ, 
 							  double xlength,
 							  double ylength,
@@ -141,7 +142,7 @@ void StreamLineRenderer::RK45(double deltaX,
 							  double dt,
 							  std::vector<double> &currPoint)
 {
-        std::vector<std::vector<double> > localVelocities;
+    std::vector<std::vector<double> > localVelocities;
 	std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
 	velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
 	std::vector<double> k2;
@@ -183,11 +184,10 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField("dimensions", &domainSize) != 0)
-    {
-        std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Dimensions Field could not be retrieved!" << std::endl;
-        return;
-    }
+
+    // get domain parameters (domain size, etc.)
+    DomainParameters domainParameters;
+    provider->getDomainParameters(&domainParameters);
 
     std::cout << "StreamLineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " velocities" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
@@ -248,9 +248,9 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     }
 
     // Get domain size
-    double xlength = (domainSize->at(0))[0];
-    double ylength = (domainSize->at(0))[1];
-    double zlength = (domainSize->at(0))[2];
+    double xlength = domainParameters.size[0];
+    double ylength = domainParameters.size[1];
+    double zlength = domainParameters.size[2];
 
     // Create a holder vector for all points on the streamline. We read from this vector and write to the vertex_buffer_array AFTER the while loop 
     std::vector<double> streamLinePoints;

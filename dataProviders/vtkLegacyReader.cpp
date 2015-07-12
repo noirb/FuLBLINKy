@@ -98,13 +98,6 @@ void vtkLegacyReader::init(std::string filename)
                                         ", " << this->domainParameters.size[1] <<
                                         ", " << this->domainParameters.size[2] << 
                                         ") " << std::endl;
-	    this->fieldNames.push_back("dimensions");
-	    this->domainFields["dimensions"] = std::vector<std::vector<double> >();
-	    std::vector<double> temp;
-	    temp.push_back(this->domainParameters.size[0]);
-	    temp.push_back(this->domainParameters.size[1]);
-	    temp.push_back(this->domainParameters.size[2]);	    
-	    this->domainFields["dimensions"].push_back(temp);
         }
         // parse point locations
         else if (tok == "POINTS")
@@ -274,7 +267,7 @@ int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string ba
 // returns a struct containing all the details about the domain
 void vtkLegacyReader::getDomainParameters(DomainParameters* parameters)
 {
-    parameters = &(this->domainParameters);
+    *parameters = this->domainParameters;
 }
 
 // writes the data corresponding to the given field to the array passed in data

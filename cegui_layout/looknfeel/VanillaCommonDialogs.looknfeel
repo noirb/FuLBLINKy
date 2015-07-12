@@ -579,7 +579,7 @@
             <PropertyLinkTarget widget="__auto_Labradiobuttonb__" property="PushedTextColour"/>
         </PropertyLinkDefinition>
         <Property name="AlwaysOnTop" value="true"/>
-        <Property name="Size" value="{{0,460},{0,460}}"/>
+        <Property name="Size" value=" { { 0 , 460 } , { 0 , 460 } } "/>
         <Property name="HorizontalAlignment" value="Centre"/>
         <Property name="VerticalAlignment" value="Centre"/>
         <Child nameSuffix="__auto_titlebar__" type="Vanilla/Titlebar">

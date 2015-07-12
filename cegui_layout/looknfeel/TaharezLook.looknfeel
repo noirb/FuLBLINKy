@@ -2152,7 +2152,7 @@
     ***************************************************
     -->
     <WidgetLook name="TaharezLook/Spinner">
-        <Property name="Size" value="{{0, 128}, {0, 32}}" />
+        <Property name="Size" value=" { { 0 , 128 } , { 0 , 32 } } " />
         <Child  type="TaharezLook/Editbox" nameSuffix="__auto_editbox__">
             <Area>
                 <Dim type="RightEdge" >

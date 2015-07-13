@@ -176,6 +176,8 @@ void LineRenderer::Draw(glm::mat4 MVP)
     // set shaders
     this->shaderProgram->enable();
 
+    glLineWidth(2.0);
+
     // send uniforms to shaders
     glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);

@@ -66,6 +66,8 @@ void AxesRenderer::Draw(glm::mat4 MVP)
 
     glBindVertexArray(this->VAO); 
 
+    glLineWidth(1.0);
+
     // DRAW!
     glDrawArrays(GL_LINES, 0, this->totalVertices);
 

@@ -157,8 +157,6 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         this->scaleFactorMin = this->minGradientValue;
         this->scaleFactorMax = this->maxGradientValue;
     }
-
-    std::cout << "PointRenderer: Max Scalar Value: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void PointRenderer::Draw(glm::mat4 MVP)

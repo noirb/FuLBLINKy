@@ -36,7 +36,6 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         this->scaleFactorMax = this->maxGradientValue;
     }
 
-    std::cout << "GlyphRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*color_scalarField).size() << " scalars" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -228,9 +227,6 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
-
-
-    std::cout << "GlyphRenderer: Max Scalar: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void GlyphRenderer::Draw(glm::mat4 MVP)

@@ -175,8 +175,6 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
-
-    std::cout << "LineRenderer: Max Scalar: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void LineRenderer::Draw(glm::mat4 MVP)

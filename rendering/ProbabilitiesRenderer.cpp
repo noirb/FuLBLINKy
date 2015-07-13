@@ -32,15 +32,15 @@ void ProbabilitiesRenderer::SetEndPoint(double newx, double newy, double newz)
 }
 
 void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
-{    
+{
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
 
     double maxProbability = -0.1;
-    float VectorScale = 0.5;	
+    float VectorScale = 0.5;
     velocityMagnitudes.clear();
 
     // Number of points in the glyph
-    static const int ArrowGlyphSize = 9;
+    static const int ArrowGlyphSize = 60;
 
     if ( provider->GetField("points", &points) != 0)
     {
@@ -60,7 +60,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
         std::vector<std::vector<double> >* probDump = new std::vector<std::vector<double> >();
         // Push the ith probability field
         probabilities.push_back(probDump);
-    
+
         if ( provider->GetField(probName, &probabilities[i]) != 0)
     	{
             std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: " << probName << " Field could not be retrieved!" << std::endl;
@@ -234,7 +234,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
         0,
         (void*)0
     );
-    
+
     // reset GL state
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -267,7 +267,7 @@ void ProbabilitiesRenderer::Draw(glm::mat4 MVP)
     glBindVertexArray(this->VAO);
 
     // DRAW!
-    glDrawArrays(GL_TRIANGLES, 0, 18 * 9 * this->totalVertices);
+    glDrawArrays(GL_TRIANGLES, 0, 18 * 60 * this->totalVertices);
 
     // unset shaders
     shaderProgram->disable();

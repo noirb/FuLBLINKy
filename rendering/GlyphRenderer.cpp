@@ -5,7 +5,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 {
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
 
-    static const int ArrowGlyphSize = 9;//sizeof(g_arrow2d_vertex_buffer_data)/sizeof(float);
+    static const int ArrowGlyphSize = 60;//sizeof(g_arrow2d_vertex_buffer_data)/sizeof(float);
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* color_scalarField;
     std::vector<std::vector<double> >* velocities;
@@ -79,7 +79,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         {
             local_scaling = 0.1;
         }
-	
+
         glm::mat4 M = glm::mat4(1.0f);
         M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
                                          (points->at(loopVarVertices))[1],
@@ -221,7 +221,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         0,
         (void*)0
     );
-    
+
     // reset GL state
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -259,7 +259,7 @@ void GlyphRenderer::Draw(glm::mat4 MVP)
     glBindVertexArray(this->VAO);
 
     // DRAW!
-    glDrawArrays(GL_TRIANGLES, 0, (this->totalVertices)*9);
+    glDrawArrays(GL_TRIANGLES, 0, (this->totalVertices)*60);
 
     // unbind VAO
     glBindVertexArray(0);

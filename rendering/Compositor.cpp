@@ -705,8 +705,10 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
         else if (rendererType == RENDERER_PROBABILITIES)
         {
             // resize parameters container to make extra room for the new controls
-            paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,400)));
-
+            paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,250)));
+            CEGUI::WindowManager::getSingleton().destroyWindow(colorField_combobox); // HACK: Remove field selection combobox since this renderer doesn't use it
+            CEGUI::WindowManager::getSingleton().destroyWindow(scale_container);
+            CEGUI::WindowManager::getSingleton().destroyWindow(lblScale);
             /* Start Point for selecting probabilities */
             CEGUI::Window* lblStart = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
             paramBox->addChild(lblStart);

@@ -12,7 +12,6 @@ std::vector<double> ProbabilitiesRenderer::GetStartPoint()
 
 void ProbabilitiesRenderer::SetStartPoint(double newx, double newy, double newz)
 {
-    std::cout << "<ProbabilitiesRenderer::SetStartPoint> : " << newx << ", " << newy << ", " << newz << std::endl;
     this->startPoint[0] = newx < this->endPoint[0] ? newx : this->endPoint[0]; // do not allow start/end points to cross
     this->startPoint[1] = newy < this->endPoint[1] ? newy : this->endPoint[1];
     this->startPoint[2] = newz < this->endPoint[2] ? newz : this->endPoint[2];
@@ -25,7 +24,6 @@ std::vector<double> ProbabilitiesRenderer::GetEndPoint()
 
 void ProbabilitiesRenderer::SetEndPoint(double newx, double newy, double newz)
 {
-    std::cout << "<ProbabilitiesRenderer::SetEndPoint> : " << newx << ", " << newy << ", " << newz << std::endl;
     this->endPoint[0] = newx > this->startPoint[0] ? newx : this->startPoint[0]; // do not allow start/end points to cross
     this->endPoint[1] = newy > this->startPoint[1] ? newy : this->startPoint[1];
     this->endPoint[2] = newz > this->startPoint[2] ? newz : this->startPoint[2];
@@ -35,7 +33,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 {    
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
 
-    double maxProbability = -0.1;
+    double maxProbability = -100;
+    double minProbability =  100;
     float VectorScale = 0.5;	
     velocityMagnitudes.clear();
 
@@ -68,7 +67,6 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     	}
     }
 
-    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*points).size() << " points" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -87,15 +85,13 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     double ylength = domainParameters.size[1];
     double zlength = domainParameters.size[2];
 
-    /** Copy point data **/
-
     // determine needed number of vertices & allocate space for them
     double minX = glm::max(0.0, startPoint[0]);
     double minY = glm::max(0.0, startPoint[1]);
     double minZ = glm::max(0.0, startPoint[2]);
-    double maxX = glm::min(xlength, endPoint[0]);
-    double maxY = glm::min(ylength, endPoint[1]);
-    double maxZ = glm::min(zlength, endPoint[2]);
+    double maxX = glm::min(xlength-1, endPoint[0]);
+    double maxY = glm::min(ylength-1, endPoint[1]);
+    double maxZ = glm::min(zlength-1, endPoint[2]);
     this->totalVertices = (maxZ - minZ + 1) * (maxY - minY + 1) * (maxX - minX + 1);
     this->vertex_buffer_data = new GLfloat[18 * ArrowGlyphSize * 3 * this->totalVertices]; // 3 floats per vertex
 
@@ -169,6 +165,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
                             double probability = (probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
                             if (probability > maxProbability)
                                 maxProbability = probability;
+                            if (probability < minProbability)
+                                minProbability = probability;
 
 			                // store (x,y,z) components of current vertex*/
                             velocityMagnitudes.push_back(probability);
@@ -186,7 +184,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
 
 
-    /** Copy density data **/
+    /** Copy velocity data **/
 
     this->totalAttributes = 1; // TODO: don't hard-code this...
     this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
@@ -241,8 +239,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
     this->VAO = vao;
     this->VBO = vbo;
-    this->minGradientValue = 0;//minProbability;
-    this->maxGradientValue = 1.0;// maxProbability;
+    this->minGradientValue = minProbability;
+    this->maxGradientValue = maxProbability;
 }
 
 void ProbabilitiesRenderer::Draw(glm::mat4 MVP)

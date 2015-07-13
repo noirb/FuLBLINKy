@@ -729,10 +729,109 @@ void Compositor::AddRenderer(Renderers rendererType)
                             sstm >> value;
                             (static_cast<StreamLineRenderer*>(newRenderer))->maxStreamlineLength = value;
                             newRenderer->PrepareGeometry(this->_dataProvider);
-                            std::cout << "Edit box 3 has: " << box->getText() << std::endl;
                             return true;
                         }
             );
+        } // end stream-line specific controls
+
+        /* --------------------------------
+            Probability-Specific Controls
+           -------------------------------- */
+        else if (rendererType == RENDERER_PROBABILITIES)
+        {
+            // resize parameters container to make extra room for the new controls
+            paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,400)));
+
+            /* Start Point for selecting probabilities */
+            CEGUI::Window* lblStart = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
+            paramBox->addChild(lblStart);
+            lblStart->setText("Start Point:");
+            lblStart->setProperty("HorzFormatting", "Left");
+            lblStart->setTooltipText("Lower-left corner of region to render probabilities from");
+
+            CEGUI::Window* startContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
+            paramBox->addChild(startContainer);
+            startContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0, 40)));
+
+            CEGUI::Editbox* startX = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            startContainer->addChild(startX);
+            startX->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            startX->setText("1.0");
+
+            CEGUI::Editbox* startY = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            startContainer->addChild(startY);
+            startY->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            startY->setText("1.0");
+
+            CEGUI::Editbox* startZ = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            startContainer->addChild(startZ);
+            startZ->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            startZ->setText("1.0");
+
+            std::function<bool(const CEGUI::EventArgs&)> updateStartPoint = [this, newRenderer, startX, startY, startZ] (const CEGUI::EventArgs &e)->bool
+                            {
+                                double newX, newY, newZ;
+                                std::stringstream sstm;
+                                sstm << startX->getText() << " " << startY->getText() << " " << startZ->getText();
+                                sstm >> newX;
+                                sstm >> newY;
+                                sstm >> newZ;
+                                (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetStartPoint(newX, newY, newZ);
+                                // in case new changes were rejected, get values again so they can be displayed in the editboxes
+                                std::vector<double> newPoint = (static_cast<ProbabilitiesRenderer*>(newRenderer))->GetStartPoint();
+                                startX->setText(std::to_string(newPoint[0]));
+                                startY->setText(std::to_string(newPoint[1]));
+                                startZ->setText(std::to_string(newPoint[2]));
+                                newRenderer->PrepareGeometry(this->_dataProvider);
+                                return true;
+
+                            };
+            startX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+            startY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+            startZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+
+            /* End Point for selecting probabilities */
+            CEGUI::Window* lblEnd = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
+            paramBox->addChild(lblEnd);
+            lblEnd->setText("End Point:");
+            lblEnd->setProperty("HorzFormatting", "Left");
+            lblEnd->setTooltipText("Upper-right corner of region to render probabilities from");
+
+            CEGUI::Window* endContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
+            paramBox->addChild(endContainer);
+            endContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0.0), CEGUI::UDim(0.0, 40)));
+
+            CEGUI::Editbox* endX = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            endContainer->addChild(endX);
+            endX->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            endX->setText("5.0");
+
+            CEGUI::Editbox* endY = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            endContainer->addChild(endY);
+            endY->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            endY->setText("5.0");
+
+            CEGUI::Editbox* endZ = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+            endContainer->addChild(endZ);
+            endZ->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+            endZ->setText("5.0");
+
+            std::function<bool(const CEGUI::EventArgs&)> updateEndPoint = [this, newRenderer, endX, endY, endZ] (const CEGUI::EventArgs &e)->bool
+                            {
+                                double newX, newY, newZ;
+                                std::stringstream sstm;
+                                sstm << endX->getText() << " " << endY->getText() << " " << endZ->getText();
+                                sstm >> newX;
+                                sstm >> newY;
+                                sstm >> newZ;
+                                (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetEndPoint(newX, newY, newZ);
+                                newRenderer->PrepareGeometry(this->_dataProvider);
+                                return true;
+
+                            };
+            endX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+            endY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+            endZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
         }
 
     }

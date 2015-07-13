@@ -5,6 +5,32 @@
 #define COMPUTEINDEXOF(x, y, z) ( (x) * (ylength) * (zlength) + (y) * (zlength) + (z) )
 std::vector<double> velocityMagnitudes;
 
+std::vector<double> ProbabilitiesRenderer::GetStartPoint()
+{
+    return this->startPoint;
+}
+
+void ProbabilitiesRenderer::SetStartPoint(double newx, double newy, double newz)
+{
+    std::cout << "<ProbabilitiesRenderer::SetStartPoint> : " << newx << ", " << newy << ", " << newz << std::endl;
+    this->startPoint[0] = newx < this->endPoint[0] ? newx : this->endPoint[0]; // do not allow start/end points to cross
+    this->startPoint[1] = newy < this->endPoint[1] ? newy : this->endPoint[1];
+    this->startPoint[2] = newz < this->endPoint[2] ? newz : this->endPoint[2];
+}
+
+std::vector<double> ProbabilitiesRenderer::GetEndPoint()
+{
+    return this->endPoint;
+}
+
+void ProbabilitiesRenderer::SetEndPoint(double newx, double newy, double newz)
+{
+    std::cout << "<ProbabilitiesRenderer::SetEndPoint> : " << newx << ", " << newy << ", " << newz << std::endl;
+    this->endPoint[0] = newx > this->startPoint[0] ? newx : this->startPoint[0]; // do not allow start/end points to cross
+    this->endPoint[1] = newy > this->startPoint[1] ? newy : this->startPoint[1];
+    this->endPoint[2] = newz > this->startPoint[2] ? newz : this->startPoint[2];
+}
+
 void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 {    
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
@@ -13,16 +39,6 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     float VectorScale = 0.5;	
     velocityMagnitudes.clear();
 
-    // Start coordinate indices for directions:
-    std::vector<double> startPoint;
-	    startPoint.push_back(1.0);
-	    startPoint.push_back(1.0);
-	    startPoint.push_back(1.0);
-    // End coordinate indices for directions:
-    std::vector<double> endPoint;
-	    endPoint.push_back(13.0);
-	    endPoint.push_back(4.0);
-	    endPoint.push_back(5.0);
     // Number of points in the glyph
     static const int ArrowGlyphSize = 9;
 
@@ -212,7 +228,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     this->VAO = vao;
     this->VBO = vbo;
     this->minGradientValue = 0;//minProbability;
-    this->maxGradientValue = maxProbability;
+    this->maxGradientValue = 1.0;// maxProbability;
 }
 
 void ProbabilitiesRenderer::Draw(glm::mat4 MVP)

@@ -8,24 +8,50 @@
 std::vector<int> streamLinePointCounter;
 std::vector<double> velocity_magnitudes;
 
-//double startPoint[3] = {2.0, 2.0, 2.0};
-//double endPoint[3] = {5.0, 5.0, 5.0};
-//void StreamLineRenderer::pushCoordinate(double value, int coord, bool ifEnd)
-//{
-//	if (ifEnd){
-		//startPoint[coord] = value;	
-	//}else{
-//		endPoint[coord] = value;	
-//	}
-//}
+double* StreamLineRenderer::GetStartPoint()
+{
+    return this->startPoint;
+}
 
-//double* getStartPoint(){
-//	return startPoint;
-//}
+void StreamLineRenderer::SetStartPoint(double newx, double newy, double newz)
+{
+    this->startPoint[0] = newx < this->endPoint[0] ? newx : this->endPoint[0];
+    this->startPoint[1] = newy < this->endPoint[1] ? newy : this->endPoint[1];
+    this->startPoint[2] = newz < this->endPoint[2] ? newz : this->endPoint[2];
+}
 
-//double* getEndPoint(){
-//	return endPoint;
-//}
+double* StreamLineRenderer::GetEndPoint()
+{
+    return this->endPoint;
+}
+
+void StreamLineRenderer::SetEndPoint(double newx, double newy, double newz)
+{
+    this->endPoint[0] = newx > this->startPoint[0] ? newx : this->startPoint[0];
+    this->endPoint[1] = newy > this->startPoint[1] ? newy : this->startPoint[1];
+    this->endPoint[2] = newz > this->startPoint[2] ? newz : this->startPoint[2];
+}
+
+int StreamLineRenderer::GetLineSize()
+{
+    return this->lineSourceSize;
+}
+
+void StreamLineRenderer::SetLineSize(int newSize)
+{
+    this->lineSourceSize = newSize > 0 ? newSize : 0; // disallow negative sizes
+}
+
+double StreamLineRenderer::GetLineLength()
+{
+    return this->maxStreamlineLength;
+}
+
+void StreamLineRenderer::SetLineLength(double newLen)
+{
+    this->maxStreamlineLength = newLen > 0.0 ? newLen : 0.0; // disallow negative lengths
+}
+
 std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(
                               double deltaX, 
                               double deltaY, 
@@ -208,23 +234,21 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 	streamLinePointCounter.clear();
 	velocity_magnitudes.clear();
     
-    /** Copy point data **/
-
     // determine needed number of vertices & allocate space for them
-    // StreamLineRenderer only needs ONE vertex per data point
     this->totalVertices = (*points).size();
-  // double* startPointNew = getStartPoint();
-   // double* endPointNew = getEndPoint();
+
     // for now, create local deltaX/Y/Z, streamlineSource, maxStreamLineLength, dt
     // create the end-points of the lines
     std::vector<double> lineSourcePoint1;
 	lineSourcePoint1.push_back(startPoint[0]);
 	lineSourcePoint1.push_back(startPoint[1]);
 	lineSourcePoint1.push_back(startPoint[2]);
+
     std::vector<double> lineSourcePoint2;
 	lineSourcePoint2.push_back(endPoint[0]);
 	lineSourcePoint2.push_back(endPoint[1]);
 	lineSourcePoint2.push_back(endPoint[2]);
+
     std::vector<double> steps;
 	steps.push_back( (lineSourcePoint2[0] - lineSourcePoint1[0])/(lineSourceSize-1) );
 	steps.push_back( (lineSourcePoint2[1] - lineSourcePoint1[1])/(lineSourceSize-1) );
@@ -234,7 +258,6 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     int k = 0;
 
     double dt = 100;
-  //  double maxStreamLineLength = 200.0;
     double deltaX = 1.0;
     double deltaY = 1.0;
     double deltaZ = 1.0;
@@ -242,11 +265,11 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     // Add points to the stream line source (equidistant distribution)    
     for (int i = 0; i < lineSourceSize; i++)
     {
-	std::vector<double> temp;
-	temp.push_back( lineSourcePoint1[0] + i*steps[0] );
-	temp.push_back( lineSourcePoint1[1] + i*steps[1] );
-	temp.push_back( lineSourcePoint1[2] + i*steps[2] );
-	streamLineSource.push_back(temp);
+        std::vector<double> temp;
+        temp.push_back( lineSourcePoint1[0] + i*steps[0] );
+        temp.push_back( lineSourcePoint1[1] + i*steps[1] );
+        temp.push_back( lineSourcePoint1[2] + i*steps[2] );
+        streamLineSource.push_back(temp);
     }
 
     // Get domain size
@@ -263,52 +286,57 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     // Loop through all points
     for (int i = 0; i < lineSourceSize; i++)
     {
-	// Initialize ith counter and length to zero
-	streamLinePointCounter.push_back(3);
-	k += 3;
+        // Initialize ith counter and length to zero
+        streamLinePointCounter.push_back(3);
+        k += 3;
         streamLineLength.push_back(0.0);
 	
-	// First add the ith source point
-	streamLinePoints.push_back(streamLineSource[i][0]);
-	streamLinePoints.push_back(streamLineSource[i][1]);
-	streamLinePoints.push_back(streamLineSource[i][2]);
+        // First add the ith source point
+        streamLinePoints.push_back(streamLineSource[i][0]);
+        streamLinePoints.push_back(streamLineSource[i][1]);
+        streamLinePoints.push_back(streamLineSource[i][2]);
 
-	// Create a copy of the current point
-	std::vector<double> currPoint;
-	// ith while loop starts here..
-	while( streamLinePoints[k - 3] < xlength-1 && streamLinePoints[k - 3] > 1 &&
-	       streamLinePoints[k - 2] < ylength-1 && streamLinePoints[k - 2] > 1 &&
-	       streamLinePoints[k - 1] < zlength-1 && streamLinePoints[k - 1] > 1 &&
-	       streamLineLength[i] < maxStreamlineLength)
-	{	
-		currPoint.clear();
-	        currPoint.push_back(streamLinePoints[k - 3]);
-	        currPoint.push_back(streamLinePoints[k - 2]);
-	        currPoint.push_back(streamLinePoints[k - 1]);
-		// Call func! 		   
-		RK45(deltaX, deltaY, deltaZ, xlength, ylength, zlength, dt, currPoint);
-		streamLinePoints.push_back(currPoint[0]);
-		streamLinePoints.push_back(currPoint[1]);
-		streamLinePoints.push_back(currPoint[2]);
-		streamLinePointCounter[i] += 3;
-		k += 3;
+        // Create a copy of the current point
+        std::vector<double> currPoint;
+        // ith while loop starts here..
+        while( streamLinePoints[k - 3] < xlength-1 && streamLinePoints[k - 3] > 1 &&
+               streamLinePoints[k - 2] < ylength-1 && streamLinePoints[k - 2] > 1 &&
+               streamLinePoints[k - 1] < zlength-1 && streamLinePoints[k - 1] > 1 &&
+               streamLineLength[i] < maxStreamlineLength)
+        {	
+            currPoint.clear();
+            currPoint.push_back(streamLinePoints[k - 3]);
+            currPoint.push_back(streamLinePoints[k - 2]);
+            currPoint.push_back(streamLinePoints[k - 1]);
 
-		streamLineLength[i] += sqrt((streamLinePoints[k - 3] - streamLinePoints[k - 6]) * (streamLinePoints[k - 3] - streamLinePoints[k - 6]) +
-					    (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
-                                     	    (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
-    	}
-	std::vector<std::vector<double> > localVelocities;
-	std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
-	velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
+            // Call func! 		   
+            RK45(deltaX, deltaY, deltaZ, xlength, ylength, zlength, dt, currPoint);
+            streamLinePoints.push_back(currPoint[0]);
+            streamLinePoints.push_back(currPoint[1]);
+            streamLinePoints.push_back(currPoint[2]);
+            streamLinePointCounter[i] += 3;
+            k += 3;
+
+            streamLineLength[i] += sqrt((streamLinePoints[k - 3] - streamLinePoints[k - 6]) * (streamLinePoints[k - 3] - streamLinePoints[k - 6]) +
+                                    (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
+                                    (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
+        }
+
+        if (currPoint.size() > 0) // if we generated points in the loop above...
+        {
+            std::vector<std::vector<double> > localVelocities;
+            std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
+            velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
+        }
     }
 
     // we want to render points exactly at the locations specified by points, so just copy them
-    int totalStoredCoords = k;// k-3*lineSourceSize;
+    int totalStoredCoords = k;
     this->vertex_buffer_data = new GLfloat[totalStoredCoords];
 
     for(int i = 0; i < totalStoredCoords; i++)
     {
-            this->vertex_buffer_data[i] = streamLinePoints[i]; // copy each x,y,z component from each point
+        this->vertex_buffer_data[i] = streamLinePoints[i]; // copy each x,y,z component from each point
     }
 
     /** Copy velocity data **/		
@@ -320,18 +348,8 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     int i = 0;
     for (i = 0; i < num_of_vertices; i++)
     {
-        this->vertex_attrib_data[0][i] = velocity_magnitudes[i];//provider->GetMaxValueFromField("velocity");
+        this->vertex_attrib_data[0][i] = velocity_magnitudes[i];
     }
-   /* for (auto velocity_vector : *velocities)
-    {
-        // compute velocity magnitude at this point
-        glm::vec3 vel = glm::vec3(velocity_vector[0], velocity_vector[1], velocity_vector[2]);
-        double mag = glm::length(vel);
-
-        // for each vertex in the glyph at this piont, store the velocity magnitude
-        this->vertex_attrib_data[0][i] = mag;
-        i++;
-    }*/
 
     GLuint vao, vbo, velocity_buf; vao = vbo = velocity_buf = 0;
 
@@ -391,7 +409,7 @@ void StreamLineRenderer::Draw(glm::mat4 MVP)
     // if we have no shaders, vertices, etc., we can't render anything
     if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
     {
-        return; /// TODO: Log an error here!
+        return;
     }
 
     // set shaders
@@ -414,12 +432,12 @@ void StreamLineRenderer::Draw(glm::mat4 MVP)
     glDrawArrays(GL_LINE_STRIP, startIndex, (streamLinePointCounter[0]-3)/3);
     for (int i = 1; i < lineSourceSize; i++)
     {
-	startIndex += streamLinePointCounter[i-1]/3 ;
-	glDrawArrays(GL_LINE_STRIP, startIndex, (streamLinePointCounter[i]-3)/3);
+        startIndex += streamLinePointCounter[i-1]/3 ;
+        glDrawArrays(GL_LINE_STRIP, startIndex, (streamLinePointCounter[i]-3)/3);
     }
 
     // unset shaders
-    glUseProgram(0);
+    this->shaderProgram->disable();
 
     // unbind VAO
     glBindVertexArray(0);

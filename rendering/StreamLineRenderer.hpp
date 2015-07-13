@@ -11,6 +11,18 @@ class StreamLineRenderer: public RenderableComponent
         virtual void PrepareGeometry(DataProvider* provider);
         virtual void Draw(glm::mat4 MVP);
 
+        double* GetStartPoint();
+        void SetStartPoint(double, double, double);
+
+        double* GetEndPoint();
+        void SetEndPoint(double, double, double);
+
+        int GetLineSize();
+        void SetLineSize(int);
+
+        double GetLineLength();
+        void SetLineLength(double);
+
         double startPoint[3]  = {3.0, 3.0, 3.0};
         double endPoint[3]    = {5.0, 5.0, 5.0};
         int    lineSourceSize = 15;

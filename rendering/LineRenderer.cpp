@@ -27,7 +27,16 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         return;
     }
 
-    std::cout << "LineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " scalars" << std::endl;
+    // save scalar max/min for rendering  /// TODO: These could be moved?
+    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
+    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+
+    if (this->autoScale)
+    {
+        this->scaleFactorMin = this->minGradientValue;
+        this->scaleFactorMax = this->maxGradientValue;
+    }
+
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -53,6 +62,16 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     int i = 0;
     for (uint p = 0; p < (*points).size(); p++)
     {
+        // set scale for point p
+        if (this->scaleFactorMin == this->scaleFactorMax)
+        {
+            velVectorScale = glm::mix(0.0, 1.0, this->scaleFactorMin);
+        }
+        else
+        {
+            velVectorScale = glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+        }
+
         // get velocity at point p
         glm::vec3 velocity = glm::vec3(velocities->at(p)[0], velocities->at(p)[1], velocities->at(p)[2]);
         glm::vec3 point    = glm::vec3(points->at(p)[0], points->at(p)[1], points->at(p)[2]);
@@ -157,9 +176,6 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     this->VAO = vao;
     this->VBO = vbo;
 
-    // save scalar max/min for rendering  /// TODO: These could be moved?
-    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
-    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
     std::cout << "LineRenderer: Max Scalar: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 

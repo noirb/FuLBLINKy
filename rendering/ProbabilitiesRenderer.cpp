@@ -90,17 +90,28 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     /** Copy point data **/
 
     // determine needed number of vertices & allocate space for them
-    this->totalVertices = (endPoint[2]-startPoint[2]+1) * (endPoint[1]-startPoint[1]+1) * (endPoint[0]-startPoint[0]+1);
+    double minX = glm::max(0.0, startPoint[0]);
+    double minY = glm::max(0.0, startPoint[1]);
+    double minZ = glm::max(0.0, startPoint[2]);
+    double maxX = glm::min(xlength, endPoint[0]);
+    double maxY = glm::min(ylength, endPoint[1]);
+    double maxZ = glm::min(zlength, endPoint[2]);
+    this->totalVertices = (maxZ - minZ + 1) * (maxY - minY + 1) * (maxX - minX + 1);
     this->vertex_buffer_data = new GLfloat[18 * ArrowGlyphSize * 3 * this->totalVertices]; // 3 floats per vertex
 
 
     int globalCounter = 0;
 
-    for (int i = startPoint[0]; i <= endPoint[0]; i++){
-	for (int j = startPoint[1]; j <= endPoint[1]; j++){
-	    for (int k = startPoint[2]; k <= endPoint[2]; k++){
-	         for(int l = 0; l< 19; l++){
-        	     if (l != 9){
+    for (int i = minX; i <= maxX; i++)
+    {
+    	for (int j = minY; j <= maxY; j++)
+        {
+            for (int k = minZ; k <= maxZ; k++)
+            {
+                for(int l = 0; l < 19; l++)
+                {
+                    if (l != 9)
+                    {
 			            glm::mat4 M = glm::mat4(1.0f);
 			            M = glm::translate(M,  glm::vec3((points->at(COMPUTEINDEXOF(i, j, k)))[0],    // translation matrix to current location in dataset
                                          (points->at(COMPUTEINDEXOF(i, j, k)))[1],
@@ -113,8 +124,10 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 			                target_vec = glm::normalize(target_vec);
                             glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
 
-        					if ((rot_axis[0])*(rot_axis[0]) <= 0.0000001 && (rot_axis[1])*(rot_axis[1]) <= 0.0000001 && (rot_axis[2])*(rot_axis[2]) <= 0.0000001){
-		        			    if (glm::dot(source_vec, target_vec) < 0){
+        					if ((rot_axis[0])*(rot_axis[0]) <= 0.0000001 && (rot_axis[1])*(rot_axis[1]) <= 0.0000001 && (rot_axis[2])*(rot_axis[2]) <= 0.0000001)
+                            {
+		        			    if (glm::dot(source_vec, target_vec) < 0)
+                                {
 				            		glm::vec3 temp = target_vec;
             						temp[0] = temp[0] + 1.432342; temp[1] = temp[1] + 1.234235342; temp[2] = temp[2] + 1.1244325;
 			            			rot_axis = glm::cross(source_vec, temp);
@@ -133,7 +146,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 			            {
         					glm::vec4 glyphPointTemp;
 			                // get coords for current vertex
-		        			if (l == 2 || l == 6 || l == 9 || l == 10 || l == 12 || l == 16){
+		        			if (l == 2 || l == 6 || l == 9 || l == 10 || l == 12 || l == 16)
+                            {
 				                glyphPointTemp = glm::vec4(
                                             ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
                                             ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],

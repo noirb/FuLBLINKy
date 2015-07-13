@@ -202,6 +202,10 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 {
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
 
+    std::vector<std::vector<double> >* color_scalarField;
+    std::vector<double> scalar_mags;
+
+
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
@@ -210,6 +214,11 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("velocity", &velocities) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
+        return;
+    }
+    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    {
+        std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: " << this->colorParamField << " Field could not be retrieved!" << std::endl;
         return;
     }
 
@@ -320,6 +329,9 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
             streamLineLength[i] += sqrt((streamLinePoints[k - 3] - streamLinePoints[k - 6]) * (streamLinePoints[k - 3] - streamLinePoints[k - 6]) +
                                     (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
                                     (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
+
+            // get scalar value nearest to currPoint
+            scalar_mags.push_back(color_scalarField->at(COMPUTEINDEXOF(glm::floor(currPoint[0]), glm::floor(currPoint[1]), glm::floor(currPoint[2])))[0]); // HACK: just take first component--great if it's just a scalar but we're losing data from vectors :(
         }
 
         if (currPoint.size() > 0) // if we generated points in the loop above...
@@ -327,6 +339,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
             std::vector<std::vector<double> > localVelocities;
             std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
             velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
+            scalar_mags.push_back(color_scalarField->at(COMPUTEINDEXOF(glm::floor(currPoint[0]), glm::floor(currPoint[1]), glm::floor(currPoint[2])))[0]); // HACK: Same as above...
         }
     }
 
@@ -348,7 +361,10 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     int i = 0;
     for (i = 0; i < num_of_vertices; i++)
     {
-        this->vertex_attrib_data[0][i] = velocity_magnitudes[i];
+        if (this->colorParamField == "velocity") // HACK: We should not need to perform this test
+            this->vertex_attrib_data[0][i] = velocity_magnitudes[i];
+        else
+            this->vertex_attrib_data[0][i] = scalar_mags[i];
     }
 
     GLuint vao, vbo, velocity_buf; vao = vbo = velocity_buf = 0;
@@ -397,9 +413,8 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     this->VBO = vbo;
 
     // save min/max values for rendering colored gradients/scaling/etc
-    this->maxGradientValue = provider->GetMaxValueFromField("velocity");
-    this->minGradientValue = provider->GetMinValueFromField("velocity");
-    std::cout << "StreamLineRenderer: Max Velocity: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
+    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
+    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
 }
 
 void StreamLineRenderer::Draw(glm::mat4 MVP)

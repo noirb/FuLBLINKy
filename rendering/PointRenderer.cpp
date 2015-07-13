@@ -20,8 +20,6 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         return;
     }
 
-    std::cout << "<PointRenderer::PrepareGeometry>: processing " << (*points).size() << " points and " << (*color_scalarField).size() << " scalars" << std::endl;
-
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {

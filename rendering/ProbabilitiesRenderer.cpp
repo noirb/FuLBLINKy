@@ -10,9 +10,9 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
 
     double maxProbability = -0.1;
-    //double minProbability = 2.0;
-    velocityMagnitudes.clear();
     float VectorScale = 0.5;	
+    velocityMagnitudes.clear();
+
     // Start coordinate indices for directions:
     std::vector<double> startPoint;
 	    startPoint.push_back(1.0);
@@ -29,12 +29,6 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("points", &points) != 0)
     {
         std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
-        return;
-    }
-
-    if ( provider->GetField("density", &densities) != 0)
-    {
-        std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Density Field could not be retrieved!" << std::endl;
         return;
     }
 
@@ -58,7 +52,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     	}
     }
 
-    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*densities).size() << " densities" << std::endl;
+    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*points).size() << " points" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {

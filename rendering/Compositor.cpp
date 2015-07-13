@@ -525,6 +525,7 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
         if (rendererType == RENDERER_STREAMLINES)
         {
             StreamLineRenderer* newStreamRenderer = static_cast<StreamLineRenderer*>(newRenderer);
+            scaleBox_max->hide();   /// HACK: hide max scalebox since StreamLines don't use it
 
             // due to extra widgets, the paramBox container needs to be taller than default
             paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,400)));

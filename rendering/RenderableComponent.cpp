@@ -47,6 +47,7 @@ void RenderableComponent::SetInterpolationBias(float b)
 
 void RenderableComponent::SetColorField(std::string fieldName)
 {
+    std::cout << "New Color Field: " << fieldName << std::endl;
     this->colorParamField = fieldName;
 }
 

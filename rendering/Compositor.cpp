@@ -29,14 +29,8 @@ void Compositor::Start()
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
 
-/*    while (this->running)
-    {
-        this->Render();
-        this->lastFrameTime = glfwGetTime();
-    }
-*/
     // add default axes renderer
-    this->AddRenderer(RENDERER_AXES);
+    this->AddRenderer(RENDERER_AXES, true);
 }
 
 void Compositor::ShutDown()
@@ -156,12 +150,23 @@ void Compositor::DisplayChanged(int width, int height)
     CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(width, height));
 }
 
-void Compositor::AddRenderer(RenderableComponent* renderer)
+void Compositor::AddRenderer(RenderableComponent* renderer, bool onByDefault)
 {
     this->_renderers.push_back(renderer);
+
+    // if we already have data to visualize, send it to the new renderer
+    if (this->_dataProvider)
+    {
+        renderer->PrepareGeometry(this->_dataProvider);
+    }
+
+    if (onByDefault)
+        renderer->Enable();
+    else
+        renderer->Disable();
 }
 
-void Compositor::AddRenderer(Renderers rendererType)
+void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
 {
     std::cout << "Adding GUI for new Renderer to scene (" << this->RendererStrs[rendererType] << ")" << std::endl;
 
@@ -200,11 +205,6 @@ void Compositor::AddRenderer(Renderers rendererType)
             return;
     }
 
-    // if we already have data to visualize, send it to the new renderer
-    if (this->_dataProvider)
-    {
-        newRenderer->PrepareGeometry(this->_dataProvider);
-    }
 
     rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
 
@@ -222,7 +222,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     title_container->addChild(rWnd);
     rWnd->setText(this->RendererStrs[rendererType]);
     rWnd->setSize(CEGUI::USize(CEGUI::UDim(0.75, 0), CEGUI::UDim(0, 50)));
-    rWnd->setSelected(false);
+    rWnd->setSelected(onByDefault);
 
     CEGUI::PushButton* btnClose = static_cast<CEGUI::PushButton*>(CEGUI::WindowManager::getSingleton().loadLayoutFromFile("closeButton.layout"));
     title_container->addChild(btnClose);
@@ -301,6 +301,7 @@ void Compositor::AddRenderer(Renderers rendererType)
             if (colorField_combobox->getItemCount() > 0)
             {
                 colorField_combobox->setItemSelectState((size_t)0, true);
+                newRenderer->SetColorField(colorField_combobox->getSelectedItem()->getText().c_str());
             }
         }
         std::cout << "Done!" << std::endl;
@@ -416,7 +417,7 @@ void Compositor::AddRenderer(Renderers rendererType)
          colourPickerLabel_min->setAlwaysOnTop(true);
 
         params_root->addChild(paramBox_parent);
-        paramBox_parent->toggleRollup();
+        paramBox_parent->setRolledup(!onByDefault);
         std::cout << "Done!" << std::endl;
 
         // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
@@ -800,8 +801,7 @@ void Compositor::AddRenderer(Renderers rendererType)
     }
 
     // add new renderer to compositor
-    newRenderer->Disable(); // renderer OFF by default//Enable();
-    this->AddRenderer(newRenderer);
+    this->AddRenderer(newRenderer, onByDefault);
 
     std::cout << "Done setting things up for the new renderer :D (" << this->RendererStrs[rendererType] << ")" << std::endl;
 }
@@ -1046,7 +1046,7 @@ CEGUI::Window* Compositor::AddRendererPopup()
 
                             if (selected)
                             {
-                                this->AddRenderer((Renderers)selected->getID());
+                                this->AddRenderer((Renderers)selected->getID(), true);
                                 addWnd->hide();
                             }
                             return true;

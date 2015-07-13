@@ -46,25 +46,31 @@ class Compositor
         // Stops rendering
         void ShutDown();
 
+        // Renders one frame
         void Render(glm::mat4);
 
         // gets time since the last frame was drawn
         double DeltaTime();
 
+        // Updates camera matrix based on mouse movement
         void UpdateCamera(double dx, double dy);
 
+        // Updates camera position relative to the screen
         void PanCamera(double dx, double dy);
 
+        // Updates camera's orbit radius
         void ZoomCamera(double dz);
 
+        // Updates FOV, etc., as necessary
         void UpdateAspectRatio(int width, int height);
 
         // used to notify compositor that the rendering area has changed somehow (window resized, etc)
         void DisplayChanged(int width, int height);
 
-        void AddRenderer(RenderableComponent*);
+        // Adds the specified renderer to the scene & constructs the relevant GUI for it
+        void AddRenderer(RenderableComponent*, bool);
 
-        void AddRenderer(Renderers);
+        void AddRenderer(Renderers, bool);
 
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();

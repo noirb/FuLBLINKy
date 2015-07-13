@@ -69,9 +69,10 @@ void lbsimWrapper::init(std::string filename)
     }
 
     // initialize output fields
-    this->fieldNames.push_back("points");
     this->fieldNames.push_back("density");
     this->fieldNames.push_back("velocity");
+    this->fieldNames.push_back("flags");
+    this->fieldNames.push_back("points");
 
     /// TODO: Store all distributions in a SINGLE field!
     for (int i = 0; i < 19; i++)
@@ -82,6 +83,7 @@ void lbsimWrapper::init(std::string filename)
     this->domainFields["points"] = std::vector<std::vector<double> >();
     this->domainFields["density"] = std::vector<std::vector<double> >();
     this->domainFields["velocity"] = std::vector<std::vector<double> >();
+    this->domainFields["flags"] = std::vector<std::vector<double> >();
 
     /// TODO: Store all distributions in a SINGLE field!
     for (int i = 0; i < 19; i++)
@@ -112,6 +114,7 @@ void lbsimWrapper::Update()
     this->domainFields["points"].clear();
     this->domainFields["density"].clear();
     this->domainFields["velocity"].clear();
+    this->domainFields["flags"].clear();
 
     for (int l = 0; l < 19; l++)
     {
@@ -130,14 +133,16 @@ void lbsimWrapper::Update()
                 computeDensity(&(collideField[indexOf(i, j, k, 0)]), &density);
                 computeVelocity(&(collideField[indexOf(i, j, k, 0)]), &density, velocity);
 
-                std::vector<double> p_tmp, d_tmp, v_tmp;
+                std::vector<double> p_tmp, d_tmp, v_tmp, f_tmp;
                 p_tmp.push_back( (double)i); p_tmp.push_back( (double)j ); p_tmp.push_back( (double)k );
                 d_tmp.push_back( density );
                 v_tmp.push_back( velocity[0] ); v_tmp.push_back( velocity[1] ); v_tmp.push_back( velocity[2] );
+                f_tmp.push_back( flagField[indexOf(i, j, k)].flag );
 
                 this->domainFields["points"].push_back( p_tmp );
                 this->domainFields["density"].push_back( d_tmp );
                 this->domainFields["velocity"].push_back( v_tmp );
+                this->domainFields["flags"].push_back( f_tmp );
 
                 for (int l = 0; l < 19; l++)
                 {

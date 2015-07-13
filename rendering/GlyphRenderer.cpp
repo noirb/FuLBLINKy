@@ -104,7 +104,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
             }
             else
             {
-                if (this->colorParamField == "velocity")
+                if (this->colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
                 {
                     scaleFactor = (glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin);
                 }

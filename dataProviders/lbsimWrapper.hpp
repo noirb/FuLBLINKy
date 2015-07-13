@@ -84,6 +84,7 @@ class lbsimWrapper : public DataProvider
         double tau;
 
         int indexOf(int x, int y, int z, int i) { return (19 * ((z) * (ylength+2) * (xlength+2) + (y) * (xlength+2) + (x)) + (i)); };
+        int indexOf(int x, int y, int z)        { return (     ((z) * (ylength+2) * (xlength+2) + (y) * (xlength+2) + (x))      ); };
 
         DomainParameters domainParameters;
         std::string filename;

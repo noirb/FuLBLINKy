@@ -9,6 +9,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     float velVectorScale = 1;
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* velocities;
+    std::vector<std::vector<double> >* color_scalarField;
 
     if ( provider->GetField("points", &points) != 0)
     {
@@ -18,9 +19,15 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     if ( provider->GetField("velocity", &velocities) != 0)
     {
         std::cout << "ERROR<LineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
+        return;
+    }
+    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    {
+        std::cout << "ERROR<LineRenderer::PrepareGeometry>: " << this->colorParamField << " Field could not be retrieved!" << std::endl;
+        return;
     }
 
-    std::cout << "LineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " velocities" << std::endl;
+    std::cout << "LineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " scalars" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -80,23 +87,32 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
 
     this->totalAttributes = 1; // TODO: don't hard-code this...
     this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 velocity magnitude per *vertex*
+    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 scalar value per *vertex*
     i = 0;
-    for (auto velocity_vector : *velocities)
+    for (auto scalar_vector : *color_scalarField)
     {
-        // compute velocity magnitude at this point
-        glm::vec3 vel = glm::vec3(velocity_vector[0], velocity_vector[1], velocity_vector[2]);
-        double mag = glm::length(vel);
+        double mag;
+        if (scalar_vector.size() > 1)
+        {
+            // compute vector magnitude at this point
+            glm::vec3 vel = glm::vec3(scalar_vector[0], scalar_vector[1], scalar_vector[2]);
+            mag = glm::length(vel);
+        }
+        else
+        {
+            mag = scalar_vector[0];
+        }
 
-        // for each vertex in the current line, store the velocity magnitude
+        // for each vertex in the current line, store the scalar value
         for (int j = 0; j < 2; j++)
         {
             this->vertex_attrib_data[0][i] = mag;
             i++;
         }
     }
+
     std::cout << i << std::endl;
-    GLuint vao, vbo, velocity_buf;
+    GLuint vao, vbo, scalar_buf;
 
     /** copy vertex data to GPU & save VAO and VBO handles **/
     glGenVertexArrays(1, &vao);
@@ -118,13 +134,13 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     );
 
     /** Buffer velocity data **/
-    glGenBuffers(1, &velocity_buf);
-    glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
+    glGenBuffers(1, &scalar_buf);
+    glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices, this->vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
+    glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
     glVertexAttribPointer(
         1,
         1,
@@ -141,10 +157,10 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     this->VAO = vao;
     this->VBO = vbo;
 
-    // save velocity max/min for rendering  /// TODO: These could be moved?
-    this->maxGradientValue = provider->GetMaxValueFromField("velocity");
-    this->minGradientValue = provider->GetMinValueFromField("velocity");
-    std::cout << "LineRenderer: Max Velocity: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
+    // save scalar max/min for rendering  /// TODO: These could be moved?
+    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
+    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    std::cout << "LineRenderer: Max Scalar: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void LineRenderer::Draw(glm::mat4 MVP)

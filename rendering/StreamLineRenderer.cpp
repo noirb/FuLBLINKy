@@ -226,7 +226,6 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     DomainParameters domainParameters;
     provider->getDomainParameters(&domainParameters);
 
-    std::cout << "StreamLineRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*velocities).size() << " velocities" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {

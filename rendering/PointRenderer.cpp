@@ -20,8 +20,6 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         return;
     }
 
-    std::cout << "<PointRenderer::PrepareGeometry>: processing " << (*points).size() << " points and " << (*color_scalarField).size() << " scalars" << std::endl;
-
     // if we previously allocated space for our vertices, clear it before continuing
     if (this->totalVertices > 0)
     {
@@ -157,8 +155,6 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         this->scaleFactorMin = this->minGradientValue;
         this->scaleFactorMax = this->maxGradientValue;
     }
-
-    std::cout << "PointRenderer: Max Scalar Value: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
 }
 
 void PointRenderer::Draw(glm::mat4 MVP)

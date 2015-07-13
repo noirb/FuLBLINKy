@@ -13,7 +13,15 @@ out vec4 color;
 
 void main()
 {
-    float a = (scalarValue - min_scalar) / (max_scalar - min_scalar);
+    float a;
+    if (min_scalar == max_scalar)
+    {
+        a = max_scalar;
+    }
+    else
+    {
+        a = (scalarValue - min_scalar) / (max_scalar - min_scalar);
+    }
 
     switch (interpolator)
     {

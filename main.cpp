@@ -55,6 +55,7 @@ void init(GLFWwindow** window)
 
     // if two fragments overlap, only accept the one closer to the camera in the final image
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LINE_SMOOTH);
     glDepthFunc(GL_LESS);
     glPointSize(5);
     glEnable(GL_PROGRAM_POINT_SIZE);

@@ -60,7 +60,7 @@ class RenderableComponent
         GLuint minColorID;
         float  maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
         float  minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
-        double autoScale = true;
+        bool   autoScale = true;
         double scaleFactorMin = 0.1;
         double scaleFactorMax = 0.2;
         Interpolation interpolator = Interpolation::LINEAR;

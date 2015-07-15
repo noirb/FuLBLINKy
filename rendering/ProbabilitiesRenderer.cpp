@@ -194,7 +194,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     this->vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
     for (int i = 0; i < num_of_vertices; i++)
     {
-        this->vertex_attrib_data[0][i] = velocityMagnitudes[i];
+        this->vertex_attrib_data[0][i] = velocityMagnitudes[i]/maxProbability;
     }
 
     GLuint vao, vbo, velocity_buf;

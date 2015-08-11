@@ -292,10 +292,10 @@ void vtkLegacyReader::NextTimeStep()
 void vtkLegacyReader::PrevTimeStep()
 {
     if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
-    if (this->timestep > 0)
+    if (this->timestep > 0 && this->timestepFilePaths.size() >= this->timestep)
     {
         this->timestep -= 1;
-        this->init(this->timestepFilePaths[this->timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
+        this->init(this->timestepFilePaths[this->timestep]);
     }
 }
 

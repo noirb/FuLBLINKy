@@ -75,8 +75,8 @@ class vtkLegacyReader : public DataProvider
         std::map<std::string, int> fieldDimensions;
         std::vector<std::string> fieldNames;
 
-        int timestep;
-        int maxTimesteps;
+        unsigned int timestep;
+        unsigned int maxTimesteps;
         
         // for a file '/dir/problem.timestep.vtk', this returns 'problem'
         std::string GetBaseFilename();

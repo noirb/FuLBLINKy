@@ -69,7 +69,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         }
         else
         {
-            velVectorScale = glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+            velVectorScale = glm::abs(glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin)));
         }
 
         // get velocity at point p

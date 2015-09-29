@@ -4,7 +4,6 @@
 void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 {
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
-
     static const int ArrowGlyphSize = 60;//sizeof(g_arrow2d_vertex_buffer_data)/sizeof(float);
     std::vector<std::vector<double> >* points;
     std::vector<std::vector<double> >* color_scalarField;
@@ -71,14 +70,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         }
 
         double local_scaling;
-        if (max_velocity != 0)
-        {
-            local_scaling = exp(sqrt(velTemp[0]*velTemp[0] + velTemp[1]*velTemp[1] + velTemp[2]*velTemp[2])/max_velocity)/exp(1);
-        }
-        else
-        {
-            local_scaling = 0.1;
-        }
+           local_scaling = 0.1;
 
         glm::mat4 M = glm::mat4(1.0f);
         M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
@@ -89,14 +81,41 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         if (glm::length(target_vec) > 0.0)
         {
             target_vec = glm::normalize(target_vec);
-        	glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
-        	float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
-        	M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
-        }
+            glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
+
+        	if (glm::length(rot_axis) == 0)
+                    {
+		 	if (glm::dot(source_vec, target_vec) < 0)
+                                {
+				  glm::vec3 temp = target_vec;
+            			  temp[0] = temp[0] + 1.432342; temp[1] = temp[1] + 1.234235342; temp[2] = temp[2] + 1.1244325;
+			          rot_axis = glm::cross(source_vec, temp);
+            			  M = glm::rotate(M, 3.1415f, rot_axis);
+			        }
+			}
+        		else
+                            {
+    			        float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
+	    		        M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
+		       }
+	}
 
         // Loop through the arrow skeleton
         for (int loopVarGlyphPts = 0; loopVarGlyphPts < ArrowGlyphSize *3; loopVarGlyphPts += 3)
         {
+	double velVectorScale;
+	if (this->autoScale){		        
+		if (max_velocity != 0)
+        	{
+            		velVectorScale = exp(sqrt(velTemp[0]*velTemp[0] + velTemp[1]*velTemp[1] + velTemp[2]*velTemp[2])/max_velocity)/exp(1);
+        	}
+        	else
+        	{
+            		velVectorScale = 1;
+        	}
+	    }
+	else {
+		
             double scaleFactor;
             if (this->scaleFactorMin == this->scaleFactorMax)
             {
@@ -106,15 +125,16 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
             {
                 if (this->colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
                 {
-                    scaleFactor = (glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin);
+                    scaleFactor = glm::abs((glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
                 }
                 else
                 {
-                    scaleFactor = ((color_scalarField->at(loopVarVertices))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin);
+                    scaleFactor = glm::abs(((color_scalarField->at(loopVarVertices))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
                 }
             }
-            double velVectorScale = glm::mix(0.0, 1.0, scaleFactor);
-
+            velVectorScale = glm::mix(0.0, 1.0, scaleFactor);
+	}
+       //std::cout << velVectorScale << "\n" << std::endl;
             // get coords for current vertex
             glm::vec4 glyphPointTemp = glm::vec4(
                             local_scaling*velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],

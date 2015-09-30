@@ -1034,7 +1034,7 @@ CEGUI::Window* Compositor::AddRendererPopup()
     CEGUI::Colour selectColor2(0.1, 0.0, 0.0, 0.1);
 
     // Add list of renderers w/ IDs
-    for (uint i = 1; i < this->RendererStrs.size(); i++) // start from 1 to skip Axes Renderer
+    for (unsigned int i = 1; i < this->RendererStrs.size(); i++) // start from 1 to skip Axes Renderer
     {
         CEGUI::ListboxTextItem* renderer_entry = new CEGUI::ListboxTextItem(this->RendererStrs[i], i);
         renderer_entry->setSelectionColours(selectColor1, selectColor2, selectColor1, selectColor2);

@@ -24,7 +24,7 @@ class DataProvider
         virtual int GetMaxTimeStep() = 0;
 
     private:
-        uint timestep;
+        unsigned int timestep;
 
     protected:
         DomainParameters domainParameters;

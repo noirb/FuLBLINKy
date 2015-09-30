@@ -60,7 +60,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
 
 
     int i = 0;
-    for (uint p = 0; p < (*points).size(); p++)
+    for (unsigned int p = 0; p < (*points).size(); p++)
     {
         // set scale for point p
         if (this->scaleFactorMin == this->scaleFactorMax)

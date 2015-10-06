@@ -4,13 +4,18 @@
 #define GL_GLEXT_PROTOTYPES // MUST be before any GL-related includes!
 
 /// GLEW -- Must be before GLFW!
-//#include <GL/glew.h>
+#ifdef WINDOWS
+#include <GL/glew.h>    // only needed for Windows builds (?)
+#endif
 
 /// CEGUI -- Must be included before GLFW
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 
 /// GLFW -- Must be before anything else that touches OpenGL (except CEGUI and GLEW)
+#ifdef WINDOWS
+#define GLFW_DLL
+#endif
 #include <GLFW/glfw3.h>
 
 /// GLM

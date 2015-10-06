@@ -223,6 +223,7 @@ std::string vtkLegacyReader::GetFileDir()
 
 int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
 {
+#ifndef WINDOWS // the following region requires dirent.h, which is unix-only
     struct dirent** filenames;
     int res = scandir(directoryName.c_str(),
                       &filenames,
@@ -262,6 +263,8 @@ int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string ba
     );
 
     return this->timestepFilePaths.size();
+#endif
+    return 0; /// TODO: Provide a Windows-compatible implementation
 }
 
 // returns a struct containing all the details about the domain

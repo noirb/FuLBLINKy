@@ -29,7 +29,11 @@ void lbsimWrapper::init(std::string filename)
     char** c_filename;
     c_filename = (char**) calloc(2, sizeof(char*));
     c_filename[1] = (char*) calloc(filename.length() + 1, sizeof(char));
+#ifndef WINDOWS // strcpy throws error C4996 in VS
     std::strcpy(c_filename[1], filename.c_str());
+#else
+    strcpy_s(c_filename[1], filename.length(), filename.c_str());
+#endif
 
     this->filename = filename;
     std::cout << "Loading lbsim input file: " << filename << std::endl;

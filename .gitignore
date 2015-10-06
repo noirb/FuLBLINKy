@@ -34,12 +34,15 @@ build/
 # Debug files
 *.dSYM/
 *.log
+Debug/
 
 # misc
 *.vtk
 *.project
 *.cproject
 *.swp
+*.sdf
+*.opensdf
 lbsim*
 *dump
 *~

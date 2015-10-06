@@ -51,13 +51,13 @@ void Compositor::InitCamera()
     this->camera.horizontalAngle = 3.0 * 3.14f/2.0f;
     this->camera.verticalAngle = 0.0f;
     this->camera.initialFoV = 45.0f;
-    this->camera.near = 0.1f;
-    this->camera.far  = 1000.0f;
+    this->camera.Near = 0.1f;
+    this->camera.Far  = 1000.0f;
     this->camera.speed = 3.0f;
     this->camera.mouseSpeed = 0.005f;
     this->camera.panSpeed = 0.015f;
 
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.near, this->camera.far);
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
     this->_viewMatrix = glm::lookAt(
         this->camera.cameraPos,     // camera's default location in space
         this->camera.cameraTarget,  // location camera is pointing at
@@ -81,7 +81,7 @@ void Compositor::UpdateCamera(double dx, double dy)
     );
     this->camera.cameraPos = this->camera.cameraPos + this->camera.cameraTarget;
 
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.near, this->camera.far);
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
     this->_viewMatrix = glm::lookAt(
         this->camera.cameraPos,
         this->camera.cameraTarget,
@@ -131,7 +131,7 @@ void Compositor::CenterCameraOnExtents(double* extents)
 // update rendering parameters based on new window aspect ratio
 void Compositor::UpdateAspectRatio(int width, int height)
 {
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, (float)width / (float)height, this->camera.near, this->camera.far);
+    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, (float)width / (float)height, this->camera.Near, this->camera.Far);
     this->DisplayChanged(width, height);
 }
 

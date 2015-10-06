@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7F370521-4599-42DE-A31F-7627A64D0802}</ProjectGuid>
+    <RootNamespace>CFD_Project</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>K:\dev\glew-1.13.0\include;K:\dev\glm;C:\Users\b\Desktop\glfw-3.1.1.bin.WIN64\include;C:\Users\b\Documents\CFD_Project\nativefiledialog\include;C:\Users\b\Desktop\cegui\cegui-0.8.4\cegui\include;C:\Users\b\Desktop\cegui\cegui-0.8.4\binaries\cegui\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\b\Desktop\glfw-3.1.1.bin.WIN64\lib-vc2013;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ShowProgress>LinkVerbose</ShowProgress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="common.hpp" />
+    <ClInclude Include="dataProviders\DataProvider.hpp" />
+    <ClInclude Include="dataProviders\DomainParameters.h" />
+    <ClInclude Include="dataProviders\lbsimWrapper.hpp" />
+    <ClInclude Include="dataProviders\vtkLegacyReader.hpp" />
+    <ClInclude Include="input\input-mapping.hpp" />
+    <ClInclude Include="input\InputManager.hpp" />
+    <ClInclude Include="loadShaders.hpp" />
+    <ClInclude Include="nativefiledialog\common.h" />
+    <ClInclude Include="nativefiledialog\include\nfd.h" />
+    <ClInclude Include="nativefiledialog\nfd_common.h" />
+    <ClInclude Include="rendering\AxesRenderer.hpp" />
+    <ClInclude Include="rendering\Compositor.hpp" />
+    <ClInclude Include="rendering\GlyphRenderer.hpp" />
+    <ClInclude Include="rendering\LineRenderer.hpp" />
+    <ClInclude Include="rendering\PointRenderer.hpp" />
+    <ClInclude Include="rendering\ProbabilitiesRenderer.hpp" />
+    <ClInclude Include="rendering\RenderableComponent.hpp" />
+    <ClInclude Include="rendering\ShaderProgram.hpp" />
+    <ClInclude Include="rendering\StreamLineRenderer.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dataProviders\lbsimWrapper.cpp" />
+    <ClCompile Include="dataProviders\vtkLegacyReader.cpp" />
+    <ClCompile Include="input\input-mapping.cpp" />
+    <ClCompile Include="input\InputManager.cpp" />
+    <ClCompile Include="loadShaders.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="nativefiledialog\ndf_win.cpp" />
+    <ClCompile Include="nativefiledialog\nfd_common.c" />
+    <ClCompile Include="rendering\AxesRenderer.cpp" />
+    <ClCompile Include="rendering\Compositor.cpp" />
+    <ClCompile Include="rendering\GlyphRenderer.cpp" />
+    <ClCompile Include="rendering\LineRenderer.cpp" />
+    <ClCompile Include="rendering\PointRenderer.cpp" />
+    <ClCompile Include="rendering\ProbabilitiesRenderer.cpp" />
+    <ClCompile Include="rendering\RenderableComponent.cpp" />
+    <ClCompile Include="rendering\StreamLineRenderer.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

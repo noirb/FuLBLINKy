@@ -8,7 +8,9 @@
 #include <string>
 #include <map>
 #include <cstring>
+#ifndef WINDOWS // dirent.h does not exist under Windows
 #include <dirent.h>
+#endif
 
 #include "DataProvider.hpp"
 #include "DomainParameters.h"

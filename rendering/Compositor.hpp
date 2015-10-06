@@ -1,6 +1,9 @@
 #ifndef _COMPOSITOR_H
 #define _COMPOSITOR_H
 
+#ifdef WINDOWS
+#include <functional>
+#endif
 #include <iostream>
 #include <vector>
 #include "../nativefiledialog/include/nfd.h"
@@ -114,7 +117,7 @@ class Compositor
             "Arrow Glyphs",
             "Lines",
             "Stream Lines",
-	    "Probabilities",
+            "Probabilities",
         };
 
         glm::mat4 _projectionMatrix;
@@ -127,8 +130,8 @@ class Compositor
             float verticalAngle;
             float orbitRadius;      // distance from cameraTarget
             float initialFoV;
-            float near;
-            float far;
+            float Near;
+            float Far;
             float speed;
             float mouseSpeed;
             float panSpeed;

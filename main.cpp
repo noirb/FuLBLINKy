@@ -53,6 +53,12 @@ void init(GLFWwindow** window)
 
     glfwSwapInterval(1); // how many screen updates should occur before glfwSwapBuffers does its work
 
+#ifdef WINDOWS // not needed under Linux
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+		throw std::runtime_error("glewInit failed");
+#endif
+
     // if two fragments overlap, only accept the one closer to the camera in the final image
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);

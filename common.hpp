@@ -5,6 +5,7 @@
 
 /// GLEW -- Must be before GLFW!
 #ifdef WINDOWS
+#define GLEW_STATIC
 #include <GL/glew.h>    // only needed for Windows builds (?)
 #endif
 
@@ -13,9 +14,6 @@
 #include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 
 /// GLFW -- Must be before anything else that touches OpenGL (except CEGUI and GLEW)
-#ifdef WINDOWS
-#define GLFW_DLL
-#endif
 #include <GLFW/glfw3.h>
 
 /// GLM

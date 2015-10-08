@@ -981,6 +981,9 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
 
 void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
 {
+#ifdef WINDOWS
+	return;
+#else
     if (this->_dataProvider)
     {
         delete this->_dataProvider;
@@ -1003,6 +1006,7 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
 
     this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
     this->UpdateRenderers(this->_dataProvider);
+#endif
 }
 
 void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)

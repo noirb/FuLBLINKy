@@ -960,7 +960,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     }
 
     this->_dataProvider = new vtkLegacyReader(filename);
-    vtkWindowRoot->setText(filename.substr(filename.find_last_of("/")+1));
+	vtkWindowRoot->setText(((vtkLegacyReader*)(this->_dataProvider))->GetFileName());
 
     CEGUI::Window* timestep_label = vtkWindowRoot->getChildRecursive("lblTimestep");
     CEGUI::Window* maxTimestep_label = vtkWindowRoot->getChildRecursive("lblMaxTimestep");

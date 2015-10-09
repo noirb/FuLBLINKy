@@ -123,7 +123,7 @@ class ShaderProgram
 			// But we're not doing that. Explanation in the attribute() method above.
 
 			// Create an iterator to look through our uniform map and try to find the named uniform
-			static map<string, int>::iterator it = uniformLocList.find(uniform);
+			map<string, int>::iterator it = uniformLocList.find(uniform);
 
 			// Found it? Great - pass it back! Didn't find it? Alert user and halt.
 			if ( it != uniformLocList.end() )

@@ -284,7 +284,7 @@ void vtkLegacyReader::NextTimeStep()
 {
     if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
 
-    if (this->timestep < this->maxTimesteps-1)
+    if (this->timestep + 1 < this->maxTimesteps)
     {
         this->timestep += 1;
         this->init(this->timestepFilePaths[this->timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");

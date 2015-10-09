@@ -3,9 +3,10 @@ A fluid flow visualization program focused on 3D fluid data.
 
 # Build Dependencies
   - GLFW3      (http://www.glfw.org/)
+  - GLEW       (http://glew.sourceforge.net/)
   - GLM        (http://glm.g-truc.net/0.9.6/index.html)
   - CEGUI 0.8+ (http://cegui.org.uk/)
-  - GTK 3.0+
+  - GTK 3.0+ (only under Linux)
   - A graphics driver compatible with OpenGL 3.3+
 
 # Build Instructions - Linux
@@ -78,3 +79,30 @@ A fluid flow visualization program focused on 3D fluid data.
   ###### Taking the visualizer out of the source tree
     Apart from the final executable, fluid-vis, you also need to copy the `shaders` and `cegui_layout` directories, which contain files necessary for the program to function.
     The `build` directory just contains object and dependency files generated during the build, and can safely be deleted or ignored.
+
+
+# Build Instructions - Windows
+
+You will need: 
+
+- Visual Studio 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
+- CMake: https://cmake.org/download/
+
+### Dependencies
+
+- GLFW, GLEW, and CEGUI can all be built from source using CMake and Visual Studio. To build CEGUI, you will first need to build the CEGUI Dependencies package, and then copy the result (the `dependencies` directory in the output) into the CEGUI source directory. CEGUI dependencies are documented here: http://static.cegui.org.uk/docs/0.8.4/building_deps.html
+- Make sure to build BOTH Debug and Release versions of each library if you want to be able to build both versions of this project.
+- GLM is a header-only library and does not require any extra steps.
+
+### Development Environment Configuration
+Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above.
+
+    GLEW_INC  - path to glew/include
+    GLM_INC   - path to GLM
+    GLFW_INC  - path to glfw/include
+    CEGUI_INC - path to cegui/include AND cegui/binaries/cegui/include (separated by semi-colon)
+    GLEW_LIB  - path to glew/lib/Release/<platform>
+    GLFW_LIB  - path to glfw/binaries.<platform>/src/Release
+    CEGUI_LIB - path to cegui/binaries/lib
+
+Once this is done, you should be able to open the project solution and build successfully!

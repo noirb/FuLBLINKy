@@ -2,6 +2,19 @@
 #include <algorithm>
 #include <iterator>
 
+#ifdef WINDOWS
+#define NOMINMAX
+#include <Windows.h>
+#include <strsafe.h>
+#endif
+
+// there may be a better place for this
+#ifdef WINDOWS
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP = "/"
+#endif
+
 vtkLegacyReader::vtkLegacyReader()
 {
     this->timestep = 0;
@@ -57,7 +70,7 @@ void vtkLegacyReader::init(std::string filename)
 
     // if we found a timestep number, try to find other files from different timesteps
     if (this->timestep >= 0)
-        this->maxTimesteps = this->GetTimeStepsInDir(filename.substr(0, filename.find_last_of("/")), this->GetBaseFilename());
+        this->maxTimesteps = this->GetTimeStepsInDir(filename.substr(0, filename.find_last_of(PATH_SEP)), this->GetBaseFilename());
     if (this->maxTimesteps > 1)
         this->timestep = std::find(this->timestepFilePaths.begin(), this->timestepFilePaths.end(), this->GetFilePath()) - this->timestepFilePaths.begin();
 
@@ -207,7 +220,7 @@ void vtkLegacyReader::init(std::string filename)
 std::string vtkLegacyReader::GetBaseFilename()
 {
     // filter directory
-    std::string result = this->filename.substr(this->filename.find_last_of("/")+1);
+    std::string result = this->filename.substr(this->filename.find_last_of(PATH_SEP)+1);
     // filter extension
     result = result.substr(0, result.find_last_of("."));
     // filter last .timestep
@@ -218,7 +231,7 @@ std::string vtkLegacyReader::GetBaseFilename()
 
 std::string vtkLegacyReader::GetFileDir()
 {
-    return this->filename.substr(0, this->filename.find_last_of("/")+1);
+    return this->filename.substr(0, this->filename.find_last_of(PATH_SEP)+1);
 }
 
 int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
@@ -242,29 +255,66 @@ int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string ba
             if (entry.find(baseFileName) != std::string::npos &&
                 entry.substr(entry.find_last_of(".")+1) == "vtk")
             {
-                this->timestepFilePaths.push_back(directoryName + "/" + std::string(filenames[res]->d_name));
+                this->timestepFilePaths.push_back(directoryName + PATH_SEP + std::string(filenames[res]->d_name));
             }
             free(filenames[res]);
         }
         free(filenames);
     }
-    std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
-        [](std::string const& a, std::string const & b)
-        {
-            // compare timestep values, not filenames
-            std::string a_trimmed = a.substr(a.find_last_of("/")+1);
-            a_trimmed = a_trimmed.substr(0, a_trimmed.find_last_of("."));
-            a_trimmed = a_trimmed.substr(a_trimmed.find_last_of(".")+1);
-            std::string b_trimmed = b.substr(b.find_last_of("/")+1);
-            b_trimmed = b_trimmed.substr(0, b_trimmed.find_last_of("."));
-            b_trimmed = b_trimmed.substr(b_trimmed.find_last_of(".")+1);
-            return std::stoi(a_trimmed) < std::stoi(b_trimmed);
-        }
-    );
 
-    return this->timestepFilePaths.size();
+#else
+	WIN32_FIND_DATA ffd;
+	TCHAR szDir[MAX_PATH];
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	DWORD dwError = 0;
+
+	StringCchCopy(szDir, MAX_PATH, directoryName.c_str()); // directory to search
+	StringCchCat(szDir, MAX_PATH, TEXT("\\"));
+	StringCchCat(szDir, MAX_PATH, baseFileName.c_str());   // append base filename
+	StringCchCat(szDir, MAX_PATH, TEXT(".*.vtk"));         // timestep iterations should be of the form: baseFileName.<step>.vtk
+
+	// Find the first file in the directory.
+	hFind = FindFirstFile(szDir, &ffd);
+	if (INVALID_HANDLE_VALUE == hFind)
+	{
+		std::cout << "Error: FindFirstFile failed to open handle in: " << directoryName << std::endl;
+		return 0;
+	}
+
+	// clear any existing timesteps
+	this->timestepFilePaths.clear();
+
+	// Collect all the files in the directory that we found
+	do
+	{
+		this->timestepFilePaths.push_back(directoryName + PATH_SEP + ffd.cFileName);
+	} while (FindNextFile(hFind, &ffd) != 0);
+
+	// done, check for errors
+	dwError = GetLastError();
+	if (dwError != ERROR_NO_MORE_FILES)
+	{
+		std::cout << "Error from FindNextFile: " << dwError << std::endl;
+	}
+	// release FindFile handle
+	FindClose(hFind);
 #endif
-    return 0; /// TODO: Provide a Windows-compatible implementation
+
+	// sort the filenames we found
+	std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
+		[](std::string const& a, std::string const & b)
+	{
+		// compare timestep values, not filenames
+		std::string a_trimmed = a.substr(a.find_last_of(PATH_SEP) + 1);
+		a_trimmed = a_trimmed.substr(0, a_trimmed.find_last_of("."));
+		a_trimmed = a_trimmed.substr(a_trimmed.find_last_of(".") + 1);
+		std::string b_trimmed = b.substr(b.find_last_of(PATH_SEP) + 1);
+		b_trimmed = b_trimmed.substr(0, b_trimmed.find_last_of("."));
+		b_trimmed = b_trimmed.substr(b_trimmed.find_last_of(".") + 1);
+		return std::stoi(a_trimmed) < std::stoi(b_trimmed);
+	}
+	);
+	return this->timestepFilePaths.size();
 }
 
 // returns a struct containing all the details about the domain
@@ -333,7 +383,7 @@ double vtkLegacyReader::GetMaxValueFromField(std::string fieldName)
 // gets the filename of the file we're currently looking at
 std::string vtkLegacyReader::GetFileName()
 {
-    return this->filename.substr(this->filename.find_last_of("/")+1);
+    return this->filename.substr(this->filename.find_last_of(PATH_SEP)+1);
 }
 
 // gets the full file path of the file we're currently looking at

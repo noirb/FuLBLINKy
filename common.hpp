@@ -4,7 +4,7 @@
 #define GL_GLEXT_PROTOTYPES // MUST be before any GL-related includes!
 
 /// GLEW -- Must be before GLFW!
-#ifdef WINDOWS
+#ifdef _WIN32
 #define GLEW_STATIC
 #include <GL/glew.h>    // only needed for Windows builds (?)
 #endif

@@ -1,7 +1,7 @@
 #ifndef _COMPOSITOR_H
 #define _COMPOSITOR_H
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #include <functional>
 #endif
 #include <iostream>

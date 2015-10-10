@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 #include <cstring>
-#ifndef WINDOWS // dirent.h does not exist under Windows
+#ifndef _WIN32 // dirent.h does not exist under Windows
 #include <dirent.h>
 #endif
 

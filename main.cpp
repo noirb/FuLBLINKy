@@ -53,7 +53,7 @@ void init(GLFWwindow** window)
 
     glfwSwapInterval(1); // how many screen updates should occur before glfwSwapBuffers does its work
 
-#ifdef WINDOWS // not needed under Linux
+#ifdef _WIN32 // not needed under Linux
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 		throw std::runtime_error("glewInit failed");

@@ -866,7 +866,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
-#ifndef WINDOWS // lbsim is not yet building on Windows, so only enable this button for Linux (issue #11)
+#ifndef _WIN32 // lbsim is not yet building on Windows, so only enable this button for Linux (issue #11)
     // Configure the Load LBD button
     fWnd->getChildRecursive("LoadLBMbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
@@ -986,7 +986,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
 
 void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	return;
 #else
     if (this->_dataProvider)

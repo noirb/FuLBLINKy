@@ -106,7 +106,7 @@ static int AppendExtensionToSpecBuf( const char *ext, char *specBuf, size_t spec
     
     if ( strlen(specBuf) > 0 )
     {
-#ifndef WINDOWS // strncat throws error C4996 in VS
+#ifndef _WIN32 // strncat throws error C4996 in VS
         strncat( specBuf, SEP, specBufLen - strlen(specBuf) - 1 );
 #else
         strncat_s(specBuf, specBufLen - strlen(specBuf) - 1, SEP, specBufLen);
@@ -118,7 +118,7 @@ static int AppendExtensionToSpecBuf( const char *ext, char *specBuf, size_t spec
     int bytesWritten = sprintf_s( extWildcard, NFD_MAX_STRLEN, "*.%s", ext );
     assert( bytesWritten == strlen(ext)+2 );
 
-#ifndef WINDOWS // strncat throws error C4996 in VS
+#ifndef _WIN32 // strncat throws error C4996 in VS
     strncat( specBuf, extWildcard, specBufLen - strlen(specBuf) - 1 );
 #else
     strncat_s(specBuf, specBufLen - strlen(specBuf) - 1, extWildcard, specBufLen);

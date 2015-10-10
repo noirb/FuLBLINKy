@@ -2,14 +2,14 @@
 #include <algorithm>
 #include <iterator>
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #include <strsafe.h>
 #endif
 
 // there may be a better place for this
-#ifdef WINDOWS
+#ifdef _WIN32
 #define PATH_SEP "\\"
 #else
 #define PATH_SEP "/"
@@ -236,7 +236,7 @@ std::string vtkLegacyReader::GetFileDir()
 
 int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
 {
-#ifndef WINDOWS // the following region requires dirent.h, which is unix-only
+#ifndef _WIN32 // the following region requires dirent.h, which is unix-only
     struct dirent** filenames;
     int res = scandir(directoryName.c_str(),
                       &filenames,

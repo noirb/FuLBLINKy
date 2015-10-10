@@ -104,7 +104,7 @@ size_t NFDi_UTF8_Strlen( const nfdchar_t *str )
 	/* If there is UTF-8 BOM ignore it. */
 	if (strlen(str) > 2)
 	{
-#ifndef WINDOWS
+#ifndef _WIN32
 		strncpy(maybe_bom, str, 3);
 #else
 		strncpy_s(maybe_bom, 4, str, 3);

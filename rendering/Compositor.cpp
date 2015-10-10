@@ -866,6 +866,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
+#ifndef WINDOWS // lbsim is not yet building on Windows, so only enable this button for Linux (issue #11)
     // Configure the Load LBD button
     fWnd->getChildRecursive("LoadLBMbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
@@ -884,6 +885,10 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                             return true;
                         }
     );
+#else
+	// Disable the Load LBD button (TODO: remove this after issue #11 is fixed)
+	fWnd->getChildRecursive("LoadLBMbtn")->disable();
+#endif
 
     // Configure the timestep control buttons
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,

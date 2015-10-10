@@ -12,7 +12,7 @@
 #ifdef WINDOWS
 #define PATH_SEP "\\"
 #else
-#define PATH_SEP = "/"
+#define PATH_SEP "/"
 #endif
 
 vtkLegacyReader::vtkLegacyReader()

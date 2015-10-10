@@ -95,7 +95,7 @@ You will need:
 - GLM is a header-only library and does not require any extra steps.
 
 ### Development Environment Configuration
-Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above.
+Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above. A short batch file, devenv.bat, will set these for you, but you must edit this file to fill in the paths to the library locations on your local machine.
 
     GLEW_INC  - path to glew/include
     GLM_INC   - path to GLM

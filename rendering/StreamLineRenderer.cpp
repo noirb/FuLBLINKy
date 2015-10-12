@@ -198,6 +198,66 @@ void StreamLineRenderer::RK45(double deltaX,
 	currPoint[2] += (dt/6.0) * (k1[2] + 2.0*(k2[2] + k3[2]) + k4[2]);
 }
 
+//												  boxBounds is assumed to contain: [-X, +X, -Y, +Y, -Z, +Z]
+int StreamLineRenderer::lineBoxIntersect(double * boxBounds, double * lineStart, double * lineEnd, double * intersections)
+{
+	int nIntersections = 0;
+	double tmin = -INFINITY, tmax = INFINITY;
+	glm::vec3 start = glm::vec3(lineStart[0], lineStart[1], lineStart[2]);
+	glm::vec3 end = glm::vec3(lineEnd[0], lineEnd[1], lineEnd[2]);
+	glm::vec3 dir = glm::normalize(start + end);
+
+	// for each dimension...
+	for (int i = 0; i < 3; ++i) {
+		if (dir[i] != 0.0) {
+			double t1 = (boxBounds[i*2]     - start[i]) / dir[i];
+			double t2 = (boxBounds[i*2 + 1] - start[i]) / dir[i];
+
+			tmin = glm::max(tmin, glm::min(t1, t2));
+			tmax = glm::min(tmax, glm::max(t1, t2));
+		}
+		else if (start[i] <= boxBounds[i*2] || start[i] >= boxBounds[i*2 + 1]) {
+			return 0;
+		}
+	}
+
+	if (tmax > tmin && tmax > 0.0)
+	{
+		if (tmin > 0.0)
+		{
+			glm::vec3 intersection1 = start + dir * (float)tmin;
+			intersections[0] = intersection1[0];
+			intersections[1] = intersection1[1];
+			intersections[2] = intersection1[2];
+			nIntersections++;
+		}
+		glm::vec3 intersection2 = start + dir * (float)tmax;
+		intersections[nIntersections * 3 + 0] = intersection2[0];
+		intersections[nIntersections * 3 + 1] = intersection2[1];
+		intersections[nIntersections * 3 + 2] = intersection2[2];
+		nIntersections++;
+	}
+
+	return nIntersections;
+}
+
+bool StreamLineRenderer::isInBox(double * boxBounds, double * point)
+{
+	// xmin, xmax
+	if (point[0] < boxBounds[0]) return false;
+	if (point[0] > boxBounds[1]) return false;
+
+	// ymin, ymax
+	if (point[1] < boxBounds[2]) return false;
+	if (point[1] > boxBounds[3]) return false;
+
+	// zmin, zmax
+	if (point[2] < boxBounds[4]) return false;
+	if (point[2] > boxBounds[5]) return false;
+
+	return true;
+}
+
 void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 {
     if (!provider) { return; } // do not attempt to generate geometry without a provider!
@@ -247,15 +307,63 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 
     // for now, create local deltaX/Y/Z, streamlineSource, maxStreamLineLength, dt
     // create the end-points of the lines
-    std::vector<double> lineSourcePoint1;
-	lineSourcePoint1.push_back(startPoint[0]);
-	lineSourcePoint1.push_back(startPoint[1]);
-	lineSourcePoint1.push_back(startPoint[2]);
+	std::vector<double> lineSourcePoint1;
+	std::vector<double> lineSourcePoint2;
 
-    std::vector<double> lineSourcePoint2;
-	lineSourcePoint2.push_back(endPoint[0]);
-	lineSourcePoint2.push_back(endPoint[1]);
-	lineSourcePoint2.push_back(endPoint[2]);
+	// our solver will fail outside the range 2..length-1, so pick endpoints which are inside this range
+	double* domain = provider->GetExtents();
+	double intersectionPoints[6] = { 0, 0, 0, 0, 0, 0 };
+	double lineSourceDomain[6];
+	lineSourceDomain[0] = domain[0] + 2;	lineSourceDomain[1] = domain[1] - 1; // xmin, xmax
+	lineSourceDomain[2] = domain[2] + 2;	lineSourceDomain[3] = domain[3] - 1; // ymin, ymax
+	lineSourceDomain[4] = domain[4] + 2;	lineSourceDomain[5] = domain[5] - 1; // zmin, zmax
+
+	int intersections = lineBoxIntersect(lineSourceDomain, startPoint, endPoint, intersectionPoints);
+	if (intersections == 1) // one of start or end is outside the box
+	{
+		if (isInBox(lineSourceDomain, startPoint)) // linesource should be startPoint-->intersection
+		{
+			lineSourcePoint1.push_back(startPoint[0]);
+			lineSourcePoint1.push_back(startPoint[1]);
+			lineSourcePoint1.push_back(startPoint[2]);
+
+			lineSourcePoint2.push_back(intersectionPoints[0]);
+			lineSourcePoint2.push_back(intersectionPoints[1]);
+			lineSourcePoint2.push_back(intersectionPoints[2]);
+		}
+		else // linesource should be intersection-->endPoint
+		{
+			lineSourcePoint1.push_back(intersectionPoints[0]);
+			lineSourcePoint1.push_back(intersectionPoints[1]);
+			lineSourcePoint1.push_back(intersectionPoints[2]);
+
+			lineSourcePoint2.push_back(endPoint[0]);
+			lineSourcePoint2.push_back(endPoint[1]);
+			lineSourcePoint2.push_back(endPoint[2]);
+		}
+	}
+	else if (intersections == 2) // both start and end are outside the box
+	{
+		lineSourcePoint1.push_back(intersectionPoints[0]);
+		lineSourcePoint1.push_back(intersectionPoints[1]);
+		lineSourcePoint1.push_back(intersectionPoints[2]);
+
+		lineSourcePoint2.push_back(intersectionPoints[3]);
+		lineSourcePoint2.push_back(intersectionPoints[4]);
+		lineSourcePoint2.push_back(intersectionPoints[5]);
+	}
+	else // both start and end are either inside the box or outside the box
+	{
+		lineSourcePoint1.push_back(startPoint[0]);
+		lineSourcePoint1.push_back(startPoint[1]);
+		lineSourcePoint1.push_back(startPoint[2]);
+
+		lineSourcePoint2.push_back(endPoint[0]);
+		lineSourcePoint2.push_back(endPoint[1]);
+		lineSourcePoint2.push_back(endPoint[2]);
+	}
+
+	
 
     std::vector<double> steps;
 	steps.push_back( (lineSourcePoint2[0] - lineSourcePoint1[0])/(lineSourceSize-1) );

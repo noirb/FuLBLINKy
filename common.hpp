@@ -5,6 +5,7 @@
 
 /// GLEW -- Must be before GLFW!
 #ifdef _WIN32
+#define NOMINMAX
 #define GLEW_STATIC
 #include <GL/glew.h>    // only needed for Windows builds (?)
 #endif

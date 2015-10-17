@@ -14,6 +14,7 @@
 #include "ShaderProgram.hpp"
 #include "RenderableComponent.hpp"
 #include "AxesRenderer.hpp"
+#include "GradientRenderer.hpp"
 #include "PointRenderer.hpp"
 #include "GlyphRenderer.hpp"
 #include "LineRenderer.hpp"
@@ -36,11 +37,12 @@ class Compositor
 
         enum Renderers {
             RENDERER_AXES,
+            RENDERER_GRADIENT,
             RENDERER_POINTS,
             RENDERER_GLYPHS,
             RENDERER_LINES,
             RENDERER_STREAMLINES,
-	    RENDERER_PROBABILITIES,
+            RENDERER_PROBABILITIES,
         };
 
         // Begins render loop
@@ -89,6 +91,7 @@ class Compositor
 
         glm::mat4 MVP;
         ShaderProgram _axesShader;
+        ShaderProgram _backgroundShader;
         ShaderProgram _scalarMapShader;
 
         std::vector<RenderableComponent* > _renderers;
@@ -99,6 +102,8 @@ class Compositor
         bool running = false;
         bool autoplay = false; // if true, we load the next timestep automatically
         double autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
+
+        int windowSize[2];
 
         void InitGUI(CEGUI::Window*);
         void InitCamera();
@@ -113,6 +118,7 @@ class Compositor
         // must correspond with the Renderers enum above
         std::vector<std::string> RendererStrs = {
             "Axes",
+            "Background Gradient",
             "Points",
             "Arrow Glyphs",
             "Lines",

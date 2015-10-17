@@ -1,0 +1,13 @@
+#version 330 core
+
+uniform vec4 startColor;
+uniform vec4 endColor;
+uniform vec2 resolution;
+out vec4 color;
+
+void main()
+{
+	float position = (gl_FragCoord.y / 768.0);
+    color = vec4(mix(startColor, endColor, position));
+	gl_FragDepth = 0.9999; // force fragment to back
+}

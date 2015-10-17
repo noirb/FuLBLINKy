@@ -29,6 +29,8 @@ void Compositor::Start()
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
 
+    // add background gradient renderer
+    this->AddRenderer(RENDERER_GRADIENT, true);
     // add default axes renderer
     this->AddRenderer(RENDERER_AXES, true);
 }
@@ -147,6 +149,8 @@ glm::mat4 Compositor::GetViewMatrix()
 
 void Compositor::DisplayChanged(int width, int height)
 {
+    windowSize[0] = width;
+    windowSize[1] = height;
     CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(width, height));
 }
 
@@ -178,6 +182,11 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
         case RENDERER_AXES:
             newRenderer = new AxesRenderer();
             newRenderer->SetShader(&(this->_axesShader));
+            newRenderer->PrepareGeometry(NULL);
+            break;
+        case RENDERER_GRADIENT:
+            newRenderer = new GradientRenderer();
+            newRenderer->SetShader(&(this->_backgroundShader));
             newRenderer->PrepareGeometry(NULL);
             break;
         case RENDERER_POINTS:
@@ -251,7 +260,7 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
     std::cout << "Done!" << std::endl;
 
     // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
-    if (rendererType != RENDERER_AXES)
+    if (rendererType != RENDERER_AXES && rendererType != RENDERER_GRADIENT)
     {
         std::cout << "\tAdding parameters Container...";
 
@@ -945,6 +954,10 @@ void Compositor::InitShaders()
     this->_axesShader.loadAndLink("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
     this->_axesShader.addUniform("MVP");
 
+    this->_backgroundShader.loadAndLink("shaders/_gradient.vertex", "shaders/_gradient.fragment");
+    this->_backgroundShader.addUniform("startColor");
+    this->_backgroundShader.addUniform("endColor");
+
     this->_scalarMapShader.loadAndLink("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
     this->_scalarMapShader.addUniform("MVP");
     this->_scalarMapShader.addUniform("min_scalar");
@@ -1043,7 +1056,7 @@ CEGUI::Window* Compositor::AddRendererPopup()
     CEGUI::Colour selectColor2(0.1, 0.0, 0.0, 0.1);
 
     // Add list of renderers w/ IDs
-    for (unsigned int i = 1; i < this->RendererStrs.size(); i++) // start from 1 to skip Axes Renderer
+    for (unsigned int i = 2; i < this->RendererStrs.size(); i++) /// HACK: start from 2 to skip Axes & Gradient Renderers
     {
         CEGUI::ListboxTextItem* renderer_entry = new CEGUI::ListboxTextItem(this->RendererStrs[i], i);
         renderer_entry->setSelectionColours(selectColor1, selectColor2, selectColor1, selectColor2);

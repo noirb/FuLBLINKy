@@ -143,6 +143,7 @@
     <ClInclude Include="rendering\AxesRenderer.hpp" />
     <ClInclude Include="rendering\Compositor.hpp" />
     <ClInclude Include="rendering\GlyphRenderer.hpp" />
+    <ClInclude Include="rendering\GradientRenderer.hpp" />
     <ClInclude Include="rendering\LineRenderer.hpp" />
     <ClInclude Include="rendering\PointRenderer.hpp" />
     <ClInclude Include="rendering\ProbabilitiesRenderer.hpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="rendering\AxesRenderer.cpp" />
     <ClCompile Include="rendering\Compositor.cpp" />
     <ClCompile Include="rendering\GlyphRenderer.cpp" />
+    <ClCompile Include="rendering\GradientRenderer.cpp" />
     <ClCompile Include="rendering\LineRenderer.cpp" />
     <ClCompile Include="rendering\PointRenderer.cpp" />
     <ClCompile Include="rendering\ProbabilitiesRenderer.cpp" />

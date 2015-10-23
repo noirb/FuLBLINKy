@@ -13,21 +13,37 @@ REM these dependencies may be completely different
 REM for different users.
 REM ----------------------------------------------
 
+REM ----------------------------------------------------------
+REM 	Fill in the following four paths for your environment
+REM ----------------------------------------------------------
+
+set CEGUI_ROOT=<path_to_cegui_dir>
+set GLFW_ROOT=<path_to_glfw_dir>
+set GLEW_ROOT=<path_to_glew_dir>
+set GLM_ROOT=<path_to_glm_dir>
+
+
+
+REM ----------------------------------------------------------
+REM 			Do not edit below this line
+REM =========================================================
+REM ----------------------------------------------------------
+
 REM ---------------------
 REM Include directories
 REM ---------------------
 
 REM GLEW
-set GLEW_INC=<path_to_glew/include>
+set GLEW_INC=%GLEW_ROOT%\include
 
 REM GLM
-set GLM_INC=<path_to_glm>
+set GLM_INC=%GLM_ROOT%
 
 REM GLFW
-set GLFW_INC=<path_to_glfw.bin.<platform>/include>
+set GLFW_INC=%GLFW_ROOT%\include
 
 REM CEGUI
-set CEGUI_INC=<path_to_cegui/include>;<path_to_cegui/binaries/include>
+set CEGUI_INC=%CEGUI_ROOT%\cegui\include;%CEGUI_ROOT%\binaries\cegui\include
 
 
 REM ---------------------
@@ -35,13 +51,13 @@ REM Lib directories
 REM ---------------------
 
 REM GLEW
-set GLEW_LIB=<path_to_glew/lib/Release/<platform>>
+set GLEW_LIB=%GLEW_ROOT%\lib\Release\x64
 
 REM GLFW
-set GLFW_LIB=<path_to_glfw/binaries.<platform>/src/Release>
+set GLFW_LIB=%GLFW_ROOT%\binaries.x64\src\Release
 
 REM CEGUI
-set CEGUI_LIB=<path_to_cegui/binaries/lib>
+set CEGUI_LIB=%CEGUI_ROOT%\binaries\lib
 
 REM Open project
 start CFD_Project.sln

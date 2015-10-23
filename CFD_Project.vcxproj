@@ -74,10 +74,13 @@
     <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);.\nativefiledialog\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);.\nativefiledialog\include;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,6 +107,36 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalDependencies>glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUIOpenGLRenderer-0_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Message>Copies necessary DLLs and content to build destination</Message>
+      <Command>echo Copying project resources to output directory...
+xcopy /D /E $(ProjectDir)shaders $(OutputPath)shaders\
+xcopy /D /E $(ProjectDir)cegui_layout $(OutputPath)cegui_layout\
+
+echo Copying CEGUI dependencies to output directory...
+ For %%a in (
+ "freetype_d.dll"
+ "pcre_d.dll"
+ "glew_d.dll"
+ "expat_d.dll"
+ "SILLY_d.dll"
+ "libpng_d.dll"
+ "zlib_d.dll"
+ "jpeg_d.dll"
+  ) do (
+xcopy /D /E $(CEGUI_ROOT)\dependencies\bin\"%%~a" $(OutputPath)
+  )
+
+echo Copying CEGUI components to output directory...
+ For %%a in (
+ "CEGUIBase-0_d.dll"
+ "CEGUICommonDialogs-0_d.dll"
+ "CEGUIOpenGLRenderer-0_d.dll"
+ "CEGUICoreWindowRendererSet_d.dll"
+  ) do (
+xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
+  )</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -133,6 +166,46 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0.lib;CEGUICommonDialogs-0.lib;CEGUIOpenGLRenderer-0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
+    <CustomBuildStep />
+    <PostBuildEvent>
+      <Message>Copies necessary DLLs and content to build destination</Message>
+      <Command>echo Copying project resources to output directory...
+xcopy /D /E $(ProjectDir)shaders $(OutputPath)shaders\
+xcopy /D /E $(ProjectDir)cegui_layout $(OutputPath)cegui_layout\
+
+echo Copying CEGUI dependencies to output directory...
+ For %%a in (
+ "freetype.dll"
+ "pcre.dll"
+ "glew.dll"
+ "expat.dll"
+ "SILLY.dll"
+ "libpng.dll"
+ "zlib.dll"
+ "jpeg.dll"
+  ) do (
+xcopy /D /E $(CEGUI_ROOT)\dependencies\bin\"%%~a" $(OutputPath)
+  )
+
+echo Copying CEGUI components to output directory...
+ For %%a in (
+ "CEGUIBase-0.dll"
+ "CEGUICommonDialogs-0.dll"
+ "CEGUIOpenGLRenderer-0.dll"
+ "CEGUICoreWindowRendererSet.dll"
+  ) do (
+xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
+  )
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="common.hpp" />
@@ -177,4 +250,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="AfterClean">
+    <Message Text="Cleaning resources and dependency DLLs" Importance="normal"></Message>
+    <RemoveDir Directories="$(OutDir)\shaders" ContinueOnError="true"></RemoveDir>
+    <RemoveDir Directories="$(OutDir)\cegui_layout" ContinueOnError="true"></RemoveDir>
+    <Exec Command="del /f /q $(OutDir)\*.dll" ContinueOnError="true"></Exec>
+  </Target>
 </Project>

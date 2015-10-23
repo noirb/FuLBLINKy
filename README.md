@@ -97,12 +97,9 @@ You will need:
 ### Development Environment Configuration
 Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above. A short batch file, devenv.bat, will set these for you, but you must edit this file to fill in the paths to the library locations on your local machine.
 
-    GLEW_INC  - path to glew/include
-    GLM_INC   - path to GLM
-    GLFW_INC  - path to glfw/include
-    CEGUI_INC - path to cegui/include AND cegui/binaries/cegui/include (separated by semi-colon)
-    GLEW_LIB  - path to glew/lib/Release/<platform>
-    GLFW_LIB  - path to glfw/binaries.<platform>/src/Release
-    CEGUI_LIB - path to cegui/binaries/lib
+    CEGUI_ROOT - Path to the root directory of CEGUI's source
+    GLFW_ROOT  - Path to the root GLFW folder
+    GLEW_ROOT  - Path to the root GLEW folder
+    GLM_ROOT   - Path to the root GLM folder
 
 Once this is done, you should be able to open the project solution and build successfully!

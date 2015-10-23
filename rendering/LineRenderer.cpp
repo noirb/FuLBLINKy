@@ -99,7 +99,6 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
             i++;
         }
     }
-    std::cout << i << std::endl;
 
 
     /** Copy velocity data **/
@@ -130,7 +129,6 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         }
     }
 
-    std::cout << i << std::endl;
     GLuint vao, vbo, scalar_buf;
 
     /** copy vertex data to GPU & save VAO and VBO handles **/

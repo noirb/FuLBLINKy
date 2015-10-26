@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7F370521-4599-42DE-A31F-7627A64D0802}</ProjectGuid>
     <RootNamespace>CFD_Project</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -43,12 +44,16 @@
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <OutDir>$(SolutionDir)binaries.$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>binaries.$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);..\nativefiledialog\include;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
+    <OutDir>$(SolutionDir)binaries.$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>binaries.$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

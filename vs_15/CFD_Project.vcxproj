@@ -39,13 +39,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);.\nativefiledialog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);..\nativefiledialog\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);.\nativefiledialog\include;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);..\nativefiledialog\include;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
@@ -65,8 +65,8 @@
     <PostBuildEvent>
       <Message>Copies necessary DLLs and content to build destination</Message>
       <Command>echo Copying project resources to output directory...
-xcopy /D /E $(ProjectDir)shaders $(OutputPath)shaders\
-xcopy /D /E $(ProjectDir)cegui_layout $(OutputPath)cegui_layout\
+xcopy /D /E $(ProjectDir)\..\shaders $(OutputPath)shaders\
+xcopy /D /E $(ProjectDir)\..\cegui_layout $(OutputPath)cegui_layout\
 
 echo Copying CEGUI dependencies to output directory...
  For %%a in (
@@ -119,8 +119,8 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
     <PostBuildEvent>
       <Message>Copies necessary DLLs and content to build destination</Message>
       <Command>echo Copying project resources to output directory...
-xcopy /D /E $(ProjectDir)shaders $(OutputPath)shaders\
-xcopy /D /E $(ProjectDir)cegui_layout $(OutputPath)cegui_layout\
+xcopy /D /E $(ProjectDir)\..\shaders $(OutputPath)shaders\
+xcopy /D /E $(ProjectDir)\..\cegui_layout $(OutputPath)cegui_layout\
 
 echo Copying CEGUI dependencies to output directory...
  For %%a in (
@@ -149,52 +149,56 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="common.hpp" />
-    <ClInclude Include="dataProviders\DataProvider.hpp" />
-    <ClInclude Include="dataProviders\DomainParameters.h" />
-    <ClInclude Include="dataProviders\vtkLegacyReader.hpp" />
-    <ClInclude Include="input\input-mapping.hpp" />
-    <ClInclude Include="input\InputManager.hpp" />
-    <ClInclude Include="loadShaders.hpp" />
-    <ClInclude Include="nativefiledialog\common.h" />
-    <ClInclude Include="nativefiledialog\include\nfd.h" />
-    <ClInclude Include="nativefiledialog\nfd_common.h" />
-    <ClInclude Include="rendering\AxesRenderer.hpp" />
-    <ClInclude Include="rendering\Compositor.hpp" />
-    <ClInclude Include="rendering\GlyphRenderer.hpp" />
-    <ClInclude Include="rendering\GradientRenderer.hpp" />
-    <ClInclude Include="rendering\LineRenderer.hpp" />
-    <ClInclude Include="rendering\PointRenderer.hpp" />
-    <ClInclude Include="rendering\ProbabilitiesRenderer.hpp" />
-    <ClInclude Include="rendering\RenderableComponent.hpp" />
-    <ClInclude Include="rendering\ShaderProgram.hpp" />
-    <ClInclude Include="rendering\StreamLineRenderer.hpp" />
+    <ClInclude Include="..\common.hpp" />
+    <ClInclude Include="..\dataProviders\DataProvider.hpp" />
+    <ClInclude Include="..\dataProviders\DomainParameters.h" />
+    <ClInclude Include="..\dataProviders\vtkLegacyReader.hpp" />
+    <ClInclude Include="..\input\input-mapping.hpp" />
+    <ClInclude Include="..\input\InputManager.hpp" />
+    <ClInclude Include="..\loadShaders.hpp" />
+    <ClInclude Include="..\nativefiledialog\common.h" />
+    <ClInclude Include="..\nativefiledialog\include\nfd.h" />
+    <ClInclude Include="..\nativefiledialog\nfd_common.h" />
+    <ClInclude Include="..\rendering\AxesRenderer.hpp" />
+    <ClInclude Include="..\rendering\Compositor.hpp" />
+    <ClInclude Include="..\rendering\GlyphRenderer.hpp" />
+    <ClInclude Include="..\rendering\GradientRenderer.hpp" />
+    <ClInclude Include="..\rendering\LineRenderer.hpp" />
+    <ClInclude Include="..\rendering\PointRenderer.hpp" />
+    <ClInclude Include="..\rendering\ProbabilitiesRenderer.hpp" />
+    <ClInclude Include="..\rendering\RenderableComponent.hpp" />
+    <ClInclude Include="..\rendering\ShaderProgram.hpp" />
+    <ClInclude Include="..\rendering\StreamLineRenderer.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dataProviders\vtkLegacyReader.cpp" />
-    <ClCompile Include="input\input-mapping.cpp" />
-    <ClCompile Include="input\InputManager.cpp" />
-    <ClCompile Include="loadShaders.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="nativefiledialog\ndf_win.cpp" />
-    <ClCompile Include="nativefiledialog\nfd_common.c" />
-    <ClCompile Include="rendering\AxesRenderer.cpp" />
-    <ClCompile Include="rendering\Compositor.cpp" />
-    <ClCompile Include="rendering\GlyphRenderer.cpp" />
-    <ClCompile Include="rendering\GradientRenderer.cpp" />
-    <ClCompile Include="rendering\LineRenderer.cpp" />
-    <ClCompile Include="rendering\PointRenderer.cpp" />
-    <ClCompile Include="rendering\ProbabilitiesRenderer.cpp" />
-    <ClCompile Include="rendering\RenderableComponent.cpp" />
-    <ClCompile Include="rendering\StreamLineRenderer.cpp" />
+    <ClCompile Include="..\dataProviders\vtkLegacyReader.cpp" />
+    <ClCompile Include="..\input\input-mapping.cpp" />
+    <ClCompile Include="..\input\InputManager.cpp" />
+    <ClCompile Include="..\loadShaders.cpp" />
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\nativefiledialog\ndf_win.cpp" />
+    <ClCompile Include="..\nativefiledialog\nfd_common.c" />
+    <ClCompile Include="..\rendering\AxesRenderer.cpp" />
+    <ClCompile Include="..\rendering\Compositor.cpp" />
+    <ClCompile Include="..\rendering\GlyphRenderer.cpp" />
+    <ClCompile Include="..\rendering\GradientRenderer.cpp" />
+    <ClCompile Include="..\rendering\LineRenderer.cpp" />
+    <ClCompile Include="..\rendering\PointRenderer.cpp" />
+    <ClCompile Include="..\rendering\ProbabilitiesRenderer.cpp" />
+    <ClCompile Include="..\rendering\RenderableComponent.cpp" />
+    <ClCompile Include="..\rendering\StreamLineRenderer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <Target Name="AfterClean">
-    <Message Text="Cleaning resources and dependency DLLs" Importance="normal"></Message>
-    <RemoveDir Directories="$(OutDir)\shaders" ContinueOnError="true"></RemoveDir>
-    <RemoveDir Directories="$(OutDir)\cegui_layout" ContinueOnError="true"></RemoveDir>
-    <Exec Command="del /f /q $(OutDir)\*.dll" ContinueOnError="true"></Exec>
+    <Message Text="Cleaning resources and dependency DLLs" Importance="normal">
+    </Message>
+    <RemoveDir Directories="$(OutDir)\shaders" ContinueOnError="true">
+    </RemoveDir>
+    <RemoveDir Directories="$(OutDir)\cegui_layout" ContinueOnError="true">
+    </RemoveDir>
+    <Exec Command="del /f /q $(OutDir)\*.dll" ContinueOnError="true">
+    </Exec>
   </Target>
 </Project>

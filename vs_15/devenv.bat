@@ -17,10 +17,10 @@ REM ----------------------------------------------------------
 REM 	Fill in the following four paths for your environment
 REM ----------------------------------------------------------
 
-set CEGUI_ROOT=<path_to_cegui_dir>
-set GLFW_ROOT=<path_to_glfw_dir>
-set GLEW_ROOT=<path_to_glew_dir>
-set GLM_ROOT=<path_to_glm_dir>
+set CEGUI_ROOT=<path_to_CEGUI_root>
+set GLFW_ROOT=<path_to_GLFW_root>
+set GLEW_ROOT=<path_to_GLEW_root>
+set GLM_ROOT=<path_to_glm_root>
 
 
 
@@ -54,7 +54,7 @@ REM GLEW
 set GLEW_LIB=%GLEW_ROOT%\lib\Release\x64
 
 REM GLFW
-set GLFW_LIB=%GLFW_ROOT%\binaries.x64\src\Release
+set GLFW_LIB=%GLFW_ROOT%\lib-vc2015
 
 REM CEGUI
 set CEGUI_LIB=%CEGUI_ROOT%\binaries\lib

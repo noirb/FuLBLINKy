@@ -902,15 +902,15 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     // Configure the timestep control buttons
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
-                            this->_dataProvider->NextTimeStep();
-                            this->UpdateDataGUI(data_window);
+                            this->_dataProvider->NextTimeStepAsync();
+                            this->waitingForProvider = true;
                             return true;
                         }
     );
     fWnd->getChildRecursive("btnPrevTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
-                            this->_dataProvider->PrevTimeStep();
-                            this->UpdateDataGUI(data_window);
+                            this->_dataProvider->PrevTimeStepAsync();
+                            this->waitingForProvider = true;
                             return true;
                         }
     );
@@ -1043,7 +1043,6 @@ void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
     else
         timestep_label->setText("N/A");
 
-    this->UpdateRenderers(this->_dataProvider);
 }
 
 CEGUI::Window* Compositor::AddRendererPopup()
@@ -1100,6 +1099,17 @@ void Compositor::UpdateRenderers(DataProvider* provider)
     }
 }
 
+void Compositor::Update()
+{
+    // if the dataprovider has data we were waiting for, update renderers
+    if (waitingForProvider && _dataProvider->isReady())
+    {
+        waitingForProvider = false;
+        UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
+        UpdateRenderers(_dataProvider);
+    }
+}
+
 void Compositor::Render(glm::mat4 MVP)
 {
     static double timer = 0.0;
@@ -1123,11 +1133,12 @@ void Compositor::Render(glm::mat4 MVP)
     CEGUI::System::getSingleton().renderAllGUIContexts();
 
     timer += dt;
-    if (this->autoplay && timer >= this->autoplay_interval)
+    if (this->autoplay && timer >= this->autoplay_interval && !this->waitingForProvider)
     {
         timer = 0;
-        this->_dataProvider->NextTimeStep();
-        this->UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
+        this->_dataProvider->NextTimeStepAsync();
+        this->waitingForProvider = true;
+
         // if we've reached the maximal timestep, stop autoplaying
         if (this->_dataProvider->GetMaxTimeStep()-1 == this->_dataProvider->GetTimeStep())
         {

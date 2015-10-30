@@ -36,7 +36,7 @@ class vtkLegacyReader : public DataProvider
         double* GetExtents();
 
         // tells the reader to load data from the next timestep
-        void NextTimeStep();
+        virtual void NextTimeStep();
 
         // tells the reader to load data from the previous timestep
         virtual void PrevTimeStep();

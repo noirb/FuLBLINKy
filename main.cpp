@@ -90,6 +90,8 @@ int main(void)
     {
         MVP = Compositor::Instance().GetProjectionMatrix() * Compositor::Instance().GetViewMatrix() * glm::mat4(1.0f);
 
+        Compositor::Instance().Update();
+
         // Draw!
         Compositor::Instance().Render(MVP);
 

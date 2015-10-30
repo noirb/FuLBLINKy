@@ -51,6 +51,9 @@ class Compositor
         // Stops rendering
         void ShutDown();
 
+        // Updates renderable data
+        void Update();
+
         // Renders one frame
         void Render(glm::mat4);
 
@@ -100,6 +103,7 @@ class Compositor
 
         double lastFrameTime; // time when the last frame was drawn
         bool running = false;
+        bool waitingForProvider = false; // True if we are expecting a dataprovider to asynchronously retrieve data for us
         bool autoplay = false; // if true, we load the next timestep automatically
         double autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
 

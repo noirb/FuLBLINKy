@@ -24,10 +24,12 @@ vtkLegacyReader::vtkLegacyReader(std::string filename)
 {
     this->timestep = 0;
     init(filename);
+    _isReady = true;
 }
 
 vtkLegacyReader::~vtkLegacyReader()
 {
+    WaitForWorkers();
 }
 
 // initializes the reader to pull data from the given file
@@ -215,6 +217,7 @@ void vtkLegacyReader::init(std::string filename)
 
         lineNumber++;
     }
+    std::cout << "\tDone." << std::endl;
 }
 
 std::string vtkLegacyReader::GetBaseFilename()
@@ -320,6 +323,7 @@ int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string ba
 // returns a struct containing all the details about the domain
 void vtkLegacyReader::getDomainParameters(DomainParameters* parameters)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     *parameters = this->domainParameters;
 }
 
@@ -355,35 +359,59 @@ void vtkLegacyReader::PrevTimeStep()
 // tells the reader to load data from the specified timestep
 void vtkLegacyReader::SetTimeStep(int step)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     this->timestep = step;
 }
 
 // gets the current timestep
 int vtkLegacyReader::GetTimeStep()
 {
-    return this->timestep;
+    if (_mutex.try_lock())
+    {
+        unsigned int t = this->timestep;
+        _mutex.unlock();
+        return t;
+    }
+
+    throw ProviderBusy("Could not safely retrieve current timestep");
 }
 
 // gets maximal timestep
 int vtkLegacyReader::GetMaxTimeStep()
 {
-    return this->maxTimesteps;
+    if (_mutex.try_lock())
+    {
+        unsigned int t = this->maxTimesteps;
+        _mutex.unlock();
+        return t;
+    }
+
+    throw ProviderBusy("Could not safely retrieve max timestep");
 }
 
 double vtkLegacyReader::GetMinValueFromField(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->minFieldValues[fieldName];
 }
 
 double vtkLegacyReader::GetMaxValueFromField(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->maxFieldValues[fieldName];
 }
 
 // gets the filename of the file we're currently looking at
 std::string vtkLegacyReader::GetFileName()
 {
-    return this->filename.substr(this->filename.find_last_of(PATH_SEP)+1);
+    if (_mutex.try_lock())
+    {
+        std::string s = this->filename.substr(this->filename.find_last_of(PATH_SEP) + 1);
+        _mutex.unlock();
+        return s;
+    }
+
+    throw ProviderBusy("Could not safely retrieve file name");
 }
 
 // gets the full file path of the file we're currently looking at
@@ -396,6 +424,7 @@ std::string vtkLegacyReader::GetFilePath()
 // Return value is 0 on success, another value for failure (unknown field, etc)
 int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     // return -1 if the given fieldName does not exist
     if (this->domainFields.count(fieldName) == 0)
     {
@@ -411,15 +440,18 @@ int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<dou
 
 double* vtkLegacyReader::GetExtents()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->extents;
 }
 
 std::vector<std::string> vtkLegacyReader::GetFieldNames()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->fieldNames;
 }
 
 int vtkLegacyReader::GetFieldDimension(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->fieldDimensions[fieldName];
 }

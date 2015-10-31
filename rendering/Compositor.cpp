@@ -1105,8 +1105,16 @@ void Compositor::Update()
     if (waitingForProvider && _dataProvider->isReady())
     {
         waitingForProvider = false;
-        UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
-        UpdateRenderers(_dataProvider);
+        try
+        {
+            UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
+            UpdateRenderers(_dataProvider);
+        }
+        catch (const ProviderBusy&)
+        {
+            waitingForProvider = true;
+            return;
+        }
     }
 }
 
@@ -1136,14 +1144,17 @@ void Compositor::Render(glm::mat4 MVP)
     if (this->autoplay && timer >= this->autoplay_interval && !this->waitingForProvider)
     {
         timer = 0;
-        this->_dataProvider->NextTimeStepAsync();
-        this->waitingForProvider = true;
 
         // if we've reached the maximal timestep, stop autoplaying
-        if (this->_dataProvider->GetMaxTimeStep()-1 == this->_dataProvider->GetTimeStep())
+        if (!this->waitingForProvider && this->_dataProvider->GetMaxTimeStep() - 1 == this->_dataProvider->GetTimeStep())
         {
             this->autoplay = false;
             this->guiRoot->getChildRecursive("btnPlay")->setText(">>"); /// HACK: Should probably have start/stop autoplaying functions to avoid so many hardcoded strings...
+        }
+        else
+        {
+            this->_dataProvider->NextTimeStepAsync();
+            this->waitingForProvider = true;
         }
     }
 }

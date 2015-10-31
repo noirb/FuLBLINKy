@@ -13,10 +13,12 @@ lbsimWrapper::lbsimWrapper(std::string filename)
     this->timestep = 0;
     this->maxTimesteps = -1;
     init(filename);
+    _isReady = true;
 }
 
 lbsimWrapper::~lbsimWrapper()
 {
+    WaitForWorkers();
     free(collideField);
     free(streamField);
     free(flagField);
@@ -235,29 +237,52 @@ void lbsimWrapper::SetTimeStep(int step)
 // gets the current timestep
 int lbsimWrapper::GetTimeStep()
 {
-    return this->timestep;
+    if (_mutex.try_lock())
+    {
+        unsigned int t = this->timestep;
+        _mutex.unlock();
+        return t;
+    }
+
+    throw ProviderBusy("Could not safely retrieve current timestep");
 }
 
 // gets maximal timestep
 int lbsimWrapper::GetMaxTimeStep()
 {
-    return this->maxTimesteps;
+    if (_mutex.try_lock())
+    {
+        unsigned int t = this->maxTimesteps;
+        _mutex.unlock();
+        return t;
+    }
+
+    throw ProviderBusy("Could not safely retrieve max timestep");
 }
 
 double lbsimWrapper::GetMinValueFromField(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->minFieldValues[fieldName];
 }
 
 double lbsimWrapper::GetMaxValueFromField(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->maxFieldValues[fieldName];
 }
 
 // gets the filename of the file we're currently looking at
 std::string lbsimWrapper::GetFileName()
 {
-    return this->filename.substr(this->filename.find_last_of("/")+1);
+    if (_mutex.try_lock())
+    {
+        std::string s = this->filename.substr(this->filename.find_last_of(PATH_SEP) + 1);
+        _mutex.unlock();
+        return s;
+    }
+
+    throw ProviderBusy("Could not safely retrieve file name");
 }
 
 // gets the full file path of the file we're currently looking at
@@ -270,6 +295,7 @@ std::string lbsimWrapper::GetFilePath()
 // Return value is 0 on success, another value for failure (unknown field, etc)
 int lbsimWrapper::GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     // return -1 if the given fieldName does not exist
     if (this->domainFields.count(fieldName) == 0)
     {
@@ -285,15 +311,18 @@ int lbsimWrapper::GetField(std::string fieldName, std::vector<std::vector<double
 
 double* lbsimWrapper::GetExtents()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->extents;
 }
 
 std::vector<std::string> lbsimWrapper::GetFieldNames()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->fieldNames;
 }
 
 int lbsimWrapper::GetFieldDimension(std::string fieldName)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     return this->fieldDimensions[fieldName];
 }

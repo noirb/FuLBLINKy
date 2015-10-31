@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="TaharezLook/FrameWindow" name="loadingInfo_window" >
+        <Property name="Area" value="{{0,405},{0,-38},{0.3,237},{0.3,-190}}" />
+        <Property name="AlwaysOnTop" value="true" />
+        <Property name="RollUpEnabled" value="false" />
+        <Property name="SizingEnabled" value="false" />
+        <Property name="TitlebarEnabled" value="false" />
+        <Property name="DragMovingEnabled" value="false" />
+        <Property name="CloseButtonEnabled" value="false" />
+        <Property name="HorizontalAlignment" value="Centre" />
+        <Property name="MousePassThroughEnabled" value="true" />
+        <AutoWindow namePath="__auto_titlebar__" >
+            <Property name="DraggingEnabled" value="false" />
+        </AutoWindow>
+        <Window type="TaharezLook/Label" name="loadingInfo_txt" >
+            <Property name="Area" value="{{0,0},{0,39},{0,128},{0,71}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="AlwaysOnTop" value="true" />
+            <Property name="NormalTextColour" value="FF96FAC8" />
+            <Property name="HorizontalAlignment" value="Centre" />
+            <Property name="MousePassThroughEnabled" value="true" />
+        </Window>
+    </Window>
+</GUILayout>

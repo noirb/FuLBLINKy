@@ -846,8 +846,14 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     // set root window
     CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(guiRoot);
     guiRoot->setMousePassThroughEnabled(true);
+
+    // load 'loading' popup
+    CEGUI::Window* lWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("loading.layout");
+    lWnd->setVisible(false);
+
     // load default window layout
     CEGUI::Window* fWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("default.layout");
+    guiRoot->addChild(lWnd);
     guiRoot->addChild(fWnd);
     CEGUI::Window* data_window = fWnd->getChildRecursive("data_window"); // main window holding timestep controls, etc.
 
@@ -904,6 +910,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->NextTimeStepAsync();
                             this->waitingForProvider = true;
+                            this->ShowLoadingPopup(this->waitingForProvider);
                             return true;
                         }
     );
@@ -911,6 +918,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->PrevTimeStepAsync();
                             this->waitingForProvider = true;
+                            this->ShowLoadingPopup(this->waitingForProvider);
                             return true;
                         }
     );
@@ -1091,6 +1099,12 @@ CEGUI::Window* Compositor::AddRendererPopup()
     return addWnd;
 }
 
+void Compositor::ShowLoadingPopup(bool show)
+{
+    CEGUI::Window* loadingPopup = guiRoot->getChildRecursive("loadingInfo_window");
+    loadingPopup->setVisible(show);
+}
+
 void Compositor::UpdateRenderers(DataProvider* provider)
 {
     for (auto r : this->_renderers)
@@ -1113,8 +1127,9 @@ void Compositor::Update()
         catch (const ProviderBusy&)
         {
             waitingForProvider = true;
-            return;
         }
+
+        ShowLoadingPopup(waitingForProvider);
     }
 }
 
@@ -1156,5 +1171,7 @@ void Compositor::Render(glm::mat4 MVP)
             this->_dataProvider->NextTimeStepAsync();
             this->waitingForProvider = true;
         }
+
+        ShowLoadingPopup(waitingForProvider);
     }
 }

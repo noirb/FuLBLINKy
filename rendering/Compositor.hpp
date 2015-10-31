@@ -116,6 +116,7 @@ class Compositor
         void LoadVTK(std::string, CEGUI::Window*);
         void LoadLBM(std::string, CEGUI::Window*);
         CEGUI::Window* AddRendererPopup();
+        void ShowLoadingPopup(bool);
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);
 

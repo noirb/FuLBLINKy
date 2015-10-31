@@ -21,6 +21,22 @@ vtkLegacyReader::vtkLegacyReader(std::string filename)
     _isReady = true;
 }
 
+vtkLegacyReader::vtkLegacyReader(std::string filename, std::function< void(DataProvider*) > callback)
+{
+    _backgroundWorkers.push_back(std::thread([this, filename, callback]()
+    {
+        std::unique_lock<std::mutex> guard(_mutex);
+        this->timestep = 0;
+        init(filename);
+
+        _isReady = true;
+
+        guard.unlock();
+
+        callback(this);
+    }));
+}
+
 vtkLegacyReader::~vtkLegacyReader()
 {
     WaitForWorkers();

@@ -985,24 +985,27 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
         delete this->_dataProvider;
     }
 
-    this->_dataProvider = new vtkLegacyReader(filename);
-	vtkWindowRoot->setText(((vtkLegacyReader*)(this->_dataProvider))->GetFileName());
+    ShowLoadingPopup(true);
+    this->_dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
+        vtkWindowRoot->setText(((vtkLegacyReader*)(P))->GetFileName());
 
-    CEGUI::Window* timestep_label = vtkWindowRoot->getChildRecursive("lblTimestep");
-    CEGUI::Window* maxTimestep_label = vtkWindowRoot->getChildRecursive("lblMaxTimestep");
+        CEGUI::Window* timestep_label = vtkWindowRoot->getChildRecursive("lblTimestep");
+        CEGUI::Window* maxTimestep_label = vtkWindowRoot->getChildRecursive("lblMaxTimestep");
 
-    if (this->_dataProvider->GetTimeStep() >= 0)
-        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
-    else
-        timestep_label->setText("N/A");
+        if (P->GetTimeStep() >= 0)
+            timestep_label->setText(std::to_string(P->GetTimeStep()));
+        else
+            timestep_label->setText("N/A");
 
-    if (this->_dataProvider->GetMaxTimeStep() >= 0)
-        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep()-1));
-    else
-        timestep_label->setText("--");
+        if (P->GetMaxTimeStep() >= 0)
+            maxTimestep_label->setText(std::to_string(P->GetMaxTimeStep()-1));
+        else
+            timestep_label->setText("--");
 
-    this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
-    this->UpdateRenderers(this->_dataProvider);
+        this->CenterCameraOnExtents(P->GetExtents());
+        this->UpdateRenderers(P);
+        this->ShowLoadingPopup(false);
+    });
 }
 
 void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
@@ -1015,23 +1018,24 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
         delete this->_dataProvider;
     }
 
-    this->_dataProvider = new lbsimWrapper(filename);
-    dataWindowRoot->setText(filename.substr(filename.find_last_of("/")+1));
+    ShowLoadingPopup(true);
+    this->_dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
+        dataWindowRoot->setText(((lbsimWrapper*)(P))->GetFileName());
 
-    (static_cast<lbsimWrapper*>(this->_dataProvider))->Update();
+        CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
+        CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
 
-    CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
-    CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
+        if (P->GetTimeStep() >= 0)
+            timestep_label->setText(std::to_string(P->GetTimeStep()));
+        else
+            timestep_label->setText("N/A");
 
-    if (this->_dataProvider->GetTimeStep() >= 0)
-        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
-    else
-        timestep_label->setText("N/A");
+        maxTimestep_label->setText("--"); // LBM always has infinite timesteps
 
-    maxTimestep_label->setText("--"); // LBM always has infinite timesteps
-
-    this->CenterCameraOnExtents(this->_dataProvider->GetExtents());
-    this->UpdateRenderers(this->_dataProvider);
+        this->CenterCameraOnExtents(P->GetExtents());
+        this->UpdateRenderers(P);
+        this->ShowLoadingPopup(false);
+    });
 #endif
 }
 

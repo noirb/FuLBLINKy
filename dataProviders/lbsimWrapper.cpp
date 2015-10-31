@@ -16,6 +16,22 @@ lbsimWrapper::lbsimWrapper(std::string filename)
     _isReady = true;
 }
 
+lbsimWrapper::lbsimWrapper(std::string filename, std::function< void(DataProvider*) > callback)
+{
+    _backgroundWorkers.push_back(std::thread([this, filename, callback]()
+    {
+        std::unique_lock<std::mutex> guard(_mutex);
+        this->timestep = 0;
+        this->maxTimesteps = -1;
+        init(filename);
+        _isReady = true;
+
+        guard.unlock();
+
+        callback(this);
+    }));
+}
+
 lbsimWrapper::~lbsimWrapper()
 {
     WaitForWorkers();

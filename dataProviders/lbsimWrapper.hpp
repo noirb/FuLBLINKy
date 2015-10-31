@@ -28,6 +28,7 @@ class lbsimWrapper : public DataProvider
     public:
         lbsimWrapper();
         lbsimWrapper(std::string filename);
+        lbsimWrapper(std::string filename, std::function< void(DataProvider*) > callback);
 
         virtual ~lbsimWrapper();
 

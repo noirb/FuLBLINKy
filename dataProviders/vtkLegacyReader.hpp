@@ -20,6 +20,7 @@ class vtkLegacyReader : public DataProvider
     public:
         vtkLegacyReader();
         vtkLegacyReader(std::string filename);
+        vtkLegacyReader(std::string filename, std::function< void(DataProvider*) > callback);
 
         virtual ~vtkLegacyReader();
 

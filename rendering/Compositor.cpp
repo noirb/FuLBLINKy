@@ -986,25 +986,9 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     }
 
     ShowLoadingPopup(true);
+    waitingForProvider = true;
     this->_dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
-        vtkWindowRoot->setText(((vtkLegacyReader*)(P))->GetFileName());
-
-        CEGUI::Window* timestep_label = vtkWindowRoot->getChildRecursive("lblTimestep");
-        CEGUI::Window* maxTimestep_label = vtkWindowRoot->getChildRecursive("lblMaxTimestep");
-
-        if (P->GetTimeStep() >= 0)
-            timestep_label->setText(std::to_string(P->GetTimeStep()));
-        else
-            timestep_label->setText("N/A");
-
-        if (P->GetMaxTimeStep() >= 0)
-            maxTimestep_label->setText(std::to_string(P->GetMaxTimeStep()-1));
-        else
-            timestep_label->setText("--");
-
         this->CenterCameraOnExtents(P->GetExtents());
-        this->UpdateRenderers(P);
-        this->ShowLoadingPopup(false);
     });
 }
 
@@ -1019,41 +1003,41 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     }
 
     ShowLoadingPopup(true);
+    waitingForProvider = true;
     this->_dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
-        dataWindowRoot->setText(((lbsimWrapper*)(P))->GetFileName());
-
-        CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
-        CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
-
-        if (P->GetTimeStep() >= 0)
-            timestep_label->setText(std::to_string(P->GetTimeStep()));
-        else
-            timestep_label->setText("N/A");
-
-        maxTimestep_label->setText("--"); // LBM always has infinite timesteps
-
         this->CenterCameraOnExtents(P->GetExtents());
-        this->UpdateRenderers(P);
-        this->ShowLoadingPopup(false);
     });
 #endif
 }
 
 void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
 {
-    // check to see if our dataProvider is a vtkLegacyReader
     vtkLegacyReader* legacyReader = dynamic_cast<vtkLegacyReader*>(this->_dataProvider);
     if (legacyReader)
     {
         dataWindowRoot->setText(legacyReader->GetFileName());
     }
 
+#ifndef _WIN32
+    lbsimWrapper* lbsim = dynamic_cast<lbsimWrapper*>(this->_dataProvider);
+    if (lbsim)
+    {
+        dataWindowRoot->setText(lbsim->GetFileName());
+    }
+#endif
+
     CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
+    CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
 
     if (this->_dataProvider->GetTimeStep() >= 0)
         timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
     else
         timestep_label->setText("N/A");
+
+    if (this->_dataProvider->GetMaxTimeStep() >= 0)
+        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep() - 1));
+    else
+        timestep_label->setText("--");
 
 }
 

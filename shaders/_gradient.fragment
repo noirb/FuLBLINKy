@@ -9,5 +9,5 @@ void main()
 {
 	float position = (gl_FragCoord.y / 768.0);
     color = vec4(mix(startColor, endColor, position));
-	gl_FragDepth = 0.9999; // force fragment to back
+	gl_FragDepth = 0.999999; // force fragment to back
 }

@@ -1,11 +1,19 @@
 #ifndef _DATA_PROVIDER_H
 #define _DATA_PROVIDER_H
 
-#include <stdexcept>>
+#include <stdexcept>
 #include <thread>
 #include <mutex>
 #include <vector>
 #include "DomainParameters.h"
+
+// there may be a better place for this
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
 
 class DataProvider
 {
@@ -77,7 +85,7 @@ class DataProvider
         void WaitForWorkers()
         {
             // ensure all attached threads complete
-            for (int i = 0; i < _backgroundWorkers.size(); i++)
+            for (unsigned int i = 0; i < _backgroundWorkers.size(); i++)
             {
                 if (_backgroundWorkers[i].joinable())
                 {

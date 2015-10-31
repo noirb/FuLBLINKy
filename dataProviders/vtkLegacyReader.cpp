@@ -8,12 +8,6 @@
 #include <strsafe.h>
 #endif
 
-// there may be a better place for this
-#ifdef _WIN32
-#define PATH_SEP "\\"
-#else
-#define PATH_SEP "/"
-#endif
 
 vtkLegacyReader::vtkLegacyReader()
 {

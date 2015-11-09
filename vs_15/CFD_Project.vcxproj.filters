@@ -42,9 +42,6 @@
     <ClInclude Include="..\common.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\dataProviders\DomainParameters.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\loadShaders.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,6 +96,12 @@
     <ClInclude Include="..\nativefiledialog\common.h">
       <Filter>Header Files\nativefiledialog</Filter>
     </ClInclude>
+    <ClInclude Include="..\dataProviders\DomainParameters.h">
+      <Filter>Header Files\DataProviders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dataProviders\lbsimWrapper.hpp">
+      <Filter>Header Files\DataProviders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\loadShaders.cpp">
@@ -148,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="..\input\input-mapping.cpp">
       <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dataProviders\lbsimWrapper.cpp">
+      <Filter>Source Files\DataProviders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

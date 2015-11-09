@@ -15,13 +15,17 @@
 #include "DataProvider.hpp"
 #include "DomainParameters.h"
 
+#ifndef _WIN32 // we build lbsim as C++ on Windows
 extern "C" {
+#endif
 #include "../lbsim/LBDefinitions.h"
 #include "../lbsim/initLB.h"
 #include "../lbsim/collision.h"
 #include "../lbsim/boundary.h"
 #include "../lbsim/streaming.h"
+#ifndef _WIN32
 };
+#endif
 
 class lbsimWrapper : public DataProvider
 {

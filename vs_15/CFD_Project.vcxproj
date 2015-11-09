@@ -41,19 +41,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);..\nativefiledialog\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(SolutionDir)binaries.$(Platform)\lbsim\Debug_dll\;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
-    <OutDir>$(SolutionDir)binaries.$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>binaries.$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)binaries.$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>binaries.$(Platform)\$(ProjectName)\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(GLEW_INC);$(GLM_INC);$(GLFW_INC);$(CEGUI_INC);..\nativefiledialog\include;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(CEGUI_LIB);$(GLEW_LIB);$(GLFW_LIB);binaries.$(Platform)\lbsim\Release_dll\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
-    <OutDir>$(SolutionDir)binaries.$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>binaries.$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)binaries.$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>binaries.$(Platform)\$(ProjectName)\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -65,13 +65,16 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ShowProgress>LinkVerbose</ShowProgress>
-      <AdditionalDependencies>glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUIOpenGLRenderer-0_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lbsim.lib;glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUIOpenGLRenderer-0_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Message>Copies necessary DLLs and content to build destination</Message>
       <Command>echo Copying project resources to output directory...
 xcopy /D /E $(ProjectDir)\..\shaders $(OutputPath)shaders\
 xcopy /D /E $(ProjectDir)\..\cegui_layout $(OutputPath)cegui_layout\
+
+echo Copying lbsim.dll to output directory...
+xcopy /D /E $(SolutionDir)binaries.$(Platform)\lbsim\Debug_dll\lbsim.dll $(OutputPath)
 
 echo Copying CEGUI dependencies to output directory...
  For %%a in (
@@ -110,7 +113,7 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0.lib;CEGUICommonDialogs-0.lib;CEGUIOpenGLRenderer-0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lbsim.lib;glfw3.lib;glew32s.lib;opengl32.lib;CEGUIBase-0.lib;CEGUICommonDialogs-0.lib;CEGUIOpenGLRenderer-0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -126,6 +129,9 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
       <Command>echo Copying project resources to output directory...
 xcopy /D /E $(ProjectDir)\..\shaders $(OutputPath)shaders\
 xcopy /D /E $(ProjectDir)\..\cegui_layout $(OutputPath)cegui_layout\
+
+echo Copying lbsim.dll to output directory...
+xcopy /D /E $(SolutionDir)binaries.$(Platform)\lbsim\Release_dll\lbsim.dll $(OutputPath)
 
 echo Copying CEGUI dependencies to output directory...
  For %%a in (
@@ -157,6 +163,7 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
     <ClInclude Include="..\common.hpp" />
     <ClInclude Include="..\dataProviders\DataProvider.hpp" />
     <ClInclude Include="..\dataProviders\DomainParameters.h" />
+    <ClInclude Include="..\dataProviders\lbsimWrapper.hpp" />
     <ClInclude Include="..\dataProviders\vtkLegacyReader.hpp" />
     <ClInclude Include="..\input\input-mapping.hpp" />
     <ClInclude Include="..\input\InputManager.hpp" />
@@ -176,6 +183,7 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
     <ClInclude Include="..\rendering\StreamLineRenderer.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\dataProviders\lbsimWrapper.cpp" />
     <ClCompile Include="..\dataProviders\vtkLegacyReader.cpp" />
     <ClCompile Include="..\input\input-mapping.cpp" />
     <ClCompile Include="..\input\InputManager.cpp" />
@@ -192,6 +200,16 @@ xcopy /D /E $(CEGUI_ROOT)\binaries\bin\"%%~a" $(OutputPath)
     <ClCompile Include="..\rendering\ProbabilitiesRenderer.cpp" />
     <ClCompile Include="..\rendering\RenderableComponent.cpp" />
     <ClCompile Include="..\rendering\StreamLineRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="lbsim.vcxproj">
+      <Project>{3491a77f-45be-45f8-9108-f3d5d88a0bd4}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <Private>true</Private>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

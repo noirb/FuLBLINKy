@@ -881,7 +881,6 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
-#ifndef _WIN32 // lbsim is not yet building on Windows, so only enable this button for Linux (issue #11)
     // Configure the Load LBD button
     fWnd->getChildRecursive("LoadLBMbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
@@ -900,10 +899,6 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                             return true;
                         }
     );
-#else
-	// Disable the Load LBD button (TODO: remove this after issue #11 is fixed)
-	fWnd->getChildRecursive("LoadLBMbtn")->disable();
-#endif
 
     // Configure the timestep control buttons
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
@@ -994,9 +989,6 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
 
 void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
 {
-#ifdef _WIN32
-	return;
-#else
     if (this->_dataProvider)
     {
         delete this->_dataProvider;
@@ -1007,7 +999,6 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     this->_dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
     });
-#endif
 }
 
 void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
@@ -1018,13 +1009,11 @@ void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
         dataWindowRoot->setText(legacyReader->GetFileName());
     }
 
-#ifndef _WIN32
     lbsimWrapper* lbsim = dynamic_cast<lbsimWrapper*>(this->_dataProvider);
     if (lbsim)
     {
         dataWindowRoot->setText(lbsim->GetFileName());
     }
-#endif
 
     CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
     CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
@@ -1037,7 +1026,7 @@ void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
     if (this->_dataProvider->GetMaxTimeStep() >= 0)
         maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep() - 1));
     else
-        timestep_label->setText("--");
+        maxTimestep_label->setText("--");
 
 }
 

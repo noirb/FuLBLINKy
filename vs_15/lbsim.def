@@ -1,0 +1,9 @@
+LIBRARY lbsim
+EXPORTS
+   computeDensity   @1
+   computeVelocity  @2
+   initialiseFields @3
+   readParameters   @4
+   doCollision      @5
+   doStreaming      @6
+   treatBoundary    @7

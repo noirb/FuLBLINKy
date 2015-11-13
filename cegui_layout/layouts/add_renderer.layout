@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="TaharezLook/FrameWindow" name="AddRenderer_Popup" >
-        <Property name="Area" value="{{0,0},{0,0},{0.3,0},{0.3,0}}" />
+        <Property name="Area" value="{{0,0},{0,0},{0,300},{0,300}}" />
         <Property name="Text" value="Add Renderer" />
         <Property name="Visible" value="false" />
         <Property name="RollUpEnabled" value="false" />

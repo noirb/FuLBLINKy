@@ -172,8 +172,6 @@ void Compositor::AddRenderer(RenderableComponent* renderer, bool onByDefault)
 
 void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
 {
-    std::cout << "Adding GUI for new Renderer to scene (" << this->RendererStrs[rendererType] << ")" << std::endl;
-
     RenderableComponent* newRenderer;
     std::string rendererName;
 
@@ -214,6 +212,7 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
             return;
     }
 
+    std::cout << "Adding GUI for new Renderer to scene (" << this->RendererStrs[rendererType] << ")" << std::endl;
 
     rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
 
@@ -837,7 +836,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
     CEGUI::SchemeManager::getSingleton().createFromFile("VanillaSkin.scheme");
     CEGUI::SchemeManager::getSingleton().createFromFile("VanillaCommonDialogs.scheme");
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-12-NoScale");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("TaharezLook/Tooltip");
     // force CEGUI's mouse position to (0,0)     /// TODO: do this in InputManager
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();

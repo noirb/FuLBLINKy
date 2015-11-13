@@ -6,7 +6,7 @@
         <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
         <Property name="MousePassThroughEnabled" value="true" />
         <Window type="TaharezLook/FrameWindow" name="data_window" >
-            <Property name="Area" value="{{0,0},{0,0},{0.3,139},{0.3,-114}}" />
+            <Property name="Area" value="{{0,0}, {0,0}, {0, 450}, {0,115}}" />
             <Property name="RollUpEnabled" value="false" />
             <Property name="SizingEnabled" value="false" />
             <Property name="DragMovingEnabled" value="false" />

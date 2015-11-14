@@ -93,6 +93,8 @@ xcopy /D /E $(CEGUI_ROOT)\dependencies\bin\"%%~a" $(OutputPath)
 echo Copying CEGUI components to output directory...
  For %%a in (
  "CEGUIBase-0_d.dll"
+ "CEGUIExpatParser_d.dll"
+ "CEGUISILLYImageCodec_d.dll"
  "CEGUICommonDialogs-0_d.dll"
  "CEGUIOpenGLRenderer-0_d.dll"
  "CEGUICoreWindowRendererSet_d.dll"
@@ -150,6 +152,8 @@ xcopy /D /E $(CEGUI_ROOT)\dependencies\bin\"%%~a" $(OutputPath)
 echo Copying CEGUI components to output directory...
  For %%a in (
  "CEGUIBase-0.dll"
+ "CEGUIExpatParser.dll"
+ "CEGUISILLYImageCodec.dll"
  "CEGUICommonDialogs-0.dll"
  "CEGUIOpenGLRenderer-0.dll"
  "CEGUICoreWindowRendererSet.dll"

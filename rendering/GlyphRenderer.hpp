@@ -18,6 +18,7 @@ class GlyphRenderer: public RenderableComponent
         double minGradientValue;
 };
 
+/// See 3DGlyphDiag.jpg for details
 static const GLfloat g_arrow2d_vertex_buffer_data[] = {
      // One face of the 3D arrow
      1.0f,  1.0f,  0.0f,  // B

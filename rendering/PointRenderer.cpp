@@ -27,7 +27,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     }
     if (this->totalAttributes > 0)
     {
-        for (int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < this->totalAttributes; i++)
         {
             delete(this->vertex_attrib_data[i]);
         }
@@ -48,7 +48,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         // get coords for current point
         for (auto component : point)
         {
-            this->vertex_buffer_data[i] = component; // copy each x,y,z component from each point
+            this->vertex_buffer_data[i] = (GLfloat)component; // copy each x,y,z component from each point
             i++;
         }
     }
@@ -69,7 +69,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
                  int c = 0;
                  for (auto component : scalar_vector)
                  {
-                     val[c] = component;
+                     val[c] = (float)component;
                      c++;
                  }
                  this->vertex_attrib_data[0][i] = glm::length(val);
@@ -77,17 +77,17 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
              }
              case VECTOR_X:
              {
-                 this->vertex_attrib_data[0][i] = scalar_vector[0];
+                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
                  break;
              }
              case VECTOR_Y:
              {
-                 this->vertex_attrib_data[0][i] = scalar_vector[1];
+                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
                  break;
              }
              case VECTOR_Z:
              {
-                 this->vertex_attrib_data[0][i] = scalar_vector[2];
+                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
                  break;
              }
              default:
@@ -170,13 +170,13 @@ void PointRenderer::Draw(glm::mat4 MVP)
     // set shaders
     shaderProgram->enable();
     glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
-    glUniform1f(shaderProgram->getUniform("max_sizeScalar"), this->scaleFactorMax);
-    glUniform1f(shaderProgram->getUniform("min_sizeScalar"), this->scaleFactorMin);
+    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
+    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
+    glUniform1f(shaderProgram->getUniform("max_sizeScalar"), (GLfloat)this->scaleFactorMax);
+    glUniform1f(shaderProgram->getUniform("min_sizeScalar"), (GLfloat)this->scaleFactorMin);
     glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
     glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), this->bias);
+    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
     glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
     glBindVertexArray(this->VAO);
 

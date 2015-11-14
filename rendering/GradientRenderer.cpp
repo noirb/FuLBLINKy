@@ -16,7 +16,7 @@ void GradientRenderer::PrepareGeometry(DataProvider *)
          1.0f,-1.0f, 0.0f,
          1.0f, 3.0f, 0.0f
     };
-    for (int i = 0; i < this->totalVertices*3; i++)
+    for (unsigned int i = 0; i < this->totalVertices*3; i++)
     {
         this->vertex_buffer_data[i] = vertices[i];
     }

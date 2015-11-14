@@ -43,7 +43,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     }
     if (this->totalAttributes > 0)
     {
-        for (int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < this->totalAttributes; i++)
         {
             delete(this->vertex_attrib_data[i]);
         }
@@ -61,12 +61,12 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
     double max_velocity = provider->GetMaxValueFromField("velocity");
-    for (int loopVarVertices = 0; loopVarVertices < this->totalVertices; loopVarVertices++)
+    for (unsigned int loopVarVertices = 0; loopVarVertices < this->totalVertices; loopVarVertices++)
     {
         float velTemp[3];
         for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
         {
-            velTemp[loopVarComponents] = (velocities->at(loopVarVertices))[loopVarComponents];
+            velTemp[loopVarComponents] = (float)(velocities->at(loopVarVertices))[loopVarComponents];
         }
 
         double local_scaling;
@@ -76,65 +76,66 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         M = glm::translate(M,  glm::vec3((points->at(loopVarVertices))[0],    // translation matrix to current location in dataset
                                          (points->at(loopVarVertices))[1],
                                          (points->at(loopVarVertices))[2]));
-        glm::vec3 source_vec = glm::normalize(glm::vec3(0.0, 0.0, 1.0));                      // our current direction (all glyphs face +Z by default)
+        glm::vec3 source_vec = glm::normalize(glm::vec3(0.0, 0.0, 1.0));      // our current direction (all glyphs face +Z by default)
         glm::vec3 target_vec = glm::vec3(velTemp[0], velTemp[1], velTemp[2]); // vector facing direction we want to face
         if (glm::length(target_vec) > 0.0)
         {
             target_vec = glm::normalize(target_vec);
             glm::vec3 rot_axis = glm::cross(source_vec, target_vec);
 
-        	if (glm::length(rot_axis) == 0)
-                    {
-		 	if (glm::dot(source_vec, target_vec) < 0)
-                                {
-				  glm::vec3 temp = target_vec;
-            			  temp[0] = temp[0] + 1.432342; temp[1] = temp[1] + 1.234235342; temp[2] = temp[2] + 1.1244325;
-			          rot_axis = glm::cross(source_vec, temp);
-            			  M = glm::rotate(M, 3.1415f, rot_axis);
-			        }
-			}
-        		else
-                            {
-    			        float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
-	    		        M = glm::rotate(M, rot_angle, rot_axis);                              // rotation matrix from (0,0,1) to velocity dir at this location
-		       }
-	}
+            if (glm::length(rot_axis) == 0)
+            {
+                if (glm::dot(source_vec, target_vec) < 0)
+                {
+                    glm::vec3 temp = target_vec;
+                    temp[0] = temp[0] + 1.432342f; temp[1] = temp[1] + 1.234235342f; temp[2] = temp[2] + 1.1244325f;
+                    rot_axis = glm::cross(source_vec, temp);
+                    M = glm::rotate(M, 3.1415f, rot_axis);
+                }
+            }
+            else
+            {
+                float rot_angle = glm::acos(glm::dot(source_vec, target_vec));
+                M = glm::rotate(M, rot_angle, rot_axis);                    // rotation matrix from (0,0,1) to velocity dir at this location
+            }
+        }
 
         // Loop through the arrow skeleton
         for (int loopVarGlyphPts = 0; loopVarGlyphPts < ArrowGlyphSize *3; loopVarGlyphPts += 3)
         {
-	double velVectorScale;
-	if (this->autoScale){		        
-		if (max_velocity != 0)
-        	{
-            		velVectorScale = exp(sqrt(velTemp[0]*velTemp[0] + velTemp[1]*velTemp[1] + velTemp[2]*velTemp[2])/max_velocity)/exp(1);
-        	}
-        	else
-        	{
-            		velVectorScale = 1;
-        	}
-	    }
-	else {
-		
-            double scaleFactor;
-            if (this->scaleFactorMin == this->scaleFactorMax)
+            double velVectorScale;
+            if (this->autoScale)
             {
-                scaleFactor = this->scaleFactorMin;
-            }
-            else
-            {
-                if (this->colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
+                if (max_velocity != 0)
                 {
-                    scaleFactor = glm::abs((glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                    velVectorScale = exp(sqrt(velTemp[0]*velTemp[0] + velTemp[1]*velTemp[1] + velTemp[2]*velTemp[2])/max_velocity)/exp(1);
                 }
                 else
                 {
-                    scaleFactor = glm::abs(((color_scalarField->at(loopVarVertices))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                    velVectorScale = 1;
                 }
             }
-            velVectorScale = glm::mix(0.0, 1.0, scaleFactor);
-	}
-       //std::cout << velVectorScale << "\n" << std::endl;
+            else
+            {
+                double scaleFactor;
+                if (this->scaleFactorMin == this->scaleFactorMax)
+                {
+                    scaleFactor = this->scaleFactorMin;
+                }
+                else
+                {
+                    if (this->colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
+                    {
+                        scaleFactor = glm::abs((glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                    }
+                    else
+                    {
+                        scaleFactor = glm::abs(((color_scalarField->at(loopVarVertices))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                    }
+                }
+                velVectorScale = glm::mix(0.0, 1.0, scaleFactor);
+            }
+
             // get coords for current vertex
             glm::vec4 glyphPointTemp = glm::vec4(
                             local_scaling*velVectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
@@ -171,7 +172,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
                     int c = 0;
                     for (auto component : scalar_vector)
                     {
-                        val[c] = component;
+                        val[c] = (float)component;
                         c++;
                     }
                     this->vertex_attrib_data[0][i] = glm::length(val);
@@ -179,17 +180,17 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
                 }
                 case VECTOR_X:
                 {
-                    this->vertex_attrib_data[0][i] = scalar_vector[0];
+                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
                     break;
                 }
                 case VECTOR_Y:
                 {
-                    this->vertex_attrib_data[0][i] = scalar_vector[1];
+                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
                     break;
                 }
                 case VECTOR_Z:
                 {
-                    this->vertex_attrib_data[0][i] = scalar_vector[2];
+                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
                     break;
                 }
                 default:
@@ -268,11 +269,11 @@ void GlyphRenderer::Draw(glm::mat4 MVP)
 
     // send uniforms to shaders
     glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
+    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
+    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
     glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
     glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), this->bias);
+    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
     glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
 
     // bind VAO
@@ -287,4 +288,3 @@ void GlyphRenderer::Draw(glm::mat4 MVP)
     // unset shaders
     this->shaderProgram->disable();
 }
-

@@ -40,7 +40,7 @@ void RenderableComponent::SetInterpolator(Interpolation i)
     this->interpolator = i;
 }
 
-void RenderableComponent::SetInterpolationBias(float b)
+void RenderableComponent::SetInterpolationBias(double b)
 {
     this->bias = b;
 }

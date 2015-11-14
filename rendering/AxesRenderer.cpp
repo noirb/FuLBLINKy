@@ -19,7 +19,7 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
         0.0f, 0.0f, 0.0f,       // origin-to-z
         0.0f, 0.0f, 10.0f
     };
-    for (int i = 0; i < this->totalVertices*3; i++)       // copy vertex data from vertices to vertex_buffer_data
+    for (unsigned int i = 0; i < this->totalVertices*3; i++)       // copy vertex data from vertices to vertex_buffer_data
     {
         this->vertex_buffer_data[i] = vertices[i];
     }

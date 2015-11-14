@@ -122,7 +122,7 @@ class Compositor
 
         void RendererAddFieldSelectionCombobox(CEGUI::Window*, RenderableComponent*);
         void RendererAddInterpolationCombobox(CEGUI::Window*, RenderableComponent*);
-        CEGUI::Spinner* RendererAddSpinner(float, float, float, float, std::string, bool, CEGUI::Window*, RenderableComponent*, CEGUI::Event::Subscriber);
+        CEGUI::Spinner* RendererAddSpinner(double, double, double, double, std::string, bool, CEGUI::Window*, RenderableComponent*, CEGUI::Event::Subscriber);
         CEGUI::Window* RendererAddCheckbox(CEGUI::Window*, bool, std::string, std::string, CEGUI::Event::Subscriber);
         CEGUI::Window* RendererAddLabel(CEGUI::Window*, CEGUI::USize, std::string, std::string);
         CEGUI::Editbox* RendererAddEditbox(CEGUI::Window*, std::string, std::string);

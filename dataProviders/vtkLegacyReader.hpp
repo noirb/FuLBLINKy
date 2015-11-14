@@ -84,7 +84,7 @@ class vtkLegacyReader : public DataProvider
         // for a file '/dir/problem.timestep.vtk', this returns 'problem'
         std::string GetBaseFilename();
         std::string GetFileDir();
-        int GetTimeStepsInDir(std::string, std::string);
+        unsigned int GetTimeStepsInDir(std::string, std::string);
 };
 
 #endif

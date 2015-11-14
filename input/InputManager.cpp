@@ -242,6 +242,6 @@ void InputManager::ResetCEGUIMousePos()
 {
     // reset CEGUI's mouse position in case we're out of sync, now
     CEGUI::Vector2<float> cegMousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(this->mouseX - cegMousePos.d_x, this->mouseY - cegMousePos.d_y);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove((float)this->mouseX - cegMousePos.d_x, (float)this->mouseY - cegMousePos.d_y);
 }
 

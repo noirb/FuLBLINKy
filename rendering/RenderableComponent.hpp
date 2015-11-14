@@ -25,7 +25,7 @@ class RenderableComponent
         void SetMaxColor(float, float, float, float);
         void SetMinColor(float, float, float, float);
         void SetInterpolator(Interpolation);
-        void SetInterpolationBias(float);
+        void SetInterpolationBias(double);
 
         void SetColorField(std::string);
         void SetScaleField(std::string);
@@ -49,8 +49,8 @@ class RenderableComponent
         ShaderProgram* shaderProgram;  // shaders to use when we render
         GLuint VBO;                   // Vertex Buffer Object
         GLuint VAO;                   // Vertex Array Object
-        int totalVertices = 0;        // Total # of vertices this object will draw each frame
-        int totalAttributes = 0;
+        unsigned int totalVertices = 0;        // Total # of vertices this object will draw each frame
+        unsigned int totalAttributes = 0;
         bool enabled;
 
         std::string colorParamField;  // used to select the scalar field coloring & scaling is defined by
@@ -65,7 +65,7 @@ class RenderableComponent
         double scaleFactorMax = 0.2;
         Interpolation interpolator = Interpolation::LINEAR;
         ScalarParamType scalarParamType = VECTOR_MAGNITUDE;
-        float bias = 2.5f;
+        double bias = 2.5;
 };
 
 #endif

@@ -50,10 +50,10 @@ void vtkLegacyReader::init(std::string filename)
     std::cout << "Parsing file: " << filename << std::endl;
 
     // get timestep from filename
-    int len = filename.length();
+    unsigned int len = filename.length();
     std::string timestep = "";
     bool hitLastDot = false;
-    for (int i = len-1; i >= 0; i--)
+    for (unsigned int i = len-1; i >= 0; i--)
     {
         if (filename[i] == '.' && !hitLastDot)
         {
@@ -247,7 +247,7 @@ std::string vtkLegacyReader::GetFileDir()
     return this->filename.substr(0, this->filename.find_last_of(PATH_SEP)+1);
 }
 
-int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
+unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
 {
 #ifndef _WIN32 // the following region requires dirent.h, which is unix-only
     struct dirent** filenames;
@@ -276,58 +276,58 @@ int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string ba
     }
 
 #else
-	WIN32_FIND_DATA ffd;
-	TCHAR szDir[MAX_PATH];
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	DWORD dwError = 0;
+    WIN32_FIND_DATA ffd;
+    TCHAR szDir[MAX_PATH];
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+    DWORD dwError = 0;
 
-	StringCchCopy(szDir, MAX_PATH, directoryName.c_str()); // directory to search
-	StringCchCat(szDir, MAX_PATH, TEXT("\\"));
-	StringCchCat(szDir, MAX_PATH, baseFileName.c_str());   // append base filename
-	StringCchCat(szDir, MAX_PATH, TEXT(".*.vtk"));         // timestep iterations should be of the form: baseFileName.<step>.vtk
+    StringCchCopy(szDir, MAX_PATH, directoryName.c_str()); // directory to search
+    StringCchCat(szDir, MAX_PATH, TEXT("\\"));
+    StringCchCat(szDir, MAX_PATH, baseFileName.c_str());   // append base filename
+    StringCchCat(szDir, MAX_PATH, TEXT(".*.vtk"));         // timestep iterations should be of the form: baseFileName.<step>.vtk
 
-	// Find the first file in the directory.
-	hFind = FindFirstFile(szDir, &ffd);
-	if (INVALID_HANDLE_VALUE == hFind)
-	{
-		std::cout << "Error: FindFirstFile failed to open handle in: " << directoryName << std::endl;
-		return 0;
-	}
+    // Find the first file in the directory.
+    hFind = FindFirstFile(szDir, &ffd);
+    if (INVALID_HANDLE_VALUE == hFind)
+    {
+        std::cout << "Error: FindFirstFile failed to open handle in: " << directoryName << std::endl;
+        return 0;
+    }
 
-	// clear any existing timesteps
-	this->timestepFilePaths.clear();
+    // clear any existing timesteps
+    this->timestepFilePaths.clear();
 
-	// Collect all the files in the directory that we found
-	do
-	{
-		this->timestepFilePaths.push_back(directoryName + PATH_SEP + ffd.cFileName);
-	} while (FindNextFile(hFind, &ffd) != 0);
+    // Collect all the files in the directory that we found
+    do
+    {
+        this->timestepFilePaths.push_back(directoryName + PATH_SEP + ffd.cFileName);
+    } while (FindNextFile(hFind, &ffd) != 0);
 
-	// done, check for errors
-	dwError = GetLastError();
-	if (dwError != ERROR_NO_MORE_FILES)
-	{
-		std::cout << "Error from FindNextFile: " << dwError << std::endl;
-	}
-	// release FindFile handle
-	FindClose(hFind);
+    // done, check for errors
+    dwError = GetLastError();
+    if (dwError != ERROR_NO_MORE_FILES)
+    {
+        std::cout << "Error from FindNextFile: " << dwError << std::endl;
+    }
+    // release FindFile handle
+    FindClose(hFind);
 #endif
 
-	// sort the filenames we found
-	std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
-		[](std::string const& a, std::string const & b)
-	{
-		// compare timestep values, not filenames
-		std::string a_trimmed = a.substr(a.find_last_of(PATH_SEP) + 1);
-		a_trimmed = a_trimmed.substr(0, a_trimmed.find_last_of("."));
-		a_trimmed = a_trimmed.substr(a_trimmed.find_last_of(".") + 1);
-		std::string b_trimmed = b.substr(b.find_last_of(PATH_SEP) + 1);
-		b_trimmed = b_trimmed.substr(0, b_trimmed.find_last_of("."));
-		b_trimmed = b_trimmed.substr(b_trimmed.find_last_of(".") + 1);
-		return std::stoi(a_trimmed) < std::stoi(b_trimmed);
-	}
-	);
-	return this->timestepFilePaths.size();
+    // sort the filenames we found
+    std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
+        [](std::string const& a, std::string const & b)
+        {
+            // compare timestep values, not filenames
+            std::string a_trimmed = a.substr(a.find_last_of(PATH_SEP) + 1);
+            a_trimmed = a_trimmed.substr(0, a_trimmed.find_last_of("."));
+            a_trimmed = a_trimmed.substr(a_trimmed.find_last_of(".") + 1);
+            std::string b_trimmed = b.substr(b.find_last_of(PATH_SEP) + 1);
+            b_trimmed = b_trimmed.substr(0, b_trimmed.find_last_of("."));
+            b_trimmed = b_trimmed.substr(b_trimmed.find_last_of(".") + 1);
+            return std::stoi(a_trimmed) < std::stoi(b_trimmed);
+        }
+    );
+    return this->timestepFilePaths.size();
 }
 
 // returns a struct containing all the details about the domain

@@ -44,7 +44,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     }
     if (this->totalAttributes > 0)
     {
-        for (int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < this->totalAttributes; i++)
         {
             delete(this->vertex_attrib_data[i]);
         }
@@ -65,11 +65,11 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         // set scale for point p
         if (this->scaleFactorMin == this->scaleFactorMax)
         {
-            velVectorScale = glm::mix(0.0, 1.0, this->scaleFactorMin);
+            velVectorScale = (float)glm::mix(0.0, 1.0, this->scaleFactorMin);
         }
         else
         {
-            velVectorScale = glm::abs(glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin)));
+            velVectorScale = (float)glm::abs(glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin)));
         }
 
         // get velocity at point p
@@ -124,7 +124,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         // for each vertex in the current line, store the scalar value
         for (int j = 0; j < 2; j++)
         {
-            this->vertex_attrib_data[0][i] = mag;
+            this->vertex_attrib_data[0][i] = (GLfloat)mag;
             i++;
         }
     }
@@ -192,11 +192,11 @@ void LineRenderer::Draw(glm::mat4 MVP)
 
     // send uniforms to shaders
     glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), this->minGradientValue);
+    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
+    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
     glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
     glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), this->bias);
+    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
     glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
 
     // bind VAO

@@ -50,7 +50,7 @@ void Compositor::InitCamera()
     this->camera.cameraPos = glm::vec3(-12, 50, -8);
     this->camera.cameraTarget = glm::vec3(0, 0, 0);
     this->camera.orbitRadius = 40.0f;
-    this->camera.horizontalAngle = 3.0 * 3.14f/2.0f;
+    this->camera.horizontalAngle = 3.0f * 3.14f/2.0f;
     this->camera.verticalAngle = 0.0f;
     this->camera.initialFoV = 45.0f;
     this->camera.Near = 0.1f;
@@ -72,8 +72,8 @@ void Compositor::InitCamera()
 void Compositor::UpdateCamera(double dx, double dy)
 {
     // compute new camera orientation
-    this->camera.horizontalAngle += this->camera.mouseSpeed * dx; /// TODO: Should include a reference to DeltaTime() here for stable movement
-    this->camera.verticalAngle   -= this->camera.mouseSpeed * dy;
+    this->camera.horizontalAngle += this->camera.mouseSpeed * (float)dx; /// TODO: Should include a reference to DeltaTime() here for stable movement
+    this->camera.verticalAngle   -= this->camera.mouseSpeed * (float)dy;
 
     // compute new camera position
     this->camera.cameraPos = this->camera.orbitRadius * glm::vec3(
@@ -109,7 +109,7 @@ void Compositor::PanCamera(double dx, double dy)
 // update camera pose & preojection matrices based on zoom input
 void Compositor::ZoomCamera(double dz)
 {
-    this->camera.orbitRadius += dz;
+    this->camera.orbitRadius += (float)dz;
 
     this->UpdateCamera(0, 0);
 }
@@ -124,7 +124,7 @@ void Compositor::CenterCameraOnExtents(double* extents)
     this->camera.cameraTarget = center;
     std::cout << "New camera orbit point: " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
     // compute widest radius necessary to enclose bounds
-    this->camera.orbitRadius = glm::max( center[0] + extents[1],
+    this->camera.orbitRadius = (float)glm::max( center[0] + extents[1],
                                          glm::max( center[1] + extents[3], center[2] + extents[5])
                                        );
     this->UpdateCamera(0, 0);
@@ -151,7 +151,7 @@ void Compositor::DisplayChanged(int width, int height)
 {
     windowSize[0] = width;
     windowSize[1] = height;
-    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(width, height));
+    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef((float)width, (float)height));
 }
 
 void Compositor::AddRenderer(RenderableComponent* renderer, bool onByDefault)
@@ -379,7 +379,7 @@ void Compositor::RendererAddInterpolationCombobox(CEGUI::Window* root, Renderabl
 }
 
 /// Adds a Spinner to the given root element
-CEGUI::Spinner* Compositor::RendererAddSpinner(float min, float max, float current, float stepSize, std::string tooltip, bool enabled, CEGUI::Window* root, RenderableComponent* newRenderer, CEGUI::Event::Subscriber valueChangedEvent)
+CEGUI::Spinner* Compositor::RendererAddSpinner(double min, double max, double current, double stepSize, std::string tooltip, bool enabled, CEGUI::Window* root, RenderableComponent* newRenderer, CEGUI::Event::Subscriber valueChangedEvent)
 {
     CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
     root->addChild(spinner);
@@ -391,7 +391,7 @@ CEGUI::Spinner* Compositor::RendererAddSpinner(float min, float max, float curre
     spinner->setTooltipText(tooltip);
     spinner->setCurrentValue(current);
     spinner->setDisabled(!enabled);
-    spinner->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+    spinner->setSize(CEGUI::USize(CEGUI::UDim(0.3f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
     spinner->subscribeEvent(CEGUI::Spinner::EventValueChanged, valueChangedEvent);
 
     return spinner;
@@ -430,7 +430,7 @@ CEGUI::Editbox* Compositor::RendererAddEditbox(CEGUI::Window* root, std::string 
     CEGUI::Editbox* editbox = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
     root->addChild(editbox);
     editbox->setText(text);
-    editbox->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+    editbox->setSize(CEGUI::USize(CEGUI::UDim(0.3f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
 
     return editbox;
 }
@@ -659,7 +659,7 @@ void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::
     root->addChild(scale_container);
 
     // scale selection box
-    RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Width value", false, scale_container, newRenderer,
+    RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Width value", true, scale_container, newRenderer,
         [this, newRenderer](const CEGUI::EventArgs &e)->bool
         {
             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
@@ -1136,8 +1136,8 @@ CEGUI::Window* Compositor::AddRendererPopup()
     CEGUI::Listbox* renderer_list = static_cast<CEGUI::Listbox*>(addWnd->getChildRecursive("renderer_list"));
 
     // set selection highlight to a half transparent blue to red gradient.
-    CEGUI::Colour selectColor1(0.0, 0.8, 0.5, 0.4);
-    CEGUI::Colour selectColor2(0.1, 0.0, 0.0, 0.1);
+    CEGUI::Colour selectColor1(0.0f, 0.8f, 0.5f, 0.4f);
+    CEGUI::Colour selectColor2(0.1f, 0.0f, 0.0f, 0.1f);
 
     // Add list of renderers w/ IDs
     for (unsigned int i = 2; i < this->RendererStrs.size(); i++) /// HACK: start from 2 to skip Axes & Gradient Renderers
@@ -1216,8 +1216,8 @@ void Compositor::Render(glm::mat4 MVP)
 
     // tell CEGUI how long its been since the last frame
     double dt = this->DeltaTime();
-    CEGUI::System::getSingleton().injectTimePulse(dt);
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(dt);
+    CEGUI::System::getSingleton().injectTimePulse((float)dt);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse((float)dt);
     this->lastFrameTime = glfwGetTime();
 
     glEnable(GL_DEPTH_TEST);

@@ -120,6 +120,19 @@ class Compositor
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);
 
+        void RendererAddFieldSelectionCombobox(CEGUI::Window*, RenderableComponent*);
+        void RendererAddInterpolationCombobox(CEGUI::Window*, RenderableComponent*);
+        CEGUI::Spinner* RendererAddSpinner(float, float, float, float, std::string, bool, CEGUI::Window*, RenderableComponent*, CEGUI::Event::Subscriber);
+        CEGUI::Window* RendererAddCheckbox(CEGUI::Window*, bool, std::string, std::string, CEGUI::Event::Subscriber);
+        CEGUI::Window* RendererAddLabel(CEGUI::Window*, CEGUI::USize, std::string, std::string);
+        CEGUI::Editbox* RendererAddEditbox(CEGUI::Window*, std::string, std::string);
+        CEGUI::Editbox* RendererAddEditbox(CEGUI::Window*, std::string, std::string, CEGUI::Event::Subscriber);
+        void RendererAddColorPicker(CEGUI::Window*, std::string, CEGUI::Colour, CEGUI::Event::Subscriber);
+
+        void AddStandardRendererPropertySheet(CEGUI::Window*, CEGUI::Window*, CEGUI::ToggleButton*, RenderableComponent*);
+        void AddStreamlineRendererPropertySheet(CEGUI::Window*, CEGUI::Window*, CEGUI::ToggleButton*, StreamLineRenderer*);
+        void AddProbabilitiesRendererPropertySheet(CEGUI::Window*, CEGUI::Window*, CEGUI::ToggleButton*, ProbabilitiesRenderer*);
+
         // must correspond with the Renderers enum above
         std::vector<std::string> RendererStrs = {
             "Axes",

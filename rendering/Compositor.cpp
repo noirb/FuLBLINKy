@@ -216,9 +216,7 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
 
     rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
 
-    std::cout << "\tAdding ToggleButton...";
-
-    // Add UI controls for the new renderer
+    // Add basic UI controls for the new renderer
     CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
     CEGUI::VerticalLayoutContainer* params_root = static_cast<CEGUI::VerticalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("VerticalLayoutContainer"));
     entries_container->addChild(params_root);
@@ -256,14 +254,10 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
                         }
     );
 
-    std::cout << "Done!" << std::endl;
-
-    // if new renderer is not an AxesRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
+    // if new renderer is not an AxesRenderer or GradientRenderer, add color pickers for hot/cold colors, combobox for interpolation, etc.
     if (rendererType != RENDERER_AXES && rendererType != RENDERER_GRADIENT)
     {
-        std::cout << "\tAdding parameters Container...";
-
-        // Parameters list toggle switch
+        // container to hold all the parameter controls
         CEGUI::FrameWindow* paramBox_parent = static_cast<CEGUI::FrameWindow*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow_Auto"));
         CEGUI::Window* paramBox = paramBox_parent->getChild("__auto_clientarea__");
         paramBox_parent->setFrameEnabled(false);
@@ -273,259 +267,8 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
         paramBox_parent->setDragMovingEnabled(false);
         paramBox_parent->setRollupEnabled(true);
         paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,200)));
-        std::cout << "Done!" << std::endl;
-
-        std::cout << "\tAdding color scalar field selection combobox...";
-
-        /* Scalar Field selection combobox for colors */
-        CEGUI::Combobox* colorField_combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
-        paramBox->addChild(colorField_combobox);
-        colorField_combobox->setAutoSizeListHeightToContent(true);
-        colorField_combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 100)));
-        colorField_combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
-                                                    CEGUI::UDim(0, 0),
-                                                    CEGUI::UDim(0, -60), // fix bottom margin to avoid breaking layout
-                                                    CEGUI::UDim(0, 0) ));
-        colorField_combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
-                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
-                            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
-                            newRenderer->SetColorField(selected->getText().c_str());
-                            newRenderer->PrepareGeometry(this->_dataProvider);
-                            return true;
-                        }
-        );
-
-        if (_dataProvider)
-        {
-            for (auto field : _dataProvider->GetFieldNames())
-            {
-                colorField_combobox->addItem(new CEGUI::ListboxTextItem(field, RenderableComponent::ScalarParamType::VECTOR_MAGNITUDE));
-            }
-
-            // if we have at least 1 field, select the first one by default
-            if (colorField_combobox->getItemCount() > 0)
-            {
-                colorField_combobox->setItemSelectState((size_t)0, true);
-                newRenderer->SetColorField(colorField_combobox->getSelectedItem()->getText().c_str());
-            }
-        }
-        std::cout << "Done!" << std::endl;
-
-        std::cout << "\tAdding color interpolation combobox...";
-
-        /*  Interpolation ComboBox */
-        CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
-        paramBox->addChild(combobox);
-        combobox->setAutoSizeListHeightToContent(true);
-        combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 200)));
-        combobox->setMargin(CEGUI::UBox( CEGUI::UDim(0, 0),
-                                         CEGUI::UDim(0, 0),
-                                         CEGUI::UDim(0, -165),  // fix bottom margin of combobox to avoid breaking layout
-                                         CEGUI::UDim(0, 0) ));
-        CEGUI::ListboxTextItem* comboEntry1 = new CEGUI::ListboxTextItem("Linear", Interpolation::LINEAR);
-        CEGUI::ListboxTextItem* comboEntry2 = new CEGUI::ListboxTextItem("Smooth", Interpolation::SMOOTH);
-        CEGUI::ListboxTextItem* comboEntry3 = new CEGUI::ListboxTextItem("Exponential", Interpolation::EXPONENTIAL);
-
-        combobox->addItem(comboEntry1);
-        combobox->addItem(comboEntry2);
-        combobox->addItem(comboEntry3);
-        combobox->setItemSelectState(comboEntry1, true);
-
-        // register for selection changed event
-        combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
-                    [newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
-                            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
-                            newRenderer->SetInterpolator(Interpolation(selected->getID()));
-                            return true;
-                        }
-        );        
-
-        std::cout << "Done!" << std::endl;
-        std::cout << "\tAdding bias spinner...";
-
-        /*  Interpolation Bias setter */
-        CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
-        paramBox->addChild(spinner);
-        spinner->setMinimumValue(-4.0);
-        spinner->setMaximumValue(4.0);
-        spinner->setStepSize(0.1);
-        spinner->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        spinner->setCurrentValue(0.5);
-        spinner->subscribeEvent(CEGUI::Spinner::EventValueChanged,
-                    [newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
-                            newRenderer->SetInterpolationBias(spinner->getCurrentValue());
-                            return true;
-                        }
-        );
-
-        std::cout << "Done!" << std::endl;
-
-
-        std::cout << "\tAdding color pickers...";
-
-        /*  COLOR PICKERS */
-        CEGUI::HorizontalLayoutContainer* picker_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
-        paramBox->addChild(picker_container);
-
-        CEGUI::ColourPicker* colourPicker_max = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
-        picker_container->addChild(colourPicker_max);
-        colourPicker_max->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
-        colourPicker_max->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-        colourPicker_max->setColour(CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f));
-        colourPicker_max->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
-                    [newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
-                            CEGUI::Colour c = picker->getColour();
-                            newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-                            return true;
-                        }
-        );
-
-        // label for the colourpicker
-        CEGUI::Window* colourPickerLabel_max = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
-        colourPicker_max->addChild(colourPickerLabel_max);
-        colourPickerLabel_max->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
-        colourPickerLabel_max->setText("Max");
-        colourPickerLabel_max->setMousePassThroughEnabled(true);
-        colourPickerLabel_max->setAlwaysOnTop(true);
-
-         CEGUI::ColourPicker* colourPicker_min = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
-         picker_container->addChild(colourPicker_min);
-         colourPicker_min->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
-         colourPicker_min->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30))); 
-         colourPicker_min->setColour(CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f));
-         colourPicker_min->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour,
-                    [newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
-                            CEGUI::Colour c = picker->getColour();
-                            newRenderer->SetMinColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-                            return true;
-                        }
-        );
-     
-         // label for the colourpicker
-         CEGUI::Window* colourPickerLabel_min = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
-         colourPicker_min->addChild(colourPickerLabel_min);
-         colourPickerLabel_min->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
-         colourPickerLabel_min->setText("Min");
-         colourPickerLabel_min->setMousePassThroughEnabled(true);
-         colourPickerLabel_min->setAlwaysOnTop(true);
-
-        params_root->addChild(paramBox_parent);
         paramBox_parent->setRolledup(!onByDefault);
-        std::cout << "Done!" << std::endl;
-
-        // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
-        rWnd->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
-                        [rWnd, paramBox_parent] (const CEGUI::EventArgs &e)->bool
-                            {
-                                if (rWnd->isSelected())
-                                {
-                                    paramBox_parent->setRolledup(false);
-                                    paramBox_parent->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
-                                }
-                                else
-                                {
-                                    paramBox_parent->setRolledup(true);
-                                    paramBox_parent->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -150), CEGUI::UDim(0,0)));
-                                }
-                                return true;
-                            }
-        );
-
-        /*  Scale Parameters */
-        CEGUI::Window* lblScale = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
-        paramBox->addChild(lblScale);
-        lblScale->setText("Scale:");
-        lblScale->setProperty("HorzFormatting", "Left");
-        lblScale->setTooltipText("Absolute scale of points");
-
-        CEGUI::HorizontalLayoutContainer* scale_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
-        paramBox->addChild(scale_container);
-
-
-        CEGUI::Spinner* scaleBox_min = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
-        scale_container->addChild(scaleBox_min);
-        scaleBox_min->setMinimumValue(0.0);
-        scaleBox_min->setMaximumValue(10.0);
-        scaleBox_min->setStepSize(0.001);
-        scaleBox_min->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        scaleBox_min->setCurrentValue(1.0);
-        scaleBox_min->setTooltipText("Minimum interpolation value");
-        scaleBox_min->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-        scaleBox_min->setDisabled(true);
-        scaleBox_min->subscribeEvent(CEGUI::Spinner::EventValueChanged,
-                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
-                            newRenderer->SetScale(box->getCurrentValue(), -1);
-                            newRenderer->PrepareGeometry(this->_dataProvider);
-                            return true;
-                        }
-        );
-
-        CEGUI::Spinner* scaleBox_max = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
-        scale_container->addChild(scaleBox_max);
-        scaleBox_max->setMinimumValue(0.0);
-        scaleBox_max->setMaximumValue(10.0);
-        scaleBox_max->setStepSize(0.001);
-        scaleBox_max->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
-        scaleBox_max->setCurrentValue(1.0);
-        scaleBox_max->setTooltipText("Maximum interpolation value");
-        scaleBox_max->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-        scaleBox_max->setDisabled(true);
-        scaleBox_max->subscribeEvent(CEGUI::Spinner::EventValueChanged,
-                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
-                            newRenderer->SetScale(-1, box->getCurrentValue());
-                            newRenderer->PrepareGeometry(this->_dataProvider);
-                            return true;
-                        }
-        );
-
-        CEGUI::ToggleButton* btnAutoScale = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox"));
-        scale_container->addChild(btnAutoScale);
-        btnAutoScale->setText("Auto");
-        btnAutoScale->setTooltipText("Automatically detect min/max values from dataset");
-        btnAutoScale->setSelected(true);
-        btnAutoScale->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, 
-                    [this, newRenderer, scaleBox_min, scaleBox_max] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::ToggleButton* chkBox = static_cast<CEGUI::ToggleButton*>(wargs.window);
-                            if (chkBox->isSelected())
-                            {
-                                scaleBox_min->setDisabled(true);
-                                scaleBox_max->setDisabled(true);
-                                newRenderer->SetAutoScale(true);
-                                newRenderer->PrepareGeometry(this->_dataProvider);
-                            }
-                            else
-                            {
-                                scaleBox_min->setDisabled(false);
-                                scaleBox_max->setDisabled(false);
-                                newRenderer->SetAutoScale(false);
-                                newRenderer->SetScale(scaleBox_min->getCurrentValue(), scaleBox_max->getCurrentValue());
-                            }
-                            return true;
-                        }
-        );
+        params_root->addChild(paramBox_parent);
 
         /* --------------------------------
             Stream Line-Specific Controls
@@ -533,178 +276,8 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
         if (rendererType == RENDERER_STREAMLINES)
         {
             StreamLineRenderer* newStreamRenderer = static_cast<StreamLineRenderer*>(newRenderer);
-            scaleBox_max->hide();   /// HACK: hide max scalebox since StreamLines don't use it
-
-            // due to extra widgets, the paramBox container needs to be taller than default
-            paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,400)));
-
-            //Label for the start point
-            CEGUI::Window* startPoint = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label"));
-            startPoint->setText("Start Point:");
-            startPoint->setProperty("HorzFormatting", "Left");
-            startPoint->setProperty("VertFormatting", "WordWrapLeftAligned");
-            startPoint->setTooltipText("Starting point of the line streamline source");
-            startPoint->setSize(CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)));
-            paramBox->addChild(startPoint);
-
-            //Coordinates of start point
-            CEGUI::HorizontalLayoutContainer* hcon = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
-            paramBox->addChild(hcon);
-            /*  Starting X Coordinate */
-            CEGUI::Editbox* editbox_X_start = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            hcon->addChild(editbox_X_start);
-            editbox_X_start->setText(std::to_string(newStreamRenderer->startPoint[0]));
-            editbox_X_start->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-
-            /* Starting Y Coordinate */
-            CEGUI::Editbox* editbox_Y_start = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            hcon->addChild(editbox_Y_start);
-            editbox_Y_start->setText(std::to_string(newStreamRenderer->startPoint[1]));
-            editbox_Y_start->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-
-            /* Starting Z Coordinate */
-            CEGUI::Editbox* editbox_Z_start = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            hcon->addChild(editbox_Z_start);
-            editbox_Z_start->setText(std::to_string(newStreamRenderer->startPoint[2]));
-            editbox_Z_start->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-
-            std::function<bool(const CEGUI::EventArgs&)> updateStartPoint = [this, newRenderer, editbox_X_start, editbox_Y_start, editbox_Z_start] (const CEGUI::EventArgs &e)->bool
-                            {
-                                double newX, newY, newZ;
-                                std::stringstream sstm;
-                                sstm << editbox_X_start->getText() << " " << editbox_Y_start->getText() << " " << editbox_Z_start->getText();
-                                sstm >> newX;
-                                sstm >> newY;
-                                sstm >> newZ;
-                                (static_cast<StreamLineRenderer*>(newRenderer))->SetStartPoint(newX, newY, newZ);
-                                // in case new changes were rejected, get values again so they can be displayed in the editboxes
-                                double* newPoint = (static_cast<StreamLineRenderer*>(newRenderer))->GetStartPoint();
-                                editbox_X_start->setText(std::to_string(newPoint[0]));
-                                editbox_Y_start->setText(std::to_string(newPoint[1]));
-                                editbox_Z_start->setText(std::to_string(newPoint[2]));
-                                newRenderer->PrepareGeometry(this->_dataProvider);
-                                return true;
-
-                            };
-            editbox_X_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
-            editbox_Y_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
-            editbox_Z_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+            AddStreamlineRendererPropertySheet(paramBox, paramBox_parent, rWnd, newStreamRenderer);
             
-                    /* Label for the end point */
-            CEGUI::Window* endPoint = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label"));
-            endPoint->setText("End Point:");
-            endPoint->setProperty("HorzFormatting", "Left");
-            endPoint->setProperty("VertFormatting", "WordWrapLeftAligned");
-            endPoint->setTooltipText("End point of the line streamline source");
-            endPoint->setSize(CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)));
-            paramBox->addChild(endPoint);
-
-            //Coordinates of end point
-            CEGUI::HorizontalLayoutContainer* CoordEndPoint = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
-            paramBox->addChild(CoordEndPoint);
-
-            /*  Endpoint X Coordinate */
-            CEGUI::Editbox* editbox_X_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            CoordEndPoint->addChild(editbox_X_end);
-            editbox_X_end->setText(std::to_string(newStreamRenderer->endPoint[0]));
-            editbox_X_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-
-            /* Endpoint Y Coordinate */
-            CEGUI::Editbox* editbox_Y_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            CoordEndPoint->addChild(editbox_Y_end );
-            editbox_Y_end->setText(std::to_string(newStreamRenderer->endPoint[1]));
-            editbox_Y_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-
-            /* Endpoint Z Coordinate */
-            CEGUI::Editbox* editbox_Z_end = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            CoordEndPoint->addChild(editbox_Z_end );
-            editbox_Z_end->setText(std::to_string(newStreamRenderer->endPoint[2]));
-            editbox_Z_end->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-
-            std::function<bool(const CEGUI::EventArgs&)> updateEndPoint = [this, newRenderer, editbox_X_end, editbox_Y_end, editbox_Z_end] (const CEGUI::EventArgs &e)->bool
-                            {
-                                double newX, newY, newZ;
-                                std::stringstream sstm;
-                                sstm << editbox_X_end->getText() << " " << editbox_Y_end->getText() << " " << editbox_Z_end->getText();
-                                sstm >> newX;
-                                sstm >> newY;
-                                sstm >> newZ;
-                                (static_cast<StreamLineRenderer*>(newRenderer))->SetEndPoint(newX, newY, newZ);
-                                // in case new changes were rejected, get values again so they can be displayed in the editboxes
-                                double* newPoint = (static_cast<StreamLineRenderer*>(newRenderer))->GetEndPoint();
-                                editbox_X_end->setText(std::to_string(newPoint[0]));
-                                editbox_Y_end->setText(std::to_string(newPoint[1]));
-                                editbox_Z_end->setText(std::to_string(newPoint[2]));
-                                newRenderer->PrepareGeometry(this->_dataProvider);
-                                return true;
-
-                            };
-            editbox_X_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
-            editbox_Y_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
-            editbox_Z_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
-
-
-            // Label for number of points on the streamline line source
-            CEGUI::Window* NumOfPoints = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label"));
-            NumOfPoints->setText("Number of points:");
-            NumOfPoints->setProperty("HorzFormatting", "Left");
-            NumOfPoints->setProperty("VertFormatting", "WordWrapLeftAligned");
-            NumOfPoints->setTooltipText("Number of points on the source line");
-            NumOfPoints->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)));
-            paramBox->addChild(NumOfPoints);
-
-            CEGUI::Editbox* numberOfSourcePoints = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            paramBox->addChild(numberOfSourcePoints);
-            numberOfSourcePoints->setText(std::to_string(newStreamRenderer->lineSourceSize));
-            numberOfSourcePoints->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-            numberOfSourcePoints->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
-                            StreamLineRenderer* r = static_cast<StreamLineRenderer*>(newRenderer);
-                            std::stringstream sstm;
-                            sstm << box->getText();
-                            int value;
-                            sstm >> value;
-                            r->SetLineSize(value);
-                            // in case input was rejected, re-get real value
-                            box->setText(std::to_string(r->GetLineSize()));
-                            newRenderer->PrepareGeometry(this->_dataProvider);
-                            return true;
-                        }
-            );
-
-            // Label for the maximum length of the streamline
-            CEGUI::Window* maxLength = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label"));
-            maxLength->setText("Max length:");
-            maxLength->setProperty("HorzFormatting", "Left");
-            maxLength->setProperty("VertFormatting", "WordWrapLeftAligned");
-            maxLength->setTooltipText("Maximal length of streamlines");
-            maxLength->setSize(CEGUI::USize(CEGUI::UDim(0, 150), CEGUI::UDim(0, 30)));
-            paramBox->addChild(maxLength);
-
-            CEGUI::Editbox* length = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            paramBox->addChild(length);
-            length->setText(std::to_string(newStreamRenderer->maxStreamlineLength));
-            length->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
-            length->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-                    [this, newRenderer] (const CEGUI::EventArgs &e)->bool
-                        {
-                            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
-                            StreamLineRenderer* r = static_cast<StreamLineRenderer*>(newRenderer);
-                            std::stringstream sstm;
-                            sstm << box->getText();
-                            double value;
-                            sstm >> value;
-                            r->SetLineLength(value);
-                            // in case input was rejected, re-get rel value
-                            box->setText(std::to_string(r->GetLineLength()));
-                            newRenderer->PrepareGeometry(this->_dataProvider);
-                            return true;
-                        }
-            );
         } // end stream-line specific controls
 
         /* --------------------------------
@@ -712,101 +285,16 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
            -------------------------------- */
         else if (rendererType == RENDERER_PROBABILITIES)
         {
-            // resize parameters container to make extra room for the new controls
-            paramBox_parent->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0,250)));
-            CEGUI::WindowManager::getSingleton().destroyWindow(colorField_combobox); // HACK: Remove field selection combobox since this renderer doesn't use it
-            CEGUI::WindowManager::getSingleton().destroyWindow(scale_container);
-            CEGUI::WindowManager::getSingleton().destroyWindow(lblScale);
-            /* Start Point for selecting probabilities */
-            CEGUI::Window* lblStart = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
-            paramBox->addChild(lblStart);
-            lblStart->setText("Start Point:");
-            lblStart->setProperty("HorzFormatting", "Left");
-            lblStart->setTooltipText("Lower-left corner of region to render probabilities from");
+            ProbabilitiesRenderer* newProbRenderer = static_cast<ProbabilitiesRenderer*>(newRenderer);
+            AddProbabilitiesRendererPropertySheet(paramBox, paramBox_parent, rWnd, newProbRenderer);
+        }
 
-            CEGUI::Window* startContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
-            paramBox->addChild(startContainer);
-            startContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0, 40)));
-
-            CEGUI::Editbox* startX = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            startContainer->addChild(startX);
-            startX->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            startX->setText("1.0");
-
-            CEGUI::Editbox* startY = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            startContainer->addChild(startY);
-            startY->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            startY->setText("1.0");
-
-            CEGUI::Editbox* startZ = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            startContainer->addChild(startZ);
-            startZ->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            startZ->setText("1.0");
-
-            std::function<bool(const CEGUI::EventArgs&)> updateStartPoint = [this, newRenderer, startX, startY, startZ] (const CEGUI::EventArgs &e)->bool
-                            {
-                                double newX, newY, newZ;
-                                std::stringstream sstm;
-                                sstm << startX->getText() << " " << startY->getText() << " " << startZ->getText();
-                                sstm >> newX;
-                                sstm >> newY;
-                                sstm >> newZ;
-                                (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetStartPoint(newX, newY, newZ);
-                                // in case new changes were rejected, get values again so they can be displayed in the editboxes
-                                std::vector<double> newPoint = (static_cast<ProbabilitiesRenderer*>(newRenderer))->GetStartPoint();
-                                startX->setText(std::to_string(newPoint[0]));
-                                startY->setText(std::to_string(newPoint[1]));
-                                startZ->setText(std::to_string(newPoint[2]));
-                                newRenderer->PrepareGeometry(this->_dataProvider);
-                                return true;
-
-                            };
-            startX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
-            startY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
-            startZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
-
-            /* End Point for selecting probabilities */
-            CEGUI::Window* lblEnd = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label");
-            paramBox->addChild(lblEnd);
-            lblEnd->setText("End Point:");
-            lblEnd->setProperty("HorzFormatting", "Left");
-            lblEnd->setTooltipText("Upper-right corner of region to render probabilities from");
-
-            CEGUI::Window* endContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
-            paramBox->addChild(endContainer);
-            endContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0.0), CEGUI::UDim(0.0, 40)));
-
-            CEGUI::Editbox* endX = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            endContainer->addChild(endX);
-            endX->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            endX->setText("5.0");
-
-            CEGUI::Editbox* endY = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            endContainer->addChild(endY);
-            endY->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            endY->setText("5.0");
-
-            CEGUI::Editbox* endZ = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
-            endContainer->addChild(endZ);
-            endZ->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
-            endZ->setText("5.0");
-
-            std::function<bool(const CEGUI::EventArgs&)> updateEndPoint = [this, newRenderer, endX, endY, endZ] (const CEGUI::EventArgs &e)->bool
-                            {
-                                double newX, newY, newZ;
-                                std::stringstream sstm;
-                                sstm << endX->getText() << " " << endY->getText() << " " << endZ->getText();
-                                sstm >> newX;
-                                sstm >> newY;
-                                sstm >> newZ;
-                                (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetEndPoint(newX, newY, newZ);
-                                newRenderer->PrepareGeometry(this->_dataProvider);
-                                return true;
-
-                            };
-            endX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
-            endY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
-            endZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+        /* --------------------------------
+            All other renderer's controls
+           -------------------------------- */
+        else
+        {
+            AddStandardRendererPropertySheet(paramBox, paramBox_parent, rWnd, newRenderer);
         }
 
     }
@@ -815,6 +303,619 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
     this->AddRenderer(newRenderer, onByDefault);
 
     std::cout << "Done setting things up for the new renderer :D (" << this->RendererStrs[rendererType] << ")" << std::endl;
+}
+
+/// Adds comboboxes for selecting a scalar field to color by and selecting an interpolation mode for the coloring
+void Compositor::RendererAddFieldSelectionCombobox(CEGUI::Window* root, RenderableComponent* newRenderer)
+{
+    /* Scalar Field selection combobox for colors */
+    CEGUI::Combobox* colorField_combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
+    root->addChild(colorField_combobox);
+    colorField_combobox->setAutoSizeListHeightToContent(true);
+    colorField_combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 100)));
+    colorField_combobox->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0),
+        CEGUI::UDim(0, 0),
+        CEGUI::UDim(0, -60), // fix bottom margin to avoid breaking layout
+        CEGUI::UDim(0, 0)));
+    colorField_combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
+            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
+            newRenderer->SetColorField(selected->getText().c_str());
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+
+    if (_dataProvider)
+    {
+        for (auto field : _dataProvider->GetFieldNames())
+        {
+            colorField_combobox->addItem(new CEGUI::ListboxTextItem(field, RenderableComponent::ScalarParamType::VECTOR_MAGNITUDE));
+        }
+
+        // if we have at least 1 field, select the first one by default
+        if (colorField_combobox->getItemCount() > 0)
+        {
+            colorField_combobox->setItemSelectState((size_t)0, true);
+            newRenderer->SetColorField(colorField_combobox->getSelectedItem()->getText().c_str());
+        }
+    }
+}
+
+void Compositor::RendererAddInterpolationCombobox(CEGUI::Window* root, RenderableComponent* newRenderer)
+{
+    /*  Interpolation ComboBox */
+    CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Combobox"));
+    root->addChild(combobox);
+    combobox->setAutoSizeListHeightToContent(true);
+    combobox->setSize(CEGUI::USize(CEGUI::UDim(0, 160), CEGUI::UDim(0, 200)));
+    combobox->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0),
+        CEGUI::UDim(0, 0),
+        CEGUI::UDim(0, -165),  // fix bottom margin of combobox to avoid breaking layout
+        CEGUI::UDim(0, 0)));
+    CEGUI::ListboxTextItem* comboEntry1 = new CEGUI::ListboxTextItem("Linear", Interpolation::LINEAR);
+    CEGUI::ListboxTextItem* comboEntry2 = new CEGUI::ListboxTextItem("Smooth", Interpolation::SMOOTH);
+    CEGUI::ListboxTextItem* comboEntry3 = new CEGUI::ListboxTextItem("Exponential", Interpolation::EXPONENTIAL);
+
+    combobox->addItem(comboEntry1);
+    combobox->addItem(comboEntry2);
+    combobox->addItem(comboEntry3);
+    combobox->setItemSelectState(comboEntry1, true);
+
+    // register for selection changed event
+    combobox->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(wargs.window);
+            CEGUI::ListboxItem* selected = combobox->getSelectedItem();
+            newRenderer->SetInterpolator(Interpolation(selected->getID()));
+            return true;
+        }
+    );
+}
+
+/// Adds a Spinner to the given root element
+CEGUI::Spinner* Compositor::RendererAddSpinner(float min, float max, float current, float stepSize, std::string tooltip, bool enabled, CEGUI::Window* root, RenderableComponent* newRenderer, CEGUI::Event::Subscriber valueChangedEvent)
+{
+    CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Spinner"));
+    root->addChild(spinner);
+
+    spinner->setMinimumValue(min);
+    spinner->setMaximumValue(max);
+    spinner->setStepSize(stepSize);
+    spinner->setTextInputMode(CEGUI::Spinner::TextInputMode::FloatingPoint);
+    spinner->setTooltipText(tooltip);
+    spinner->setCurrentValue(current);
+    spinner->setDisabled(!enabled);
+    spinner->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+    spinner->subscribeEvent(CEGUI::Spinner::EventValueChanged, valueChangedEvent);
+
+    return spinner;
+}
+
+/// Adds a Checkbox (ToggleButton) to the given root element
+CEGUI::Window* Compositor::RendererAddCheckbox(CEGUI::Window* root, bool selected, std::string label, std::string tooltip, CEGUI::Event::Subscriber valueChangedEvent)
+{
+    CEGUI::ToggleButton* checkbox = static_cast<CEGUI::ToggleButton*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Checkbox"));
+    root->addChild(checkbox);
+    checkbox->setText(label);
+    checkbox->setTooltipText(tooltip); // "Automatically detect min/max values from dataset");
+    checkbox->setSelected(selected);
+    checkbox->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, valueChangedEvent);
+
+    return checkbox;
+}
+
+/// Adds a Label to the given root element
+CEGUI::Window* Compositor::RendererAddLabel(CEGUI::Window* root, CEGUI::USize size, std::string text, std::string tooltip)
+{
+    CEGUI::Window* label = static_cast<CEGUI::Window*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Label"));
+    label->setText(text);
+    label->setProperty("HorzFormatting", "Left");
+    label->setProperty("VertFormatting", "WordWrapLeftAligned");
+    label->setTooltipText(tooltip);
+    label->setSize(size);
+    root->addChild(label);
+
+    return label;
+}
+
+/// Adds an Editbox to the given root element
+CEGUI::Editbox* Compositor::RendererAddEditbox(CEGUI::Window* root, std::string text, std::string tooltip)
+{
+    CEGUI::Editbox* editbox = static_cast<CEGUI::Editbox*>(CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/Editbox"));
+    root->addChild(editbox);
+    editbox->setText(text);
+    editbox->setSize(CEGUI::USize(CEGUI::UDim(0.3, 0), CEGUI::UDim(0, 30)));
+
+    return editbox;
+}
+
+/// Adds an Editbox to the given root element, and subscribes to the TextAccepted event
+CEGUI::Editbox* Compositor::RendererAddEditbox(CEGUI::Window* root, std::string text, std::string tooltip, CEGUI::Event::Subscriber valueChangedEvent)
+{
+    CEGUI::Editbox* editbox = RendererAddEditbox(root, text, tooltip);
+
+    editbox->subscribeEvent(CEGUI::Editbox::EventTextAccepted, valueChangedEvent);
+
+    return editbox;
+}
+
+/// Adds a ColourPicker to the given root element, subscribes to the AcceptedColour event, and adds a text label to the picker if the label string is set
+void Compositor::RendererAddColorPicker(CEGUI::Window* root, std::string label, CEGUI::Colour defaultColor, CEGUI::Event::Subscriber valueChangedEvent)
+{
+    CEGUI::ColourPicker* colourPicker = static_cast<CEGUI::ColourPicker*>(CEGUI::WindowManager::getSingleton().createWindow("Vanilla/ColourPicker"));
+    root->addChild(colourPicker);
+    colourPicker->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 40)));
+    colourPicker->setSize(CEGUI::USize(CEGUI::UDim(0, 50), CEGUI::UDim(0, 30)));
+    colourPicker->setColour(defaultColor);
+    colourPicker->subscribeEvent(CEGUI::ColourPicker::EventAcceptedColour, valueChangedEvent);
+
+    // label for the colourpicker
+    if (label.length() > 0)
+    {
+        CEGUI::Window* colourPickerLabel = CEGUI::WindowManager::getSingleton().createWindow("Vanilla/Label");
+        colourPicker->addChild(colourPickerLabel);
+        colourPickerLabel->setSize(CEGUI::USize(CEGUI::UDim(1.0f, 0.0f), CEGUI::UDim(0.0f, 30.0f)));
+        colourPickerLabel->setText(label);
+        colourPickerLabel->setMousePassThroughEnabled(true);
+        colourPickerLabel->setAlwaysOnTop(true);
+    }
+}
+
+/// Creates all the standard parameter controls used for the glyph-based renderers (points, lines, arrows)
+void Compositor::AddStandardRendererPropertySheet(CEGUI::Window* root, CEGUI::Window* container, CEGUI::ToggleButton* visibleToggle, RenderableComponent* newRenderer)
+{
+    // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
+    visibleToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged,
+        [visibleToggle, container](const CEGUI::EventArgs &e)->bool
+        {
+            if (visibleToggle->isSelected())
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(false);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+            }
+            else
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(true);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -200), CEGUI::UDim(0, 0)));
+            }
+            return true;
+        }
+    );
+
+    // scalar field selection
+    RendererAddFieldSelectionCombobox(root, newRenderer);
+    RendererAddInterpolationCombobox(root, newRenderer);
+
+    /*  Interpolation Bias setter */
+    RendererAddSpinner(-4.0, 4.0, 0.5, 0.1, "", true, root, newRenderer,
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetInterpolationBias(spinner->getCurrentValue());
+            return true;
+        }
+    );
+
+    /*  COLOR PICKERS */
+    CEGUI::HorizontalLayoutContainer* picker_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(picker_container);
+
+    // maximum color
+    RendererAddColorPicker(picker_container, "Max", CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    // minimum color
+    RendererAddColorPicker(picker_container, "Min", CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMinColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    /*  Scale Parameters */
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Scale:", "Absolute scale of points");
+
+    // layout container to hold min/max scale controls
+    CEGUI::HorizontalLayoutContainer* scale_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(scale_container);
+
+    // minimum scale selection box
+    CEGUI::Spinner* scaleBox_min = RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Minimum interpolation value", false, scale_container, newRenderer,
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetScale(box->getCurrentValue(), -1);
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+
+    // maximum scale selection box
+    CEGUI::Spinner* scaleBox_max = RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Maximum interpolation value", false, scale_container, newRenderer,
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetScale(-1, box->getCurrentValue());
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+
+    // toggle for auto-scaling
+    RendererAddCheckbox(scale_container, true, "Auto", "Automatically detect min/max values from dataset",
+        [this, newRenderer, scaleBox_min, scaleBox_max](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ToggleButton* chkBox = static_cast<CEGUI::ToggleButton*>(wargs.window);
+            if (chkBox->isSelected())
+            {
+                scaleBox_min->setDisabled(true);
+                scaleBox_max->setDisabled(true);
+                newRenderer->SetAutoScale(true);
+                newRenderer->PrepareGeometry(this->_dataProvider);
+            }
+            else
+            {
+                scaleBox_min->setDisabled(false);
+                scaleBox_max->setDisabled(false);
+                newRenderer->SetAutoScale(false);
+                newRenderer->SetScale(scaleBox_min->getCurrentValue(), scaleBox_max->getCurrentValue());
+            }
+            return true;
+        }
+    );
+}
+
+/// Creates the parameter controls used by the StreamLineRenderer
+void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::Window* container, CEGUI::ToggleButton* visibleToggle, StreamLineRenderer* newRenderer)
+{
+    // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
+    visibleToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged,
+        [visibleToggle, container](const CEGUI::EventArgs &e)->bool
+    {
+        if (visibleToggle->isSelected())
+        {
+            static_cast<CEGUI::FrameWindow*>(container)->setRolledup(false);
+            container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+        }
+        else
+        {
+            static_cast<CEGUI::FrameWindow*>(container)->setRolledup(true);
+            container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -450), CEGUI::UDim(0, 0)));
+        }
+        return true;
+    }
+    );
+
+    // scalar field selection
+    RendererAddFieldSelectionCombobox(root, newRenderer);
+    RendererAddInterpolationCombobox(root, newRenderer);
+
+    /*  Interpolation Bias setter */
+    RendererAddSpinner(-4.0, 4.0, 0.5, 0.1, "", true, root, newRenderer,
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+    {
+        const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+        CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
+        newRenderer->SetInterpolationBias(spinner->getCurrentValue());
+        return true;
+    }
+    );
+
+    /*  COLOR PICKERS */
+    CEGUI::HorizontalLayoutContainer* picker_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(picker_container);
+
+    // maximum color
+    RendererAddColorPicker(picker_container, "Max", CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+    {
+        const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+        CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+        CEGUI::Colour c = picker->getColour();
+        newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        return true;
+    }
+    );
+
+    // minimum color
+    RendererAddColorPicker(picker_container, "Min", CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMinColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    /*  Scale Parameters */
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Scale:", "Line Thickness");
+
+    // layout container to hold min/max scale controls
+    CEGUI::HorizontalLayoutContainer* scale_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(scale_container);
+
+    // scale selection box
+    RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Width value", false, scale_container, newRenderer,
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetScale(box->getCurrentValue(), -1);
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+
+
+    /* -------------------------------
+        Stream-line-specific controls
+       ------------------------------- */
+
+    // due to extra widgets, the paramBox container needs to be taller than default
+    container->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 450)));
+
+    //Label for the start point
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)), "Start Point:", "Starting point of the line streamline source");
+
+    //Coordinates of start point
+    CEGUI::HorizontalLayoutContainer* startpointContainer = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(startpointContainer);
+
+    CEGUI::Editbox* editbox_X_start = RendererAddEditbox(startpointContainer, std::to_string(newRenderer->startPoint[0]), "Start X Coord");
+    CEGUI::Editbox* editbox_Y_start = RendererAddEditbox(startpointContainer, std::to_string(newRenderer->startPoint[1]), "Start Y Coord");
+    CEGUI::Editbox* editbox_Z_start = RendererAddEditbox(startpointContainer, std::to_string(newRenderer->startPoint[2]), "Start Z Coord");
+
+    std::function<bool(const CEGUI::EventArgs&)> updateStartPoint = [this, newRenderer, editbox_X_start, editbox_Y_start, editbox_Z_start](const CEGUI::EventArgs &e)->bool
+    {
+        double newX, newY, newZ;
+        std::stringstream sstm;
+        sstm << editbox_X_start->getText() << " " << editbox_Y_start->getText() << " " << editbox_Z_start->getText();
+        sstm >> newX;
+        sstm >> newY;
+        sstm >> newZ;
+        (static_cast<StreamLineRenderer*>(newRenderer))->SetStartPoint(newX, newY, newZ);
+        // in case new changes were rejected, get values again so they can be displayed in the editboxes
+        double* newPoint = (static_cast<StreamLineRenderer*>(newRenderer))->GetStartPoint();
+        editbox_X_start->setText(std::to_string(newPoint[0]));
+        editbox_Y_start->setText(std::to_string(newPoint[1]));
+        editbox_Z_start->setText(std::to_string(newPoint[2]));
+        newRenderer->PrepareGeometry(this->_dataProvider);
+        return true;
+
+    };
+    editbox_X_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+    editbox_Y_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+    editbox_Z_start->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+
+    //Label for the start point
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(0, 100), CEGUI::UDim(0, 30)), "End Point:", "End point of the line streamline source");
+
+    //Coordinates of end point
+    CEGUI::HorizontalLayoutContainer* endpointContainer = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(endpointContainer);
+
+    CEGUI::Editbox* editbox_X_end = RendererAddEditbox(endpointContainer, std::to_string(newRenderer->endPoint[0]), "End X Coord");
+    CEGUI::Editbox* editbox_Y_end = RendererAddEditbox(endpointContainer, std::to_string(newRenderer->endPoint[1]), "End Y Coord");
+    CEGUI::Editbox* editbox_Z_end = RendererAddEditbox(endpointContainer, std::to_string(newRenderer->endPoint[2]), "End Z Coord");
+
+    std::function<bool(const CEGUI::EventArgs&)> updateEndPoint = [this, newRenderer, editbox_X_end, editbox_Y_end, editbox_Z_end](const CEGUI::EventArgs &e)->bool
+    {
+        double newX, newY, newZ;
+        std::stringstream sstm;
+        sstm << editbox_X_end->getText() << " " << editbox_Y_end->getText() << " " << editbox_Z_end->getText();
+        sstm >> newX;
+        sstm >> newY;
+        sstm >> newZ;
+        (static_cast<StreamLineRenderer*>(newRenderer))->SetEndPoint(newX, newY, newZ);
+        // in case new changes were rejected, get values again so they can be displayed in the editboxes
+        double* newPoint = (static_cast<StreamLineRenderer*>(newRenderer))->GetEndPoint();
+        editbox_X_end->setText(std::to_string(newPoint[0]));
+        editbox_Y_end->setText(std::to_string(newPoint[1]));
+        editbox_Z_end->setText(std::to_string(newPoint[2]));
+        newRenderer->PrepareGeometry(this->_dataProvider);
+        return true;
+
+    };
+    editbox_X_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+    editbox_Y_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+    editbox_Z_end->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+
+
+    // Label for number of points on the streamline line source
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Number of points:", "Number of points on the source line");
+    // Editbox for number of points on streamline line source
+    RendererAddEditbox(root, std::to_string(newRenderer->lineSourceSize), "Number of streamline sourcees",
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+            StreamLineRenderer* r = static_cast<StreamLineRenderer*>(newRenderer);
+            std::stringstream sstm;
+            sstm << box->getText();
+            int value;
+            sstm >> value;
+            r->SetLineSize(value);
+            // in case input was rejected, re-get real value
+            box->setText(std::to_string(r->GetLineSize()));
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+
+    // Label for the maximum length of the streamline
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Max Length:", "Maximal length of streamlines");
+    // Editbox for streamline length
+    RendererAddEditbox(root, std::to_string(newRenderer->maxStreamlineLength), "Maximum streamline length",
+        [this, newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Editbox* box = static_cast<CEGUI::Editbox*>(wargs.window);
+            StreamLineRenderer* r = static_cast<StreamLineRenderer*>(newRenderer);
+            std::stringstream sstm;
+            sstm << box->getText();
+            double value;
+            sstm >> value;
+            r->SetLineLength(value);
+            // in case input was rejected, re-get rel value
+            box->setText(std::to_string(r->GetLineLength()));
+            newRenderer->PrepareGeometry(this->_dataProvider);
+            return true;
+        }
+    );
+}
+
+/// Creates the parameter controls used by the ProbabilitiesRenderer
+void Compositor::AddProbabilitiesRendererPropertySheet(CEGUI::Window* root, CEGUI::Window* container, CEGUI::ToggleButton* visibleToggle, ProbabilitiesRenderer* newRenderer)
+{
+    // resize parameters container to make extra room for the new controls
+    container->setSize(CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 225)));
+
+    // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
+    visibleToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged,
+        [visibleToggle, container](const CEGUI::EventArgs &e)->bool
+        {
+            if (visibleToggle->isSelected())
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(false);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+            }
+            else
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(true);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -225), CEGUI::UDim(0, 0)));
+            }
+            return true;
+        }
+    );
+
+    RendererAddInterpolationCombobox(root, newRenderer);
+    /*  Interpolation Bias setter */
+    RendererAddSpinner(-4.0, 4.0, 0.5, 0.1, "", true, root, newRenderer,
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetInterpolationBias(spinner->getCurrentValue());
+            return true;
+        }
+    );
+
+    /*  COLOR PICKERS */
+    CEGUI::HorizontalLayoutContainer* picker_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
+    root->addChild(picker_container);
+
+    // maximum color
+    RendererAddColorPicker(picker_container, "Max", CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    // minimum color
+    RendererAddColorPicker(picker_container, "Min", CEGUI::Colour(0.0f, 0.0f, 0.8f, 1.0f),
+        [newRenderer](const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMinColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    /* ---------------------------------
+        Probabilities-specific controls
+       --------------------------------- */
+
+    /* Start Point for selecting probabilities */
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Start point:", "Lower-left corner of region to render probabilities from");
+
+    CEGUI::Window* startContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
+    root->addChild(startContainer);
+    startContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0, 40)));
+
+    CEGUI::Editbox* startX = RendererAddEditbox(startContainer, "1.0", "Start X Coord");
+    CEGUI::Editbox* startY = RendererAddEditbox(startContainer, "1.0", "Start Y Coord");
+    CEGUI::Editbox* startZ = RendererAddEditbox(startContainer, "1.0", "Start Z Coord");
+
+    std::function<bool(const CEGUI::EventArgs&)> updateStartPoint = [this, newRenderer, startX, startY, startZ](const CEGUI::EventArgs &e)->bool
+    {
+        double newX, newY, newZ;
+        std::stringstream sstm;
+        sstm << startX->getText() << " " << startY->getText() << " " << startZ->getText();
+        sstm >> newX;
+        sstm >> newY;
+        sstm >> newZ;
+        (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetStartPoint(newX, newY, newZ);
+        // in case new changes were rejected, get values again so they can be displayed in the editboxes
+        std::vector<double> newPoint = (static_cast<ProbabilitiesRenderer*>(newRenderer))->GetStartPoint();
+        startX->setText(std::to_string(newPoint[0]));
+        startY->setText(std::to_string(newPoint[1]));
+        startZ->setText(std::to_string(newPoint[2]));
+        newRenderer->PrepareGeometry(this->_dataProvider);
+        return true;
+
+    };
+    startX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+    startY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+    startZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateStartPoint);
+
+    /* End Point for selecting probabilities */
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "End point:", "Upper-right corner of region to render probabilities from");
+
+    CEGUI::Window* endContainer = CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer");
+    root->addChild(endContainer);
+    endContainer->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0.0), CEGUI::UDim(0.0, 40)));
+
+    CEGUI::Editbox* endX = RendererAddEditbox(endContainer, "5.0", "End X Coord");
+    CEGUI::Editbox* endY = RendererAddEditbox(endContainer, "5.0", "End Y Coord");
+    CEGUI::Editbox* endZ = RendererAddEditbox(endContainer, "5.0", "End Z Coord");
+
+    std::function<bool(const CEGUI::EventArgs&)> updateEndPoint = [this, newRenderer, endX, endY, endZ](const CEGUI::EventArgs &e)->bool
+    {
+        double newX, newY, newZ;
+        std::stringstream sstm;
+        sstm << endX->getText() << " " << endY->getText() << " " << endZ->getText();
+        sstm >> newX;
+        sstm >> newY;
+        sstm >> newZ;
+        (static_cast<ProbabilitiesRenderer*>(newRenderer))->SetEndPoint(newX, newY, newZ);
+        newRenderer->PrepareGeometry(this->_dataProvider);
+        return true;
+
+    };
+    endX->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+    endY->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
+    endZ->subscribeEvent(CEGUI::Editbox::EventTextAccepted, updateEndPoint);
 }
 
 void Compositor::InitGUI(CEGUI::Window* guiRoot)

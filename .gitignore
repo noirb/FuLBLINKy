@@ -1,5 +1,6 @@
-# Build directory
+# Build directories
 build/
+vs_15/binaries.*
 
 # Object files
 *.o

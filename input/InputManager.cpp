@@ -11,7 +11,7 @@ InputManager::InputManager( GLFWwindow* window )
 {
     this->init();
 
-    this->mainWindow = window;
+    _mainWindow = window;
 
     this->addKeyCallback( window );
     this->addCharCallback( window );
@@ -27,31 +27,31 @@ InputManager::InputManager( GLFWwindow* window )
 
 void InputManager::init()
 {
-    this->mouseX = 0;
-    this->mouseY = 0;
-    this->_leftMouseDown = false;
-    this->_rightMouseDown = false;
+    _mouseX = 0;
+    _mouseY = 0;
+    _leftMouseDown = false;
+    _rightMouseDown = false;
 }
 
 void InputManager::GetMousePosition(double* pos_x, double* pos_y)
 {
-    *pos_x = this->mouseX;
-    *pos_y = this->mouseY;
+    *pos_x = _mouseX;
+    *pos_y = _mouseY;
 }
 
 bool InputManager::MousePressed()
 {
-    return this->_leftMouseDown || this->_rightMouseDown;
+    return _leftMouseDown || _rightMouseDown;
 }
 
 bool InputManager::LeftMousePressed()
 {
-    return this->_leftMouseDown;
+    return _leftMouseDown;
 }
 
 bool InputManager::RightMousePressed()
 {
-    return this->_rightMouseDown;
+    return _rightMouseDown;
 }
 
 // updates _projectionMatrix & _viewMatrix according to current input state
@@ -168,11 +168,11 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
     // update camera based on mouse movement if a mouse button is currently held
     if (manager->LeftMousePressed())
     {
-        Compositor::Instance().UpdateCamera(xpos - manager->mouseX, ypos - manager->mouseY);
+        Compositor::Instance().UpdateCamera(xpos - manager->_mouseX, ypos - manager->_mouseY);
     }
     else if (manager->RightMousePressed())
     {
-        Compositor::Instance().PanCamera(xpos - manager->mouseX, ypos - manager->mouseY);
+        Compositor::Instance().PanCamera(xpos - manager->_mouseX, ypos - manager->_mouseY);
     }
     else
     {
@@ -180,8 +180,8 @@ void InputManager::mouseMove_callback( GLFWwindow* window, double xpos, double y
     }
 
     // store new positions
-    manager->mouseX = xpos;
-    manager->mouseY = ypos;
+    manager->_mouseX = xpos;
+    manager->_mouseY = ypos;
 }
 
 void InputManager::mouseButton_callback( GLFWwindow* window, int button, int action, int mods )
@@ -242,6 +242,6 @@ void InputManager::ResetCEGUIMousePos()
 {
     // reset CEGUI's mouse position in case we're out of sync, now
     CEGUI::Vector2<float> cegMousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove((float)this->mouseX - cegMousePos.d_x, (float)this->mouseY - cegMousePos.d_y);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove((float)_mouseX - cegMousePos.d_x, (float)_mouseY - cegMousePos.d_y);
 }
 

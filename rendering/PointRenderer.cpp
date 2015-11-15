@@ -14,22 +14,22 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         std::cout << "ERROR<PointRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    if ( provider->GetField(_colorParamField, &color_scalarField) != 0)
     {
-        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Scalar Field '" << this->colorParamField << "' could not be retrieved!" << std::endl;
+        std::cout << "ERROR<PointRenderer::PrepareGeometry>: Scalar Field '" << _colorParamField << "' could not be retrieved!" << std::endl;
         return;
     }
 
     // if we previously allocated space for our vertices, clear it before continuing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
-        delete(this->vertex_buffer_data);
+        delete(_vertex_buffer_data);
     }
-    if (this->totalAttributes > 0)
+    if (_totalAttributes > 0)
     {
-        for (unsigned int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < _totalAttributes; i++)
         {
-            delete(this->vertex_attrib_data[i]);
+            delete(_vertex_attrib_data[i]);
         }
     }
 
@@ -38,8 +38,8 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
 
     // determine needed number of vertices & allocate space for them
     // PointRenderer only needs ONE vertex per data point
-    this->totalVertices = (*points).size();
-    this->vertex_buffer_data = new GLfloat[3 * this->totalVertices]; // 3 floats per vertex
+    _totalVertices = (*points).size();
+    _vertex_buffer_data = new GLfloat[3 * _totalVertices]; // 3 floats per vertex
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
@@ -48,20 +48,20 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
         // get coords for current point
         for (auto component : point)
         {
-            this->vertex_buffer_data[i] = (GLfloat)component; // copy each x,y,z component from each point
+            _vertex_buffer_data[i] = (GLfloat)component; // copy each x,y,z component from each point
             i++;
         }
     }
 
     /** Copy scalar data **/
 
-    this->totalAttributes = 1; // TODO: don't hard-code this...
-    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 scalar per vertex
+    _totalAttributes = 1; // TODO: don't hard-code this...
+    _vertex_attrib_data = new GLfloat*[_totalAttributes];
+    _vertex_attrib_data[0] = new GLfloat[_totalVertices]; // 1 scalar per vertex
     i = 0;
     for (auto scalar_vector : *color_scalarField)
     {
-         switch(this->scalarParamType)
+         switch(_scalarParamType)
          {
              case VECTOR_MAGNITUDE:
              {
@@ -72,28 +72,28 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
                      val[c] = (float)component;
                      c++;
                  }
-                 this->vertex_attrib_data[0][i] = glm::length(val);
+                 _vertex_attrib_data[0][i] = glm::length(val);
                  break;
              }
              case VECTOR_X:
              {
-                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
+                 _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
                  break;
              }
              case VECTOR_Y:
              {
-                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
+                 _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
                  break;
              }
              case VECTOR_Z:
              {
-                 this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
+                 _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
                  break;
              }
              default:
              {
-                 std::cout << "ERROR: <PointRenderer::PrepareGeometry>: Unknown ScalarParamType '" << this->scalarParamType << "'!" << std::endl;
-                 this->vertex_attrib_data[0][i] = 0;
+                 std::cout << "ERROR: <PointRenderer::PrepareGeometry>: Unknown ScalarParamType '" << _scalarParamType << "'!" << std::endl;
+                 _vertex_attrib_data[0][i] = 0;
                  break;
              }
          }
@@ -109,7 +109,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * 3, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -125,7 +125,7 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &scalar_buf);
     glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices, _vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
@@ -142,49 +142,49 @@ void PointRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 
     // save min/max values for rendering colored gradients/scaling/etc
-    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
-    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    _maxGradientValue = provider->GetMaxValueFromField(_colorParamField);
+    _minGradientValue = provider->GetMinValueFromField(_colorParamField);
 
     // save min/max values for scaling
-    if (this->autoScale)
+    if (_autoScale)
     {
-        this->scaleFactorMin = this->minGradientValue;
-        this->scaleFactorMax = this->maxGradientValue;
+        _scaleFactorMin = _minGradientValue;
+        _scaleFactorMax = _maxGradientValue;
     }
 }
 
 void PointRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    shaderProgram->enable();
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
-    glUniform1f(shaderProgram->getUniform("max_sizeScalar"), (GLfloat)this->scaleFactorMax);
-    glUniform1f(shaderProgram->getUniform("min_sizeScalar"), (GLfloat)this->scaleFactorMin);
-    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
-    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
-    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
-    glBindVertexArray(this->VAO);
+    _shaderProgram->enable();
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(_shaderProgram->getUniform("max_scalar"), (GLfloat)_maxGradientValue);
+    glUniform1f(_shaderProgram->getUniform("min_scalar"), (GLfloat)_minGradientValue);
+    glUniform1f(_shaderProgram->getUniform("max_sizeScalar"), (GLfloat)_scaleFactorMax);
+    glUniform1f(_shaderProgram->getUniform("min_sizeScalar"), (GLfloat)_scaleFactorMin);
+    glUniform4fv(_shaderProgram->getUniform("hotColor"), 1, _maxColor);
+    glUniform4fv(_shaderProgram->getUniform("coldColor"), 1, _minColor);
+    glUniform1f(_shaderProgram->getUniform("bias"), (GLfloat)_bias);
+    glUniform1i(_shaderProgram->getUniform("interpolator"), _interpolator);
+    glBindVertexArray(_VAO);
 
     // DRAW!
-    glDrawArrays(GL_POINTS, 0, this->totalVertices);
+    glDrawArrays(GL_POINTS, 0, _totalVertices);
 
     // unset shaders
-    shaderProgram->disable();
+    _shaderProgram->disable();
 
     // unbind VAO
     glBindVertexArray(0);

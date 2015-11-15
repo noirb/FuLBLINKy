@@ -49,7 +49,7 @@ class vtkLegacyReader : public DataProvider
         int GetTimeStep();
 
         // gets the highest known timestep
-        virtual int GetMaxTimeStep();
+        virtual unsigned int GetMaxTimeStep();
 
         // retrieves data for the given field and returns a pointer in fieldData. Returns 0 on success, -1 on failure.
         virtual int GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData);
@@ -69,18 +69,15 @@ class vtkLegacyReader : public DataProvider
         virtual int GetFieldDimension(std::string);
 
     private:
-        std::string filename;
-        std::vector<std::string> timestepFilePaths;
+        std::string _filename;
+        std::vector<std::string> _timestepFilePaths;
 
-        std::map<std::string, std::vector<std::vector<double> > > domainFields;
-        std::map<std::string, double> minFieldValues;
-        std::map<std::string, double> maxFieldValues;
-        std::map<std::string, int> fieldDimensions;
-        std::vector<std::string> fieldNames;
+        std::map<std::string, std::vector<std::vector<double> > > _domainFields;
+        std::map<std::string, double> _minFieldValues;
+        std::map<std::string, double> _maxFieldValues;
+        std::map<std::string, int> _fieldDimensions;
+        std::vector<std::string> _fieldNames;
 
-        unsigned int timestep;
-        unsigned int maxTimesteps;
-        
         // for a file '/dir/problem.timestep.vtk', this returns 'problem'
         std::string GetBaseFilename();
         std::string GetFileDir();

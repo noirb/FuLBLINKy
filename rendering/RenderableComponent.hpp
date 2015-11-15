@@ -44,28 +44,26 @@ class RenderableComponent
         };
 
     protected:
-        GLfloat*  vertex_buffer_data;  // vertex data specific to this renderer
-        GLfloat** vertex_attrib_data;  // collection of vertex attributes (e.g. color, density, etc)
-        ShaderProgram* shaderProgram;  // shaders to use when we render
-        GLuint VBO;                   // Vertex Buffer Object
-        GLuint VAO;                   // Vertex Array Object
-        unsigned int totalVertices = 0;        // Total # of vertices this object will draw each frame
-        unsigned int totalAttributes = 0;
-        bool enabled;
+        GLfloat*  _vertex_buffer_data;  // vertex data specific to this renderer
+        GLfloat** _vertex_attrib_data;  // collection of vertex attributes (e.g. color, density, etc)
+        ShaderProgram* _shaderProgram;  // shaders to use when we render
+        GLuint _VBO;                   // Vertex Buffer Object
+        GLuint _VAO;                   // Vertex Array Object
+        unsigned int _totalVertices = 0;        // Total # of vertices this object will draw each frame
+        unsigned int _totalAttributes = 0;
+        bool _enabled;
 
-        std::string colorParamField;  // used to select the scalar field coloring & scaling is defined by
-        std::string scaleParamField;
+        std::string _colorParamField;  // used to select the scalar field coloring & scaling is defined by
+        std::string _scaleParamField;
 
-        GLuint maxColorID;
-        GLuint minColorID;
-        float  maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
-        float  minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
-        bool   autoScale = true;
-        double scaleFactorMin = 0.1;
-        double scaleFactorMax = 0.2;
-        Interpolation interpolator = Interpolation::LINEAR;
-        ScalarParamType scalarParamType = VECTOR_MAGNITUDE;
-        double bias = 2.5;
+        float  _maxColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};   /// FIXME: This is getting out of hand...
+        float  _minColor[4] = {0.0f, 0.0f, 1.0f, 1.0f};   ///        We need a more generic method of storing this stuff
+        bool   _autoScale = true;
+        double _scaleFactorMin = 0.1;
+        double _scaleFactorMax = 0.2;
+        Interpolation _interpolator = Interpolation::LINEAR;
+        ScalarParamType _scalarParamType = VECTOR_MAGNITUDE;
+        double _bias = 2.5;
 };
 
 #endif

@@ -42,7 +42,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     // Number of points in the glyph
     static const int ArrowGlyphSize = 60;
 
-    if ( provider->GetField("points", &points) != 0)
+    if ( provider->GetField("points", &_points) != 0)
     {
         std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
@@ -59,26 +59,26 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
         std::string probName = sstm.str();
         std::vector<std::vector<double> >* probDump = new std::vector<std::vector<double> >();
         // Push the ith probability field
-        probabilities.push_back(probDump);
+        _probabilities.push_back(probDump);
 
-        if ( provider->GetField(probName, &probabilities[i]) != 0)
+        if ( provider->GetField(probName, &_probabilities[i]) != 0)
         {
             std::cout << "ERROR<ProbabilitiesRenderer::PrepareGeometry>: " << probName << " Field could not be retrieved!" << std::endl;
             return;
         }
     }
 
-    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*points).size() << " points" << std::endl;
+    std::cout << "ProbabilitiesRenderer::PrepareGeometry -- processing " << (*_points).size() << " points" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
-        delete(this->vertex_buffer_data);
+        delete(_vertex_buffer_data);
     }
-    if (this->totalAttributes > 0)
+    if (_totalAttributes > 0)
     {
-        for (unsigned int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < _totalAttributes; i++)
         {
-            delete(this->vertex_attrib_data[i]);
+            delete(_vertex_attrib_data[i]);
         }
     }
 
@@ -96,8 +96,8 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     double maxX = glm::min(xlength, endPoint[0]);
     double maxY = glm::min(ylength, endPoint[1]);
     double maxZ = glm::min(zlength, endPoint[2]);
-    this->totalVertices = (unsigned int)((maxZ - minZ + 1) * (maxY - minY + 1) * (maxX - minX + 1));
-    this->vertex_buffer_data = new GLfloat[18 * ArrowGlyphSize * 3 * this->totalVertices]; // 3 floats per vertex
+    _totalVertices = (unsigned int)((maxZ - minZ + 1) * (maxY - minY + 1) * (maxX - minX + 1));
+    _vertex_buffer_data = new GLfloat[18 * ArrowGlyphSize * 3 * _totalVertices]; // 3 floats per vertex
 
 
     int globalCounter = 0;
@@ -113,9 +113,9 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
                     if (l != 9)
                     {
                         glm::mat4 M = glm::mat4(1.0f);
-                        M = glm::translate(M,  glm::vec3((points->at(COMPUTEINDEXOF(i, j, k)))[0],    // translation matrix to current location in dataset
-                                         (points->at(COMPUTEINDEXOF(i, j, k)))[1],
-                                         (points->at(COMPUTEINDEXOF(i, j, k)))[2]));
+                        M = glm::translate(M,  glm::vec3((_points->at(COMPUTEINDEXOF(i, j, k)))[0],    // translation matrix to current location in dataset
+                                                         (_points->at(COMPUTEINDEXOF(i, j, k)))[1],
+                                                         (_points->at(COMPUTEINDEXOF(i, j, k)))[2]));
                         glm::vec3 source_vec = glm::normalize(glm::vec3(0.0, 0.0, 1.0));                      // our current direction (all glyphs face +Z by default)
                         glm::vec3 target_vec = glm::vec3(LATTICEVELOCITIES[l][0], LATTICEVELOCITIES[l][1], LATTICEVELOCITIES[l][2]); // vector facing direction we want to face
 
@@ -149,32 +149,34 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
                             if (l == 2 || l == 6 || l == 9 || l == 10 || l == 12 || l == 16)
                             {
                                 glyphPointTemp = glm::vec4(
-                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
-                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
-                                            ((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
+                                            ((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
+                                            ((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
+                                            ((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
                                             1.0);
                             }
                             else
                             {
                                 glyphPointTemp = glm::vec4(
-                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
-                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
-                                                1.414*((probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
-                                                1.0);
+                                            1.414*((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+0],
+                                            1.414*((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+1],
+                                            1.414*((_probabilities[l])->at(COMPUTEINDEXOF(i, j, k)))[0]*VectorScale*g_arrow2d_vertex_buffer_data[loopVarGlyphPts+2],
+                                            1.0);
                             }
                             // apply rotation & translation transforms
                             glyphPointTemp = M * glyphPointTemp;
 
                             //current probability
-                            double probability = (probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
+                            double probability = (_probabilities[l])->at(COMPUTEINDEXOF(i, j, k))[0];
                             if (probability > maxProbability)
+                            {
                                 maxProbability = probability;
+                            }
 
                             // store (x,y,z) components of current vertex*/
                             velocityMagnitudes.push_back(probability);
                             for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
                             {
-                                this->vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];
+                                _vertex_buffer_data[globalCounter] = glyphPointTemp[loopVarComponents];
                                 globalCounter++;
                             }
                         }
@@ -188,13 +190,13 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
 
     /** Copy density data **/
 
-    this->totalAttributes = 1; // TODO: don't hard-code this...
-    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    int num_of_vertices = 18 * this->totalVertices * ArrowGlyphSize;
-    this->vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
+    _totalAttributes = 1; // TODO: don't hard-code this...
+    _vertex_attrib_data = new GLfloat*[_totalAttributes];
+    int num_of_vertices = 18 * _totalVertices * ArrowGlyphSize;
+    _vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
     for (int i = 0; i < num_of_vertices; i++)
     {
-        this->vertex_attrib_data[0][i] = (GLfloat)(velocityMagnitudes[i]/maxProbability);
+        _vertex_attrib_data[0][i] = (GLfloat)(velocityMagnitudes[i]/maxProbability);
     }
 
     GLuint vao, vbo, velocity_buf;
@@ -206,7 +208,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(GLfloat) * this->totalVertices * 3 * ArrowGlyphSize, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(GLfloat) * _totalVertices * 3 * ArrowGlyphSize, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -222,7 +224,7 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &velocity_buf);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
 
-    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(GLfloat) * this->totalVertices * ArrowGlyphSize, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(GLfloat) * _totalVertices * ArrowGlyphSize, _vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
@@ -239,38 +241,38 @@ void ProbabilitiesRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
-    this->minGradientValue = 0;//minProbability;
-    this->maxGradientValue = 1.0;// maxProbability;
+    _VAO = vao;
+    _VBO = vbo;
+    _minGradientValue = 0;//minProbability;
+    _maxGradientValue = 1.0;// maxProbability;
 }
 
 void ProbabilitiesRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    shaderProgram->enable();
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
-    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
-    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
-    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
-    glBindVertexArray(this->VAO);
+    _shaderProgram->enable();
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(_shaderProgram->getUniform("max_scalar"), (GLfloat)_maxGradientValue);
+    glUniform1f(_shaderProgram->getUniform("min_scalar"), (GLfloat)_minGradientValue);
+    glUniform4fv(_shaderProgram->getUniform("hotColor"), 1, _maxColor);
+    glUniform4fv(_shaderProgram->getUniform("coldColor"), 1, _minColor);
+    glUniform1f(_shaderProgram->getUniform("bias"), (GLfloat)_bias);
+    glUniform1i(_shaderProgram->getUniform("interpolator"), _interpolator);
+    glBindVertexArray(_VAO);
 
     // DRAW!
-    glDrawArrays(GL_TRIANGLES, 0, 18 * 60 * this->totalVertices);
+    glDrawArrays(GL_TRIANGLES, 0, 18 * 60 * _totalVertices);
 
     // unset shaders
-    shaderProgram->disable();
+    _shaderProgram->disable();
 
     // unbind VAO
     glBindVertexArray(0);

@@ -1,8 +1,5 @@
 /* Shamelessly stolen from http://www.opengl-tutorial.org/ */
-/* Note to CFD Friends: this loads and links a vertex shader and a fragment shader together. */
-/*                      They do not have to be paired like this. A given vertex shader could */
-/*                      be linked to many fragment shaders, so there's no need to douplicate */
-/*                      shaders for different models which do the same thing.                */
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -53,12 +50,12 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
     glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 
-	if (InfoLogLength > 0)
-	{
-		std::vector<char> VertexShaderErrorMessage(InfoLogLength);
-		glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-		fprintf(stdout, "%s\n", &VertexShaderErrorMessage[0]);
-	}
+    if (InfoLogLength > 0)
+    {
+        std::vector<char> VertexShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
+        fprintf(stdout, "%s\n", &VertexShaderErrorMessage[0]);
+    }
 
     // Compile Fragment Shader
     printf("Compiling shader : %s\n", fragment_file_path);
@@ -70,12 +67,12 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
     glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 
-	if (InfoLogLength > 0)
-	{
-		std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
-		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-		fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
-	}
+    if (InfoLogLength > 0)
+    {
+        std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
+        fprintf(stdout, "%s\n", &FragmentShaderErrorMessage[0]);
+    }
 
     // Link the program
     fprintf(stdout, "Linking program\n");

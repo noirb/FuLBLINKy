@@ -11,20 +11,20 @@ Compositor::Compositor()
 
 Compositor::~Compositor()
 {
-//    this->guiRenderer->destroySystem();
+//    _guiRenderer->destroySystem();
 }
 
 void Compositor::Start()
 {
     // set up GUI
     initialiseCEGUICommonDialogs();
-    this->guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
-    this->guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
+    _guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
+    _guiRoot = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "_MasterRoot");
     this->InitShaders();
     this->InitCamera();
-    this->InitGUI(guiRoot);
+    this->InitGUI(_guiRoot);
 
-    this->running = true;
+    _running = true;
 
     // set a default background color for any pixels we don't draw to
     glClearColor(0.1f, 0.1f, 0.15f, 0.0f);
@@ -37,12 +37,12 @@ void Compositor::Start()
 
 void Compositor::ShutDown()
 {
-    this->running = false;
+    _running = false;
 }
 
 double Compositor::DeltaTime()
 {
-    return glfwGetTime() - this->lastFrameTime;
+    return glfwGetTime() - _lastFrameTime;
 }
 
 void Compositor::InitCamera()
@@ -59,8 +59,8 @@ void Compositor::InitCamera()
     this->camera.mouseSpeed = 0.005f;
     this->camera.panSpeed = 0.015f;
 
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
-    this->_viewMatrix = glm::lookAt(
+    _projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
+    _viewMatrix = glm::lookAt(
         this->camera.cameraPos,     // camera's default location in space
         this->camera.cameraTarget,  // location camera is pointing at
         glm::vec3(0, 1, 0)          // "up" relative to camera
@@ -83,8 +83,8 @@ void Compositor::UpdateCamera(double dx, double dy)
     );
     this->camera.cameraPos = this->camera.cameraPos + this->camera.cameraTarget;
 
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
-    this->_viewMatrix = glm::lookAt(
+    _projectionMatrix = glm::perspective(this->camera.initialFoV, 4.0f / 3.0f, this->camera.Near, this->camera.Far);
+    _viewMatrix = glm::lookAt(
         this->camera.cameraPos,
         this->camera.cameraTarget,
         glm::vec3(0, 1, 0)
@@ -125,43 +125,43 @@ void Compositor::CenterCameraOnExtents(double* extents)
     std::cout << "New camera orbit point: " << center[0] << ", " << center[1] << ", " << center[2] << std::endl;
     // compute widest radius necessary to enclose bounds
     this->camera.orbitRadius = (float)glm::max( center[0] + extents[1],
-                                         glm::max( center[1] + extents[3], center[2] + extents[5])
-                                       );
+                                      glm::max( center[1] + extents[3], center[2] + extents[5])
+                                     );
     this->UpdateCamera(0, 0);
 }
 
 // update rendering parameters based on new window aspect ratio
 void Compositor::UpdateAspectRatio(int width, int height)
 {
-    this->_projectionMatrix = glm::perspective(this->camera.initialFoV, (float)width / (float)height, this->camera.Near, this->camera.Far);
+    _projectionMatrix = glm::perspective(this->camera.initialFoV, (float)width / (float)height, this->camera.Near, this->camera.Far);
     this->DisplayChanged(width, height);
 }
 
 glm::mat4 Compositor::GetProjectionMatrix()
 {
-    return this->_projectionMatrix;
+    return _projectionMatrix;
 }
 
 glm::mat4 Compositor::GetViewMatrix()
 {
-    return this->_viewMatrix;
+    return _viewMatrix;
 }
 
 void Compositor::DisplayChanged(int width, int height)
 {
-    windowSize[0] = width;
-    windowSize[1] = height;
+    _windowSize[0] = width;
+    _windowSize[1] = height;
     CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef((float)width, (float)height));
 }
 
 void Compositor::AddRenderer(RenderableComponent* renderer, bool onByDefault)
 {
-    this->_renderers.push_back(renderer);
+    _renderers.push_back(renderer);
 
     // if we already have data to visualize, send it to the new renderer
-    if (this->_dataProvider)
+    if (_dataProvider)
     {
-        renderer->PrepareGeometry(this->_dataProvider);
+        renderer->PrepareGeometry(_dataProvider);
     }
 
     if (onByDefault)
@@ -179,33 +179,33 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
     {
         case RENDERER_AXES:
             newRenderer = new AxesRenderer();
-            newRenderer->SetShader(&(this->_axesShader));
+            newRenderer->SetShader(&(_axesShader));
             newRenderer->PrepareGeometry(NULL);
             break;
         case RENDERER_GRADIENT:
             newRenderer = new GradientRenderer();
-            newRenderer->SetShader(&(this->_backgroundShader));
+            newRenderer->SetShader(&(_backgroundShader));
             newRenderer->PrepareGeometry(NULL);
             break;
         case RENDERER_POINTS:
             newRenderer = new PointRenderer();
-            newRenderer->SetShader(&(this->_scalarMapShader));
+            newRenderer->SetShader(&(_scalarMapShader));
             break;
         case RENDERER_GLYPHS:
             newRenderer = new GlyphRenderer();
-            newRenderer->SetShader(&(this->_scalarMapShader));
+            newRenderer->SetShader(&(_scalarMapShader));
             break;
         case RENDERER_LINES:
             newRenderer = new LineRenderer();
-            newRenderer->SetShader(&(this->_scalarMapShader));
+            newRenderer->SetShader(&(_scalarMapShader));
             break;
         case RENDERER_STREAMLINES:
             newRenderer = new StreamLineRenderer();
-            newRenderer->SetShader(&(this->_scalarMapShader));
+            newRenderer->SetShader(&(_scalarMapShader));
             break;
         case RENDERER_PROBABILITIES:
             newRenderer = new ProbabilitiesRenderer();
-            newRenderer->SetShader(&(this->_scalarMapShader));
+            newRenderer->SetShader(&(_scalarMapShader));
             break;
         default:
             std::cout << "ERROR <Compositor::AddRenderer> : Invalid Renderer Type " << rendererType << std::endl;
@@ -214,10 +214,10 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
 
     std::cout << "Adding GUI for new Renderer to scene (" << this->RendererStrs[rendererType] << ")" << std::endl;
 
-    rendererName = this->RendererStrs[rendererType] + std::to_string(this->_renderers.size()); // give new renderer a unique name
+    rendererName = this->RendererStrs[rendererType] + std::to_string(_renderers.size()); // give new renderer a unique name
 
     // Add basic UI controls for the new renderer
-    CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(this->guiRoot->getChildRecursive("renderers_container"));
+    CEGUI::VerticalLayoutContainer* entries_container = static_cast<CEGUI::VerticalLayoutContainer*>(_guiRoot->getChildRecursive("renderers_container"));
     CEGUI::VerticalLayoutContainer* params_root = static_cast<CEGUI::VerticalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("VerticalLayoutContainer"));
     entries_container->addChild(params_root);
 
@@ -1004,23 +1004,23 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
     fWnd->getChildRecursive("btnNextTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->NextTimeStepAsync();
-                            this->waitingForProvider = true;
-                            this->ShowLoadingPopup(this->waitingForProvider);
+                            this->_waitingForProvider = true;
+                            this->ShowLoadingPopup(this->_waitingForProvider);
                             return true;
                         }
     );
     fWnd->getChildRecursive("btnPrevTimeStep")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this, data_window](const CEGUI::EventArgs &e)->bool {
                             this->_dataProvider->PrevTimeStepAsync();
-                            this->waitingForProvider = true;
-                            this->ShowLoadingPopup(this->waitingForProvider);
+                            this->_waitingForProvider = true;
+                            this->ShowLoadingPopup(this->_waitingForProvider);
                             return true;
                         }
     );
     fWnd->getChildRecursive("btnPlay")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [this](const CEGUI::EventArgs &e)->bool {
                             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-                            if (this->autoplay)
+                            if (this->_autoplay)
                             {
                                 wargs.window->setText(">>");
                             }
@@ -1028,7 +1028,7 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                             {
                                 wargs.window->setText("||");
                             }
-                            this->autoplay = !this->autoplay;
+                            this->_autoplay = !this->_autoplay;
                             return true;
                         }
     );
@@ -1054,62 +1054,62 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
 void Compositor::InitShaders()
 {
     // load our vertex & fragment shaders so they're ready & compiled when we need them
-    this->_axesShader.loadAndLink("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
-    this->_axesShader.addUniform("MVP");
+    _axesShader.loadAndLink("shaders/_coordinateAxes.vertex", "shaders/_coordinateAxes.fragment");
+    _axesShader.addUniform("MVP");
 
-    this->_backgroundShader.loadAndLink("shaders/_gradient.vertex", "shaders/_gradient.fragment");
-    this->_backgroundShader.addUniform("startColor");
-    this->_backgroundShader.addUniform("endColor");
+    _backgroundShader.loadAndLink("shaders/_gradient.vertex", "shaders/_gradient.fragment");
+    _backgroundShader.addUniform("startColor");
+    _backgroundShader.addUniform("endColor");
 
-    this->_scalarMapShader.loadAndLink("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
-    this->_scalarMapShader.addUniform("MVP");
-    this->_scalarMapShader.addUniform("min_scalar");
-    this->_scalarMapShader.addUniform("max_scalar");
-    this->_scalarMapShader.addUniform("min_sizeScalar");
-    this->_scalarMapShader.addUniform("max_sizeScalar");
-    this->_scalarMapShader.addUniform("hotColor");
-    this->_scalarMapShader.addUniform("coldColor");
-    this->_scalarMapShader.addUniform("bias");         // used for exponential interpolation
-    this->_scalarMapShader.addUniform("interpolator"); // used to select an interpolation mode
+    _scalarMapShader.loadAndLink("shaders/scalarGradientMap1D.vertex", "shaders/scalarGradientMap1D.fragment");
+    _scalarMapShader.addUniform("MVP");
+    _scalarMapShader.addUniform("min_scalar");
+    _scalarMapShader.addUniform("max_scalar");
+    _scalarMapShader.addUniform("min_sizeScalar");
+    _scalarMapShader.addUniform("max_sizeScalar");
+    _scalarMapShader.addUniform("hotColor");
+    _scalarMapShader.addUniform("coldColor");
+    _scalarMapShader.addUniform("bias");         // used for exponential interpolation
+    _scalarMapShader.addUniform("interpolator"); // used to select an interpolation mode
 }
 
 void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
 {
-    if (this->_dataProvider)
+    if (_dataProvider)
     {
-        delete this->_dataProvider;
+        delete _dataProvider;
     }
 
     ShowLoadingPopup(true);
-    waitingForProvider = true;
-    this->_dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
+    _waitingForProvider = true;
+    _dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
     });
 }
 
 void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
 {
-    if (this->_dataProvider)
+    if (_dataProvider)
     {
-        delete this->_dataProvider;
+        delete _dataProvider;
     }
 
     ShowLoadingPopup(true);
-    waitingForProvider = true;
-    this->_dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
+    _waitingForProvider = true;
+    _dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
     });
 }
 
 void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
 {
-    vtkLegacyReader* legacyReader = dynamic_cast<vtkLegacyReader*>(this->_dataProvider);
+    vtkLegacyReader* legacyReader = dynamic_cast<vtkLegacyReader*>(_dataProvider);
     if (legacyReader)
     {
         dataWindowRoot->setText(legacyReader->GetFileName());
     }
 
-    lbsimWrapper* lbsim = dynamic_cast<lbsimWrapper*>(this->_dataProvider);
+    lbsimWrapper* lbsim = dynamic_cast<lbsimWrapper*>(_dataProvider);
     if (lbsim)
     {
         dataWindowRoot->setText(lbsim->GetFileName());
@@ -1118,13 +1118,13 @@ void Compositor::UpdateDataGUI(CEGUI::Window* dataWindowRoot)
     CEGUI::Window* timestep_label = dataWindowRoot->getChildRecursive("lblTimestep");
     CEGUI::Window* maxTimestep_label = dataWindowRoot->getChildRecursive("lblMaxTimestep");
 
-    if (this->_dataProvider->GetTimeStep() >= 0)
-        timestep_label->setText(std::to_string(this->_dataProvider->GetTimeStep()));
+    if (_dataProvider->GetTimeStep() >= 0)
+        timestep_label->setText(std::to_string(_dataProvider->GetTimeStep()));
     else
         timestep_label->setText("N/A");
 
-    if (this->_dataProvider->GetMaxTimeStep() >= 0)
-        maxTimestep_label->setText(std::to_string(this->_dataProvider->GetMaxTimeStep() - 1));
+    if (_dataProvider->GetMaxTimeStep() > 0)
+        maxTimestep_label->setText(std::to_string(_dataProvider->GetMaxTimeStep() - 1));
     else
         maxTimestep_label->setText("--");
 
@@ -1170,7 +1170,7 @@ CEGUI::Window* Compositor::AddRendererPopup()
                         }
     );
 
-    guiRoot->addChild(addWnd);
+    _guiRoot->addChild(addWnd);
     addWnd->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
 
     return addWnd;
@@ -1178,13 +1178,13 @@ CEGUI::Window* Compositor::AddRendererPopup()
 
 void Compositor::ShowLoadingPopup(bool show)
 {
-    CEGUI::Window* loadingPopup = guiRoot->getChildRecursive("loadingInfo_window");
+    CEGUI::Window* loadingPopup = _guiRoot->getChildRecursive("loadingInfo_window");
     loadingPopup->setVisible(show);
 }
 
 void Compositor::UpdateRenderers(DataProvider* provider)
 {
-    for (auto r : this->_renderers)
+    for (auto r : _renderers)
     {
         r->PrepareGeometry(provider);
     }
@@ -1193,20 +1193,20 @@ void Compositor::UpdateRenderers(DataProvider* provider)
 void Compositor::Update()
 {
     // if the dataprovider has data we were waiting for, update renderers
-    if (waitingForProvider && _dataProvider->isReady())
+    if (_waitingForProvider && _dataProvider->isReady())
     {
-        waitingForProvider = false;
+        _waitingForProvider = false;
         try
         {
-            UpdateDataGUI(this->guiRoot->getChildRecursive("data_window"));
+            UpdateDataGUI(_guiRoot->getChildRecursive("data_window"));
             UpdateRenderers(_dataProvider);
         }
         catch (const ProviderBusy&)
         {
-            waitingForProvider = true;
+            _waitingForProvider = true;
         }
 
-        ShowLoadingPopup(waitingForProvider);
+        ShowLoadingPopup(_waitingForProvider);
     }
 }
 
@@ -1218,12 +1218,12 @@ void Compositor::Render(glm::mat4 MVP)
     double dt = this->DeltaTime();
     CEGUI::System::getSingleton().injectTimePulse((float)dt);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse((float)dt);
-    this->lastFrameTime = glfwGetTime();
+    _lastFrameTime = glfwGetTime();
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (auto r : this->_renderers)
+    for (auto r : _renderers)
     {
         r->Draw(MVP);
     }
@@ -1233,22 +1233,22 @@ void Compositor::Render(glm::mat4 MVP)
     CEGUI::System::getSingleton().renderAllGUIContexts();
 
     timer += dt;
-    if (this->autoplay && timer >= this->autoplay_interval && !this->waitingForProvider)
+    if (_autoplay && timer >= _autoplay_interval && !_waitingForProvider)
     {
         timer = 0;
 
         // if we've reached the maximal timestep, stop autoplaying
-        if (!this->waitingForProvider && this->_dataProvider->GetMaxTimeStep() - 1 == this->_dataProvider->GetTimeStep())
+        if (!_waitingForProvider && _dataProvider->GetMaxTimeStep() - 1 == _dataProvider->GetTimeStep())
         {
-            this->autoplay = false;
-            this->guiRoot->getChildRecursive("btnPlay")->setText(">>"); /// HACK: Should probably have start/stop autoplaying functions to avoid so many hardcoded strings...
+            _autoplay = false;
+            _guiRoot->getChildRecursive("btnPlay")->setText(">>"); /// HACK: Should probably have start/stop autoplaying functions to avoid so many hardcoded strings...
         }
         else
         {
-            this->_dataProvider->NextTimeStepAsync();
-            this->waitingForProvider = true;
+            _dataProvider->NextTimeStepAsync();
+            _waitingForProvider = true;
         }
 
-        ShowLoadingPopup(waitingForProvider);
+        ShowLoadingPopup(_waitingForProvider);
     }
 }

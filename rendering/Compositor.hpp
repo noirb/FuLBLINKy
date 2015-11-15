@@ -89,8 +89,8 @@ class Compositor
         Compositor(Compositor const&);
         Compositor& operator=(Compositor const&);
 
-        CEGUI::OpenGL3Renderer* guiRenderer;
-        CEGUI::Window* guiRoot;
+        CEGUI::OpenGL3Renderer* _guiRenderer;
+        CEGUI::Window* _guiRoot;
 
         glm::mat4 MVP;
         ShaderProgram _axesShader;
@@ -101,13 +101,13 @@ class Compositor
         
         DataProvider* _dataProvider;
 
-        double lastFrameTime; // time when the last frame was drawn
-        bool running = false;
-        bool waitingForProvider = false; // True if we are expecting a dataprovider to asynchronously retrieve data for us
-        bool autoplay = false; // if true, we load the next timestep automatically
-        double autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
+        double _lastFrameTime; // time when the last frame was drawn
+        bool _running = false;
+        bool _waitingForProvider = false; // True if we are expecting a dataprovider to asynchronously retrieve data for us
+        bool _autoplay = false; // if true, we load the next timestep automatically
+        double _autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
 
-        int windowSize[2];
+        int _windowSize[2];
 
         void InitGUI(CEGUI::Window*);
         void InitCamera();

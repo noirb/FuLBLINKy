@@ -4,13 +4,13 @@
 void AxesRenderer::PrepareGeometry(DataProvider* provider)
 {
     // if we've already set up our vertices, do nothing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
         return;
     }
 
-    this->totalVertices = 6; // two vertices per line
-    this->vertex_buffer_data = new GLfloat[3 * this->totalVertices];
+    _totalVertices = 6; // two vertices per line
+    _vertex_buffer_data = new GLfloat[3 * _totalVertices];
     GLfloat vertices[] = { // this just saves some typing since we can't assign a list like this directly to an array
         0.0f, 0.0f, 0.0f,       // origin-to-x
         10.0f, 0.0f, 0.0f,
@@ -19,9 +19,10 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
         0.0f, 0.0f, 0.0f,       // origin-to-z
         0.0f, 0.0f, 10.0f
     };
-    for (unsigned int i = 0; i < this->totalVertices*3; i++)       // copy vertex data from vertices to vertex_buffer_data
+
+    for (unsigned int i = 0; i < _totalVertices*3; i++)       // copy vertex data from vertices to vertex_buffer_data
     {
-        this->vertex_buffer_data[i] = vertices[i];
+        _vertex_buffer_data[i] = vertices[i];
     }
 
     GLuint vao, vbo;
@@ -31,7 +32,7 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * 3, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glVertexAttribPointer(
         0,
@@ -47,31 +48,31 @@ void AxesRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 }
 
 void AxesRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         std::cout << "AxesRenderer::Draw FAILED" << std::endl;
         return;
     }
 
-    this->shaderProgram->enable();
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    _shaderProgram->enable();
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
 
-    glBindVertexArray(this->VAO); 
+    glBindVertexArray(_VAO); 
 
     glLineWidth(1.0);
 
     // DRAW!
-    glDrawArrays(GL_LINES, 0, this->totalVertices);
+    glDrawArrays(GL_LINES, 0, _totalVertices);
 
     // cleanup
-    shaderProgram->disable();
+    _shaderProgram->disable();
     glBindVertexArray(0);
 }

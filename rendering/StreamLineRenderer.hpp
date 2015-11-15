@@ -29,8 +29,8 @@ class StreamLineRenderer: public RenderableComponent
         double maxStreamlineLength = 500.0;
 
     private:
-        double maxGradientValue;
-        double minGradientValue;
+        double _maxGradientValue;
+        double _minGradientValue;
         std::vector<double> trilinearVelocityInterpolator(
                   double deltaX, 
                   double deltaY, 
@@ -53,18 +53,18 @@ class StreamLineRenderer: public RenderableComponent
                   std::vector<double> &currPoint
                   );
 
-		/// Computes the intersection points between the line defined by lineStart and lineEnd and the box
-		/// defined by boxBounds (assumed to be arranged like the extents from DataProvider).
-		///
-		/// Returns: Number of intersection points
-		///	         If the number of intersection points is greater than 0, they will be stored in intersections.
-		int lineBoxIntersect(double* boxBounds, double* lineStart, double* lineEnd, double* intersections);
+        /// Computes the intersection points between the line defined by lineStart and lineEnd and the box
+        /// defined by boxBounds (assumed to be arranged like the extents from DataProvider).
+        ///
+        /// Returns: Number of intersection points
+        ///	         If the number of intersection points is greater than 0, they will be stored in intersections.
+        int lineBoxIntersect(double* boxBounds, double* lineStart, double* lineEnd, double* intersections);
 
-		/// Tests to see if the given point resides within the given box bounds
-		bool isInBox(double* boxBounds, double* point);
+        /// Tests to see if the given point resides within the given box bounds
+        bool isInBox(double* boxBounds, double* point);
 
-        std::vector<std::vector<double> >* points;
-        std::vector<std::vector<double> >* velocities;
+        std::vector<std::vector<double> >* _points;
+        std::vector<std::vector<double> >* _velocities;
 };
 
 #endif

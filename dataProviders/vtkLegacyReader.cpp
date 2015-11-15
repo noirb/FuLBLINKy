@@ -10,12 +10,12 @@
 
 vtkLegacyReader::vtkLegacyReader()
 {
-    this->timestep = 0;
+    _timestep = 0;
 }
 
 vtkLegacyReader::vtkLegacyReader(std::string filename)
 {
-    this->timestep = 0;
+    _timestep = 0;
     init(filename);
     _isReady = true;
 }
@@ -25,7 +25,7 @@ vtkLegacyReader::vtkLegacyReader(std::string filename, std::function< void(DataP
     _backgroundWorkers.push_back(std::thread([this, filename, callback]()
     {
         std::unique_lock<std::mutex> guard(_mutex);
-        this->timestep = 0;
+        _timestep = 0;
         init(filename);
 
         _isReady = true;
@@ -45,7 +45,7 @@ vtkLegacyReader::~vtkLegacyReader()
 void vtkLegacyReader::init(std::string filename)
 {
 
-    this->filename = filename;
+    _filename = filename;
     std::cout << "Parsing file: " << filename << std::endl;
 
     // get timestep from filename
@@ -72,18 +72,18 @@ void vtkLegacyReader::init(std::string filename)
     // try to parse timestep; if we didn't get a number, set it to -1 to indicate we don't know the current timestep
     try
     {
-        this->timestep = std::stoi(timestep);
+        _timestep = std::stoi(timestep);
     }
     catch(const std::invalid_argument&)
     {
-        this->timestep = -1;
+        _timestep = -1;
     }
 
     // if we found a timestep number, try to find other files from different timesteps
-    if (this->timestep >= 0)
-        this->maxTimesteps = this->GetTimeStepsInDir(filename.substr(0, filename.find_last_of(PATH_SEP)), this->GetBaseFilename());
-    if (this->maxTimesteps > 1)
-        this->timestep = std::find(this->timestepFilePaths.begin(), this->timestepFilePaths.end(), this->GetFilePath()) - this->timestepFilePaths.begin();
+    if (_timestep >= 0)
+        _maxTimesteps = this->GetTimeStepsInDir(filename.substr(0, filename.find_last_of(PATH_SEP)), this->GetBaseFilename());
+    if (_maxTimesteps > 1)
+        _timestep = std::find(_timestepFilePaths.begin(), _timestepFilePaths.end(), this->GetFilePath()) - _timestepFilePaths.begin();
 
     // open file & read in domain parameters
     std::ifstream file(filename.c_str());
@@ -93,7 +93,6 @@ void vtkLegacyReader::init(std::string filename)
 
     while( !file.eof() )
     {
-        
         std::stringstream lineStream;
         getline(file, line, '\n');
         lineStream << line; // = std::stringstream(line);
@@ -115,13 +114,13 @@ void vtkLegacyReader::init(std::string filename)
         // fill in domain size
         if (tok == "DIMENSIONS")
         {
-            lineStream >> this->domainParameters.size[0] >> 
-                          this->domainParameters.size[1] >>
-                          this->domainParameters.size[2];
-            std::cout << "\tRead domain size as: (" << this->domainParameters.size[0] <<
-                                        ", " << this->domainParameters.size[1] <<
-                                        ", " << this->domainParameters.size[2] << 
-                                        ") " << std::endl;
+            lineStream >> _domainParameters.size[0] >> 
+                          _domainParameters.size[1] >>
+                          _domainParameters.size[2];
+            std::cout << "\tRead domain size as: (" << _domainParameters.size[0] <<
+                                               ", " << _domainParameters.size[1] <<
+                                               ", " << _domainParameters.size[2] << 
+                                               ") " << std::endl;
         }
         // parse point locations
         else if (tok == "POINTS")
@@ -129,11 +128,11 @@ void vtkLegacyReader::init(std::string filename)
             double newExtents[6] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),  // minX, maxX
                                     std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),  // minY, maxY
                                     std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest()}; // minZ, maxZ
-            this->fieldNames.push_back("points");
-            this->domainFields["points"] = std::vector<std::vector<double> >();
+            _fieldNames.push_back("points");
+            _domainFields["points"] = std::vector<std::vector<double> >();
 
-            lineStream >> this->domainParameters.numPoints;
-            std::cout << "\tRead numPoints as: " << this->domainParameters.numPoints << std::endl;
+            lineStream >> _domainParameters.numPoints;
+            std::cout << "\tRead numPoints as: " << _domainParameters.numPoints << std::endl;
 
             getline(file, line, '\n'); lineNumber++;
             while (line.empty() || line.find_first_of("0123456789") == std::string::npos)
@@ -142,7 +141,7 @@ void vtkLegacyReader::init(std::string filename)
                 std::cout << "\tSkipping line " << lineNumber << std::endl;
                 lineNumber++;
             }
-            for (int i = 0; i < this->domainParameters.numPoints; i++)      /// TODO: This could probably be its own function
+            for (int i = 0; i < _domainParameters.numPoints; i++)      /// TODO: This could probably be its own function
             {
                 double tmp;
                 std::vector<double> tmpv;
@@ -153,7 +152,7 @@ void vtkLegacyReader::init(std::string filename)
                 {
                     tmpv.push_back(tmp);
                 }
-                this->domainFields["points"].push_back(tmpv);
+                _domainFields["points"].push_back(tmpv);
                 // check new point to see if we need to adjust our extents
                 newExtents[0] = tmpv[0] < newExtents[0] ? tmpv[0] : newExtents[0]; // -X
                 newExtents[1] = tmpv[0] > newExtents[1] ? tmpv[0] : newExtents[1]; // +X
@@ -164,7 +163,7 @@ void vtkLegacyReader::init(std::string filename)
                 getline(file, line, '\n');
                 lineNumber++;
             }
-            std::copy(std::begin(newExtents), std::end(newExtents), this->extents);
+            std::copy(std::begin(newExtents), std::end(newExtents), _extents);
             std::cout << "New extents: " << newExtents[0] << " -- " << newExtents[1] << ", " << newExtents[2] << " -- " << newExtents[3] << ", " << newExtents[4] << " -- " << newExtents[5] << std::endl;
             continue;
         }
@@ -178,8 +177,8 @@ void vtkLegacyReader::init(std::string filename)
 
             lineStream >> fieldName; // get next word on line for fieldName
 
-            this->fieldNames.push_back(fieldName);
-            this->domainFields[fieldName] = std::vector<std::vector<double> >();            
+            _fieldNames.push_back(fieldName);
+            _domainFields[fieldName] = std::vector<std::vector<double> >();            
 
             std::cout << "\tFound field: '" << fieldName << "'" << std::endl;
 
@@ -192,7 +191,7 @@ void vtkLegacyReader::init(std::string filename)
                 std::cout << "\tSkipping line " << lineNumber << std::endl;
             }
             // read data
-            for (int i = 0; i < this->domainParameters.numPoints; i++)
+            for (int i = 0; i < _domainParameters.numPoints; i++)
             {
                 double tmp;
                 std::vector<double> tmpv;
@@ -204,7 +203,7 @@ void vtkLegacyReader::init(std::string filename)
                     tmpv.push_back(tmp);
                     tmpMag += tmp*tmp;
                 }
-                this->domainFields[fieldName].push_back(tmpv);
+                _domainFields[fieldName].push_back(tmpv);
 
                 // check to see if the magnitude of the data at this point is larger/smaller than our current max/min
                 tmpMag = sqrt(tmpMag);
@@ -214,8 +213,8 @@ void vtkLegacyReader::init(std::string filename)
                 getline(file, line, '\n');
                 lineNumber++;
             }
-            this->minFieldValues[fieldName] = minScalarVal;
-            this->maxFieldValues[fieldName] = maxScalarVal;
+            _minFieldValues[fieldName] = minScalarVal;
+            _maxFieldValues[fieldName] = maxScalarVal;
             continue;
         }
         // parse cell data field
@@ -232,7 +231,7 @@ void vtkLegacyReader::init(std::string filename)
 std::string vtkLegacyReader::GetBaseFilename()
 {
     // filter directory
-    std::string result = this->filename.substr(this->filename.find_last_of(PATH_SEP)+1);
+    std::string result = _filename.substr(_filename.find_last_of(PATH_SEP)+1);
     // filter extension
     result = result.substr(0, result.find_last_of("."));
     // filter last .timestep
@@ -243,7 +242,7 @@ std::string vtkLegacyReader::GetBaseFilename()
 
 std::string vtkLegacyReader::GetFileDir()
 {
-    return this->filename.substr(0, this->filename.find_last_of(PATH_SEP)+1);
+    return _filename.substr(0, _filename.find_last_of(PATH_SEP)+1);
 }
 
 unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::string baseFileName)
@@ -260,14 +259,14 @@ unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::
     }
     else
     {
-        this->timestepFilePaths.clear();
+        _timestepFilePaths.clear();
         while (res--)
         {
             std::string entry = std::string(filenames[res]->d_name);
             if (entry.find(baseFileName) != std::string::npos &&
                 entry.substr(entry.find_last_of(".")+1) == "vtk")
             {
-                this->timestepFilePaths.push_back(directoryName + PATH_SEP + std::string(filenames[res]->d_name));
+                _timestepFilePaths.push_back(directoryName + PATH_SEP + std::string(filenames[res]->d_name));
             }
             free(filenames[res]);
         }
@@ -294,12 +293,12 @@ unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::
     }
 
     // clear any existing timesteps
-    this->timestepFilePaths.clear();
+    _timestepFilePaths.clear();
 
     // Collect all the files in the directory that we found
     do
     {
-        this->timestepFilePaths.push_back(directoryName + PATH_SEP + ffd.cFileName);
+        _timestepFilePaths.push_back(directoryName + PATH_SEP + ffd.cFileName);
     } while (FindNextFile(hFind, &ffd) != 0);
 
     // done, check for errors
@@ -313,7 +312,7 @@ unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::
 #endif
 
     // sort the filenames we found
-    std::sort(this->timestepFilePaths.begin(), this->timestepFilePaths.end(),
+    std::sort(_timestepFilePaths.begin(), _timestepFilePaths.end(),
         [](std::string const& a, std::string const & b)
         {
             // compare timestep values, not filenames
@@ -326,14 +325,14 @@ unsigned int vtkLegacyReader::GetTimeStepsInDir(std::string directoryName, std::
             return std::stoi(a_trimmed) < std::stoi(b_trimmed);
         }
     );
-    return this->timestepFilePaths.size();
+    return _timestepFilePaths.size();
 }
 
 // returns a struct containing all the details about the domain
 void vtkLegacyReader::getDomainParameters(DomainParameters* parameters)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    *parameters = this->domainParameters;
+    *parameters = _domainParameters;
 }
 
 // writes the data corresponding to the given field to the array passed in data
@@ -345,23 +344,23 @@ template<typename T> void vtkLegacyReader::getField(std::string field, T* data)
 // tells the reader to load data from the next timestep
 void vtkLegacyReader::NextTimeStep()
 {
-    if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
+    if (_timestep < 0) { return; } // do nothing if our current timestep is invalid
 
-    if (this->timestep + 1 < this->maxTimesteps)
+    if (_timestep + 1 < _maxTimesteps)
     {
-        this->timestep += 1;
-        this->init(this->timestepFilePaths[this->timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
+        _timestep += 1;
+        init(_timestepFilePaths[_timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
     }
 }
 
 // tells the reader to load data from the previous timestep
 void vtkLegacyReader::PrevTimeStep()
 {
-    if (this->timestep < 0) { return; } // do nothing if our current timestep is invalid
-    if (this->timestep > 0 && this->timestepFilePaths.size() >= this->timestep)
+    if (_timestep < 0) { return; } // do nothing if our current timestep is invalid
+    if (_timestep > 0 && _timestepFilePaths.size() >= _timestep)
     {
-        this->timestep -= 1;
-        this->init(this->timestepFilePaths[this->timestep]);
+        _timestep -= 1;
+        this->init(_timestepFilePaths[_timestep]);
     }
 }
 
@@ -369,7 +368,7 @@ void vtkLegacyReader::PrevTimeStep()
 void vtkLegacyReader::SetTimeStep(int step)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    this->timestep = step;
+    _timestep = step;
 }
 
 // gets the current timestep
@@ -377,7 +376,7 @@ int vtkLegacyReader::GetTimeStep()
 {
     if (_mutex.try_lock())
     {
-        unsigned int t = this->timestep;
+        unsigned int t = _timestep;
         _mutex.unlock();
         return t;
     }
@@ -386,11 +385,11 @@ int vtkLegacyReader::GetTimeStep()
 }
 
 // gets maximal timestep
-int vtkLegacyReader::GetMaxTimeStep()
+unsigned int vtkLegacyReader::GetMaxTimeStep()
 {
     if (_mutex.try_lock())
     {
-        unsigned int t = this->maxTimesteps;
+        unsigned int t = _maxTimesteps;
         _mutex.unlock();
         return t;
     }
@@ -401,13 +400,13 @@ int vtkLegacyReader::GetMaxTimeStep()
 double vtkLegacyReader::GetMinValueFromField(std::string fieldName)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return this->minFieldValues[fieldName];
+    return _minFieldValues[fieldName];
 }
 
 double vtkLegacyReader::GetMaxValueFromField(std::string fieldName)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return this->maxFieldValues[fieldName];
+    return _maxFieldValues[fieldName];
 }
 
 // gets the filename of the file we're currently looking at
@@ -415,7 +414,7 @@ std::string vtkLegacyReader::GetFileName()
 {
     if (_mutex.try_lock())
     {
-        std::string s = this->filename.substr(this->filename.find_last_of(PATH_SEP) + 1);
+        std::string s = _filename.substr(_filename.find_last_of(PATH_SEP) + 1);
         _mutex.unlock();
         return s;
     }
@@ -426,7 +425,7 @@ std::string vtkLegacyReader::GetFileName()
 // gets the full file path of the file we're currently looking at
 std::string vtkLegacyReader::GetFilePath()
 {
-    return this->filename;
+    return _filename;
 }
 
 // retrieves data for the given field
@@ -435,13 +434,13 @@ int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<dou
 {
     std::lock_guard<std::mutex> guard(_mutex);
     // return -1 if the given fieldName does not exist
-    if (this->domainFields.count(fieldName) == 0)
+    if (_domainFields.count(fieldName) == 0)
     {
         return -1;
     }
     else
     {
-        *fieldData = &(this->domainFields[fieldName]);
+        *fieldData = &(_domainFields[fieldName]);
     }
 
     return 0;
@@ -450,17 +449,17 @@ int vtkLegacyReader::GetField(std::string fieldName, std::vector<std::vector<dou
 double* vtkLegacyReader::GetExtents()
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return this->extents;
+    return _extents;
 }
 
 std::vector<std::string> vtkLegacyReader::GetFieldNames()
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return this->fieldNames;
+    return _fieldNames;
 }
 
 int vtkLegacyReader::GetFieldDimension(std::string fieldName)
 {
     std::lock_guard<std::mutex> guard(_mutex);
-    return this->fieldDimensions[fieldName];
+    return _fieldDimensions[fieldName];
 }

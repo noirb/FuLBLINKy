@@ -14,9 +14,9 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         std::cout << "ERROR<GlyphRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    if ( provider->GetField(_colorParamField, &color_scalarField) != 0)
     {
-        std::cout << "ERROR<GlyphRenderer::PrepareGeometry>: " << this->colorParamField << " Field could not be retrieved!" << std::endl;
+        std::cout << "ERROR<GlyphRenderer::PrepareGeometry>: " << _colorParamField << " Field could not be retrieved!" << std::endl;
         return;
     }
     if ( provider->GetField("velocity", &velocities) != 0)
@@ -26,26 +26,26 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     }
 
     // save velocity max/min for rendering  /// TODO: These could be moved?
-    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
-    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    _maxGradientValue = provider->GetMaxValueFromField(_colorParamField);
+    _minGradientValue = provider->GetMinValueFromField(_colorParamField);
 
-    if (this->autoScale)
+    if (_autoScale)
     {
-        this->scaleFactorMin = this->minGradientValue;
-        this->scaleFactorMax = this->maxGradientValue;
+        _scaleFactorMin = _minGradientValue;
+        _scaleFactorMax = _maxGradientValue;
     }
 
     std::cout << "GlyphRenderer::PrepareGeometry -- processing " << (*points).size() << " points and " << (*color_scalarField).size() << " scalars" << std::endl;
     // if we previously allocated space for our vertices, clear it before continuing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
-        delete(this->vertex_buffer_data);
+        delete(_vertex_buffer_data);
     }
-    if (this->totalAttributes > 0)
+    if (_totalAttributes > 0)
     {
-        for (unsigned int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < _totalAttributes; i++)
         {
-            delete(this->vertex_attrib_data[i]);
+            delete(_vertex_attrib_data[i]);
         }
     }
 
@@ -54,14 +54,14 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
 
     // determine needed number of vertices & allocate space for them
     // GlyphRenderer needs ArrowGlyphSize vertices per data point
-    this->totalVertices = (*points).size();
-    this->vertex_buffer_data = new GLfloat[ArrowGlyphSize * 3 * this->totalVertices];
+    _totalVertices = (*points).size();
+    _vertex_buffer_data = new GLfloat[ArrowGlyphSize * 3 * _totalVertices];
 
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int i = 0;
     double max_velocity = provider->GetMaxValueFromField("velocity");
-    for (unsigned int loopVarVertices = 0; loopVarVertices < this->totalVertices; loopVarVertices++)
+    for (unsigned int loopVarVertices = 0; loopVarVertices < _totalVertices; loopVarVertices++)
     {
         float velTemp[3];
         for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
@@ -104,7 +104,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
         for (int loopVarGlyphPts = 0; loopVarGlyphPts < ArrowGlyphSize *3; loopVarGlyphPts += 3)
         {
             double velVectorScale;
-            if (this->autoScale)
+            if (_autoScale)
             {
                 if (max_velocity != 0)
                 {
@@ -118,19 +118,19 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
             else
             {
                 double scaleFactor;
-                if (this->scaleFactorMin == this->scaleFactorMax)
+                if (_scaleFactorMin == _scaleFactorMax)
                 {
-                    scaleFactor = this->scaleFactorMin;
+                    scaleFactor = _scaleFactorMin;
                 }
                 else
                 {
-                    if (this->colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
+                    if (_colorParamField == "velocity")    /// HACK: We should not be checking the name of the field here
                     {
-                        scaleFactor = glm::abs((glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                        scaleFactor = glm::abs((glm::length(glm::vec3(velTemp[0], velTemp[1], velTemp[2])) - _scaleFactorMin) / (_scaleFactorMax - _scaleFactorMin));
                     }
                     else
                     {
-                        scaleFactor = glm::abs(((color_scalarField->at(loopVarVertices))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin));
+                        scaleFactor = glm::abs(((color_scalarField->at(loopVarVertices))[0] - _scaleFactorMin) / (_scaleFactorMax - _scaleFactorMin));
                     }
                 }
                 velVectorScale = glm::mix(0.0, 1.0, scaleFactor);
@@ -148,7 +148,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
             // store (x,y,z) components of current vertex
             for (int loopVarComponents = 0; loopVarComponents < 3; loopVarComponents++)
             {
-                this->vertex_buffer_data[i] = glyphPointTemp[loopVarComponents];
+                _vertex_buffer_data[i] = glyphPointTemp[loopVarComponents];
                 i++;
             }
         }
@@ -156,15 +156,15 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     std::cout << i << std::endl;
     /** Copy velocity data **/
 
-    this->totalAttributes = 1; // TODO: don't hard-code this...
-    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices * ArrowGlyphSize]; // 1 velocity magnitude per *vertex*
+    _totalAttributes = 1; // TODO: don't hard-code this...
+    _vertex_attrib_data = new GLfloat*[_totalAttributes];
+    _vertex_attrib_data[0] = new GLfloat[_totalVertices * ArrowGlyphSize]; // 1 velocity magnitude per *vertex*
     i = 0;
     for (auto scalar_vector : *color_scalarField)
     {
         for (int v = 0; v < ArrowGlyphSize; v++)
         {
-            switch(this->scalarParamType)
+            switch(_scalarParamType)
             {
                 case VECTOR_MAGNITUDE:
                 {
@@ -175,28 +175,28 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
                         val[c] = (float)component;
                         c++;
                     }
-                    this->vertex_attrib_data[0][i] = glm::length(val);
+                    _vertex_attrib_data[0][i] = glm::length(val);
                     break;
                 }
                 case VECTOR_X:
                 {
-                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
+                    _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[0];
                     break;
                 }
                 case VECTOR_Y:
                 {
-                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
+                    _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[1];
                     break;
                 }
                 case VECTOR_Z:
                 {
-                    this->vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
+                    _vertex_attrib_data[0][i] = (GLfloat)scalar_vector[2];
                     break;
                 }
                 default:
                 {
-                    std::cout << "ERROR: <GlyphRenderer::PrepareGeometry>: Unknown ScalarParamType '" << this->scalarParamType << "'!" << std::endl;
-                    this->vertex_attrib_data[0][i] = 0;
+                    std::cout << "ERROR: <GlyphRenderer::PrepareGeometry>: Unknown ScalarParamType '" << _scalarParamType << "'!" << std::endl;
+                    _vertex_attrib_data[0][i] = 0;
                     break;
                 }
             }
@@ -214,7 +214,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3 * ArrowGlyphSize, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * 3 * ArrowGlyphSize, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -230,7 +230,7 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &velocity_buf);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * ArrowGlyphSize, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * ArrowGlyphSize, _vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
@@ -247,44 +247,44 @@ void GlyphRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 
 
-    std::cout << "GlyphRenderer: Max Scalar: " << this->maxGradientValue << ", Min: " << this->minGradientValue << std::endl;
+    std::cout << "GlyphRenderer: Max Scalar: " << _maxGradientValue << ", Min: " << _minGradientValue << std::endl;
 }
 
 void GlyphRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    this->shaderProgram->enable();
+    _shaderProgram->enable();
 
     // send uniforms to shaders
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
-    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
-    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
-    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(_shaderProgram->getUniform("max_scalar"), (GLfloat)_maxGradientValue);
+    glUniform1f(_shaderProgram->getUniform("min_scalar"), (GLfloat)_minGradientValue);
+    glUniform4fv(_shaderProgram->getUniform("hotColor"), 1, _maxColor);
+    glUniform4fv(_shaderProgram->getUniform("coldColor"), 1, _minColor);
+    glUniform1f(_shaderProgram->getUniform("bias"), (GLfloat)_bias);
+    glUniform1i(_shaderProgram->getUniform("interpolator"), _interpolator);
 
     // bind VAO
-    glBindVertexArray(this->VAO);
+    glBindVertexArray(_VAO);
 
     // DRAW!
-    glDrawArrays(GL_TRIANGLES, 0, (this->totalVertices)*60);
+    glDrawArrays(GL_TRIANGLES, 0, (_totalVertices)*60);
 
     // unbind VAO
     glBindVertexArray(0);
 
     // unset shaders
-    this->shaderProgram->disable();
+    _shaderProgram->disable();
 }

@@ -4,79 +4,78 @@
 // Destructor: clean up now-unused objects
 RenderableComponent::~RenderableComponent()
 {
-    if (vertex_buffer_data)
+    if (_vertex_buffer_data)
     {
-        delete vertex_buffer_data;
+        delete _vertex_buffer_data;
     }
 
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &_VBO);
+    glDeleteVertexArrays(1, &_VAO);
 }
 
 
 void RenderableComponent::SetShader(ShaderProgram* program)
 {
-    this->shaderProgram = program;
+    _shaderProgram = program;
 }
 
 void RenderableComponent::SetMaxColor(float r, float g, float b, float a)
 {
-    this->maxColor[0] = r;
-    this->maxColor[1] = g;
-    this->maxColor[2] = b;
-    this->maxColor[3] = a;
+    _maxColor[0] = r;
+    _maxColor[1] = g;
+    _maxColor[2] = b;
+    _maxColor[3] = a;
 }
 
 void RenderableComponent::SetMinColor(float r, float g, float b, float a)
 {
-    this->minColor[0] = r;
-    this->minColor[1] = g;
-    this->minColor[2] = b;
-    this->minColor[3] = a;
+    _minColor[0] = r;
+    _minColor[1] = g;
+    _minColor[2] = b;
+    _minColor[3] = a;
 }
 
 void RenderableComponent::SetInterpolator(Interpolation i)
 {
-    this->interpolator = i;
+    _interpolator = i;
 }
 
 void RenderableComponent::SetInterpolationBias(double b)
 {
-    this->bias = b;
+    _bias = b;
 }
 
 void RenderableComponent::SetColorField(std::string fieldName)
 {
-    std::cout << "New Color Field: " << fieldName << std::endl;
-    this->colorParamField = fieldName;
+    _colorParamField = fieldName;
 }
 
 void RenderableComponent::SetScaleField(std::string fieldName)
 {
-    this->scaleParamField = fieldName;
+    _scaleParamField = fieldName;
 }
 
 void RenderableComponent::SetAutoScale(bool b)
 {
-    this->autoScale = b;
+    _autoScale = b;
 }
 
 void RenderableComponent::SetScale(double min, double max)
 {
     if (min >= 0)
-        this->scaleFactorMin = min;
+        _scaleFactorMin = min;
 
     if (max >= 0)
-        this->scaleFactorMax = max;
+        _scaleFactorMax = max;
 }
 
 void RenderableComponent::Enable()
 {
-    this->enabled = true;
+    _enabled = true;
 }
 
 void RenderableComponent::Disable()
 {
-    this->enabled = false;
+    _enabled = false;
 }
 

@@ -55,12 +55,12 @@ void StreamLineRenderer::SetLineLength(double newLen)
 std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(
                               double deltaX, 
                               double deltaY, 
-                                double deltaZ,
-                                double xlength,
-                                double ylength,
-                                double zlength,
-                                std::vector<double> currPoint,
-                                std::vector<std::vector<double> > localVelocities)
+                              double deltaZ,
+                              double xlength,
+                              double ylength,
+                              double zlength,
+                              std::vector<double> currPoint,
+                              std::vector<std::vector<double> > localVelocities)
 {
     double x0 = ((int)(currPoint[0]/deltaX)) * deltaX;
     double y0 = ((int)(currPoint[1]/deltaY)) * deltaY;
@@ -77,67 +77,67 @@ std::vector<double> StreamLineRenderer::trilinearVelocityInterpolator(
     // Get local velocities
     // For POINT-0
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z0)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-1
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z0)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-2
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y0, z1)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-3
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y0, z1)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-4
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z0)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-5
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z0)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-6
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x1, y1, z1)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
     // For POINT-7
     {
-        std::vector<double> pointVelocity;	// Create temporary dump for local velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[0]);        // Find x-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[1]);        // Find y-velocity
-        pointVelocity.push_back((velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[2]);        // Find z-velocity
-        localVelocities.push_back(pointVelocity);	// Push velocity for this point into the localVelocities vector
+        std::vector<double> pointVelocity; // Create temporary dump for local velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[0]);        // Find x-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[1]);        // Find y-velocity
+        pointVelocity.push_back((_velocities->at(COMPUTEINDEXOF(x0, y1, z1)))[2]);        // Find z-velocity
+        localVelocities.push_back(pointVelocity); // Push velocity for this point into the localVelocities vector
     }
 
     std::vector<double> interpolatedVelocity;
@@ -179,19 +179,19 @@ void StreamLineRenderer::RK45(double deltaX,
 
     tempCoordinates.push_back(currPoint[0] + dt/2.0*k1[0]);
     tempCoordinates.push_back(currPoint[1] + dt/2.0*k1[1]);
-    tempCoordinates.push_back(currPoint[2] + dt/2.0*k1[2]);	
+    tempCoordinates.push_back(currPoint[2] + dt/2.0*k1[2]);
     k2 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, tempCoordinates, localVelocities);
 
     tempCoordinates.clear();
     tempCoordinates.push_back(currPoint[0] + dt/2.0*k2[0]);
     tempCoordinates.push_back(currPoint[1] + dt/2.0*k2[1]);
-    tempCoordinates.push_back(currPoint[2] + dt/2.0*k2[2]);	
+    tempCoordinates.push_back(currPoint[2] + dt/2.0*k2[2]);
     k3 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, tempCoordinates, localVelocities);
 
     tempCoordinates.clear();
     tempCoordinates.push_back(currPoint[0] + dt*k3[0]);
     tempCoordinates.push_back(currPoint[1] + dt*k3[1]);
-    tempCoordinates.push_back(currPoint[2] + dt*k3[2]);	
+    tempCoordinates.push_back(currPoint[2] + dt*k3[2]);
     k4 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, tempCoordinates, localVelocities);
 
     currPoint[0] += (dt/6.0) * (k1[0] + 2.0*(k2[0] + k3[0]) + k4[0]);
@@ -269,19 +269,19 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     std::vector<double> scalar_mags;
 
 
-    if ( provider->GetField("points", &points) != 0)
+    if ( provider->GetField("points", &_points) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Points Field Could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField("velocity", &velocities) != 0)
+    if ( provider->GetField("velocity", &_velocities) != 0)
     {
         std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    if ( provider->GetField(_colorParamField, &color_scalarField) != 0)
     {
-        std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: " << this->colorParamField << " Field could not be retrieved!" << std::endl;
+        std::cout << "ERROR<StreamLineRenderer::PrepareGeometry>: " << _colorParamField << " Field could not be retrieved!" << std::endl;
         return;
     }
 
@@ -290,15 +290,15 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     provider->getDomainParameters(&domainParameters);
 
     // if we previously allocated space for our vertices, clear it before continuing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
-        delete(this->vertex_buffer_data);
+        delete(_vertex_buffer_data);
     }
-    if (this->totalAttributes > 0)
+    if (_totalAttributes > 0)
     {
-        for (unsigned int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < _totalAttributes; i++)
         {
-            delete(this->vertex_attrib_data[i]);
+            delete(_vertex_attrib_data[i]);
         }
     }
 
@@ -306,7 +306,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     velocity_magnitudes.clear();
     
     // determine needed number of vertices & allocate space for them
-    this->totalVertices = (*points).size();
+    _totalVertices = (*_points).size();
 
     // for now, create local deltaX/Y/Z, streamlineSource, maxStreamLineLength, dt
     // create the end-points of the lines
@@ -317,9 +317,9 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     double* domain = provider->GetExtents();
     double intersectionPoints[6] = { 0, 0, 0, 0, 0, 0 };
     double lineSourceDomain[6];
-    lineSourceDomain[0] = domain[0] + 2;	lineSourceDomain[1] = domain[1] - 1; // xmin, xmax
-    lineSourceDomain[2] = domain[2] + 2;	lineSourceDomain[3] = domain[3] - 1; // ymin, ymax
-    lineSourceDomain[4] = domain[4] + 2;	lineSourceDomain[5] = domain[5] - 1; // zmin, zmax
+    lineSourceDomain[0] = domain[0] + 2;    lineSourceDomain[1] = domain[1] - 1; // xmin, xmax
+    lineSourceDomain[2] = domain[2] + 2;    lineSourceDomain[3] = domain[3] - 1; // ymin, ymax
+    lineSourceDomain[4] = domain[4] + 2;    lineSourceDomain[5] = domain[5] - 1; // zmin, zmax
 
     int intersections = lineBoxIntersect(lineSourceDomain, startPoint, endPoint, intersectionPoints);
     if (intersections == 1) // one of start or end is outside the box
@@ -453,26 +453,26 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 
     // we want to render points exactly at the locations specified by points, so just copy them
     int totalStoredCoords = k;
-    this->vertex_buffer_data = new GLfloat[totalStoredCoords];
+    _vertex_buffer_data = new GLfloat[totalStoredCoords];
 
     for(int i = 0; i < totalStoredCoords; i++)
     {
-        this->vertex_buffer_data[i] = (GLfloat)streamLinePoints[i]; // copy each x,y,z component from each point
+        _vertex_buffer_data[i] = (GLfloat)streamLinePoints[i]; // copy each x,y,z component from each point
     }
 
     /** Copy velocity data **/
 
-    this->totalAttributes = 1; // TODO: don't hard-code this...
-    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
+    _totalAttributes = 1; // TODO: don't hard-code this...
+    _vertex_attrib_data = new GLfloat*[_totalAttributes];
     int num_of_vertices = totalStoredCoords/3;
-    this->vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
+    _vertex_attrib_data[0] = new GLfloat[num_of_vertices]; // 1 velocity magnitude per *vertex*
     int i = 0;
     for (i = 0; i < num_of_vertices; i++)
     {
-        if (this->colorParamField == "velocity") // HACK: We should not need to perform this test
-            this->vertex_attrib_data[0][i] = (GLfloat)velocity_magnitudes[i];
+        if (_colorParamField == "velocity") // HACK: We should not need to perform this test
+            _vertex_attrib_data[0][i] = (GLfloat)velocity_magnitudes[i];
         else
-            this->vertex_attrib_data[0][i] = (GLfloat)scalar_mags[i];
+            _vertex_attrib_data[0][i] = (GLfloat)scalar_mags[i];
     }
 
     GLuint vao, vbo, velocity_buf; vao = vbo = velocity_buf = 0;
@@ -484,7 +484,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * totalStoredCoords, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * totalStoredCoords, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -500,7 +500,7 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &velocity_buf);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * totalStoredCoords/3, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * totalStoredCoords/3, _vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, velocity_buf);
@@ -517,41 +517,41 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 
     // save min/max values for rendering colored gradients/scaling/etc
-    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
-    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    _maxGradientValue = provider->GetMaxValueFromField(_colorParamField);
+    _minGradientValue = provider->GetMinValueFromField(_colorParamField);
 }
 
 void StreamLineRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         return;
     }
 
     // set shaders
-    this->shaderProgram->enable();
+    _shaderProgram->enable();
 
     // set line width
-    glLineWidth((GLfloat)this->scaleFactorMin);
+    glLineWidth((GLfloat)_scaleFactorMin);
 
     // send uniforms to shaders
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
-    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
-    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
-    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(_shaderProgram->getUniform("max_scalar"), (GLfloat)_maxGradientValue);
+    glUniform1f(_shaderProgram->getUniform("min_scalar"), (GLfloat)_minGradientValue);
+    glUniform4fv(_shaderProgram->getUniform("hotColor"), 1, _maxColor);
+    glUniform4fv(_shaderProgram->getUniform("coldColor"), 1, _minColor);
+    glUniform1f(_shaderProgram->getUniform("bias"), (GLfloat)_bias);
+    glUniform1i(_shaderProgram->getUniform("interpolator"), _interpolator);
 
     // bind VAO
-    glBindVertexArray(this->VAO);
+    glBindVertexArray(_VAO);
 
     // DRAW!
     int startIndex = 0;
@@ -563,7 +563,7 @@ void StreamLineRenderer::Draw(glm::mat4 MVP)
     }
 
     // unset shaders
-    this->shaderProgram->disable();
+    _shaderProgram->disable();
 
     // unbind VAO
     glBindVertexArray(0);

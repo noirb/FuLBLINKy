@@ -64,7 +64,7 @@ class lbsimWrapper : public DataProvider
         int GetTimeStep();
 
         // gets the highest known timestep
-        virtual int GetMaxTimeStep();
+        virtual unsigned int GetMaxTimeStep();
 
         // retrieves data for the given field and returns a pointer in fieldData. Returns 0 on success, -1 on failure.
         virtual int GetField(std::string fieldName, std::vector<std::vector<double> >** fieldData);
@@ -84,33 +84,26 @@ class lbsimWrapper : public DataProvider
         virtual int GetFieldDimension(std::string);
 
     private:
-        double*    collideField;
-        double*    streamField;
-        flag_data* flagField;
-        int xlength, ylength, zlength;
-        double tau;
+        double*    _collideField;
+        double*    _streamField;
+        flag_data* _flagField;
+        int _xlength, _ylength, _zlength;
+        double _tau;
 
-        int indexOf(int x, int y, int z, int i) { return (19 * ((z) * (ylength+2) * (xlength+2) + (y) * (xlength+2) + (x)) + (i)); };
-        int indexOf(int x, int y, int z)        { return (     ((z) * (ylength+2) * (xlength+2) + (y) * (xlength+2) + (x))      ); };
+        int indexOf(int x, int y, int z, int i) { return (19 * ((z) * (_ylength+2) * (_xlength+2) + (y) * (_xlength+2) + (x)) + (i)); };
+        int indexOf(int x, int y, int z)        { return (     ((z) * (_ylength+2) * (_xlength+2) + (y) * (_xlength+2) + (x))      ); };
 
-        DomainParameters domainParameters;
-        std::string filename;
-        std::vector<std::string> timestepFilePaths;
+        std::string _filename;
 
-        std::map<std::string, std::vector<std::vector<double> > > domainFields;
-        std::map<std::string, double> minFieldValues;
-        std::map<std::string, double> maxFieldValues;
-        std::map<std::string, int> fieldDimensions;
-        std::vector<std::string> fieldNames;
+        std::map<std::string, std::vector<std::vector<double> > > _domainFields;
+        std::map<std::string, double> _minFieldValues;
+        std::map<std::string, double> _maxFieldValues;
+        std::map<std::string, int> _fieldDimensions;
+        std::vector<std::string> _fieldNames;
 
-        int timestep;
-        int maxTimesteps;
-        
         // for a file '/dir/problem.timestep.vtk', this returns 'problem'
         std::string GetBaseFilename();
         std::string GetFileDir();
-        int GetTimeStepsInDir(std::string, std::string);
-
 };
 
 #endif

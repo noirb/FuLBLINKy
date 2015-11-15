@@ -58,9 +58,9 @@ class DataProvider
 
         virtual int GetTimeStep()
         {
-            return this->timestep;
+            return this->_timestep;
         }
-        virtual int GetMaxTimeStep() = 0;
+        virtual unsigned int GetMaxTimeStep() = 0;
 
         virtual bool isReady()
         {
@@ -68,7 +68,6 @@ class DataProvider
         }
 
     private:
-        unsigned int timestep;
 
     protected:
         std::mutex _mutex;
@@ -76,8 +75,10 @@ class DataProvider
         std::vector<std::thread> _backgroundWorkers;
 
         bool _isReady = false; // True if data is ready to be picked up, False otherwise
-        DomainParameters domainParameters;
-        double extents[6];  // size of domain: [-X, +X, -Y, +Y, -Z, +Z]
+        DomainParameters _domainParameters;
+        double _extents[6];  // size of domain: [-X, +X, -Y, +Y, -Z, +Z]
+        unsigned int _timestep;
+        unsigned int _maxTimesteps;
 
         virtual void NextTimeStep() = 0;
         virtual void PrevTimeStep() = 0;

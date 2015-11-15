@@ -4,21 +4,21 @@
 void GradientRenderer::PrepareGeometry(DataProvider *)
 {
     // if we've already set up our vertices, do nothing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
         return;
     }
 
-    this->totalVertices = 3;
-    this->vertex_buffer_data = new GLfloat[3 * this->totalVertices];
+    _totalVertices = 3;
+    _vertex_buffer_data = new GLfloat[3 * _totalVertices];
     GLfloat vertices[] = {
         -3.0f,-1.0f, 0.0f,
          1.0f,-1.0f, 0.0f,
          1.0f, 3.0f, 0.0f
     };
-    for (unsigned int i = 0; i < this->totalVertices*3; i++)
+    for (unsigned int i = 0; i < _totalVertices*3; i++)
     {
-        this->vertex_buffer_data[i] = vertices[i];
+        _vertex_buffer_data[i] = vertices[i];
     }
 
     GLuint vao, vbo;
@@ -28,7 +28,7 @@ void GradientRenderer::PrepareGeometry(DataProvider *)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * 3, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glVertexAttribPointer(
         0,
@@ -44,30 +44,30 @@ void GradientRenderer::PrepareGeometry(DataProvider *)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 }
 
 void GradientRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         std::cout << "GradientRenderer::Draw FAILED" << std::endl;
         return;
     }
 
-    this->shaderProgram->enable();
+    _shaderProgram->enable();
 
-    glUniform4fv(this->shaderProgram->getUniform("startColor"), 1, this->_startColor);
-    glUniform4fv(this->shaderProgram->getUniform("endColor"), 1, this->_endColor);
+    glUniform4fv(_shaderProgram->getUniform("startColor"), 1, _startColor);
+    glUniform4fv(_shaderProgram->getUniform("endColor"), 1, _endColor);
 
-    glBindVertexArray(this->VAO);
-    glDrawArrays(GL_TRIANGLES, 0, this->totalVertices);
+    glBindVertexArray(_VAO);
+    glDrawArrays(GL_TRIANGLES, 0, _totalVertices);
 
     // cleanup
-    this->shaderProgram->disable();
+    _shaderProgram->disable();
     glBindVertexArray(0);
 }
 

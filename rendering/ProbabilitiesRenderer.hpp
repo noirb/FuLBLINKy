@@ -16,13 +16,15 @@ class ProbabilitiesRenderer: public RenderableComponent
 
         std::vector<double> GetStartPoint();
         void SetStartPoint(double, double, double);
+
         std::vector<double> GetEndPoint();
         void SetEndPoint(double, double, double);
+
     private:
-        double maxGradientValue;
-        double minGradientValue;
-        std::vector<std::vector<double> >* points;
-        std::vector<std::vector<std::vector<double> >* > probabilities;
+        double _maxGradientValue;
+        double _minGradientValue;
+        std::vector<std::vector<double> >* _points;
+        std::vector<std::vector<std::vector<double> >* > _probabilities;
 
         std::vector<double> startPoint = {1.0, 1.0, 1.0};
         std::vector<double> endPoint   = {5.0, 5.0, 5.0};

@@ -21,32 +21,32 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         std::cout << "ERROR<LineRenderer::PrepareGeometry>: Velocity Field could not be retrieved!" << std::endl;
         return;
     }
-    if ( provider->GetField(this->colorParamField, &color_scalarField) != 0)
+    if ( provider->GetField(_colorParamField, &color_scalarField) != 0)
     {
-        std::cout << "ERROR<LineRenderer::PrepareGeometry>: " << this->colorParamField << " Field could not be retrieved!" << std::endl;
+        std::cout << "ERROR<LineRenderer::PrepareGeometry>: " << _colorParamField << " Field could not be retrieved!" << std::endl;
         return;
     }
 
     // save scalar max/min for rendering  /// TODO: These could be moved?
-    this->maxGradientValue = provider->GetMaxValueFromField(this->colorParamField);
-    this->minGradientValue = provider->GetMinValueFromField(this->colorParamField);
+    _maxGradientValue = provider->GetMaxValueFromField(_colorParamField);
+    _minGradientValue = provider->GetMinValueFromField(_colorParamField);
 
-    if (this->autoScale)
+    if (_autoScale)
     {
-        this->scaleFactorMin = this->minGradientValue;
-        this->scaleFactorMax = this->maxGradientValue;
+        _scaleFactorMin = _minGradientValue;
+        _scaleFactorMax = _maxGradientValue;
     }
 
     // if we previously allocated space for our vertices, clear it before continuing
-    if (this->totalVertices > 0)
+    if (_totalVertices > 0)
     {
-        delete(this->vertex_buffer_data);
+        delete(_vertex_buffer_data);
     }
-    if (this->totalAttributes > 0)
+    if (_totalAttributes > 0)
     {
-        for (unsigned int i = 0; i < this->totalAttributes; i++)
+        for (unsigned int i = 0; i < _totalAttributes; i++)
         {
-            delete(this->vertex_attrib_data[i]);
+            delete(_vertex_attrib_data[i]);
         }
     }
 
@@ -55,21 +55,21 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
 
     // determine needed number of vertices & allocate space for them
     // Each line requires 2 vertices, so wee need 2 * numPoints total
-    this->totalVertices = (*points).size() * 2;
-    this->vertex_buffer_data = new GLfloat[3 * this->totalVertices]; // 3 floats per vertex
+    _totalVertices = (*points).size() * 2;
+    _vertex_buffer_data = new GLfloat[3 * _totalVertices]; // 3 floats per vertex
 
 
     int i = 0;
     for (unsigned int p = 0; p < (*points).size(); p++)
     {
         // set scale for point p
-        if (this->scaleFactorMin == this->scaleFactorMax)
+        if (_scaleFactorMin == _scaleFactorMax)
         {
-            velVectorScale = (float)glm::mix(0.0, 1.0, this->scaleFactorMin);
+            velVectorScale = (float)glm::mix(0.0, 1.0, _scaleFactorMin);
         }
         else
         {
-            velVectorScale = (float)glm::abs(glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - this->scaleFactorMin) / (this->scaleFactorMax - this->scaleFactorMin)));
+            velVectorScale = (float)glm::abs(glm::mix(0.0, 1.0, ((color_scalarField->at(p))[0] - _scaleFactorMin) / (_scaleFactorMax - _scaleFactorMin)));
         }
 
         // get velocity at point p
@@ -88,14 +88,14 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         // base point of line should be exactly at p
         for (int c = 0; c < 3; c++)
         {
-            this->vertex_buffer_data[i] = point[c];
+            _vertex_buffer_data[i] = point[c];
             i++;
         }
 
         // next point should be offset in the direction of the velocity at p
         for (int c = 0; c < 3; c++)
         {
-            this->vertex_buffer_data[i] = point_2[c];
+            _vertex_buffer_data[i] = point_2[c];
             i++;
         }
     }
@@ -103,9 +103,9 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
 
     /** Copy velocity data **/
 
-    this->totalAttributes = 1; // TODO: don't hard-code this...
-    this->vertex_attrib_data = new GLfloat*[this->totalAttributes];
-    this->vertex_attrib_data[0] = new GLfloat[this->totalVertices]; // 1 scalar value per *vertex*
+    _totalAttributes = 1; // TODO: don't hard-code this...
+    _vertex_attrib_data = new GLfloat*[_totalAttributes];
+    _vertex_attrib_data[0] = new GLfloat[_totalVertices]; // 1 scalar value per *vertex*
     i = 0;
     for (auto scalar_vector : *color_scalarField)
     {
@@ -124,7 +124,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
         // for each vertex in the current line, store the scalar value
         for (int j = 0; j < 2; j++)
         {
-            this->vertex_attrib_data[0][i] = (GLfloat)mag;
+            _vertex_attrib_data[0][i] = (GLfloat)mag;
             i++;
         }
     }
@@ -138,7 +138,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices * 3, this->vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices * 3, _vertex_buffer_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -154,7 +154,7 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     glGenBuffers(1, &scalar_buf);
     glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->totalVertices, this->vertex_attrib_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _totalVertices, _vertex_attrib_data[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, scalar_buf);
@@ -171,44 +171,44 @@ void LineRenderer::PrepareGeometry(DataProvider* provider)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    this->VAO = vao;
-    this->VBO = vbo;
+    _VAO = vao;
+    _VBO = vbo;
 }
 
 void LineRenderer::Draw(glm::mat4 MVP)
 {
-    if (!this->enabled) { return; }
+    if (!_enabled) { return; }
 
     // if we have no shaders, vertices, etc., we can't render anything
-    if (this->shaderProgram == NULL || this->VBO <= 0 || this->VAO <= 0)
+    if (_shaderProgram == NULL || _VBO <= 0 || _VAO <= 0)
     {
         return; /// TODO: Log an error here!
     }
 
     // set shaders
-    this->shaderProgram->enable();
+    _shaderProgram->enable();
 
     glLineWidth(2.0);
 
     // send uniforms to shaders
-    glUniformMatrix4fv(shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniform1f(shaderProgram->getUniform("max_scalar"), (GLfloat)this->maxGradientValue);
-    glUniform1f(shaderProgram->getUniform("min_scalar"), (GLfloat)this->minGradientValue);
-    glUniform4fv(shaderProgram->getUniform("hotColor"), 1, this->maxColor);
-    glUniform4fv(shaderProgram->getUniform("coldColor"), 1, this->minColor);
-    glUniform1f(shaderProgram->getUniform("bias"), (GLfloat)this->bias);
-    glUniform1i(shaderProgram->getUniform("interpolator"), this->interpolator);
+    glUniformMatrix4fv(_shaderProgram->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform1f(_shaderProgram->getUniform("max_scalar"), (GLfloat)_maxGradientValue);
+    glUniform1f(_shaderProgram->getUniform("min_scalar"), (GLfloat)_minGradientValue);
+    glUniform4fv(_shaderProgram->getUniform("hotColor"), 1, _maxColor);
+    glUniform4fv(_shaderProgram->getUniform("coldColor"), 1, _minColor);
+    glUniform1f(_shaderProgram->getUniform("bias"), (GLfloat)_bias);
+    glUniform1i(_shaderProgram->getUniform("interpolator"), _interpolator);
 
     // bind VAO
-    glBindVertexArray(this->VAO);
+    glBindVertexArray(_VAO);
 
     // DRAW!
-    glDrawArrays(GL_LINES, 0, this->totalVertices);
+    glDrawArrays(GL_LINES, 0, _totalVertices);
 
     // unbind VAO
     glBindVertexArray(0);
 
     // unset shaders
-    this->shaderProgram->disable();
+    _shaderProgram->disable();
 }
 

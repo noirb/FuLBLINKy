@@ -14,8 +14,8 @@ class LineRenderer: public RenderableComponent
         virtual void Draw(glm::mat4 MVP);
 
     private:
-        double maxGradientValue;
-        double minGradientValue;
+        double _maxGradientValue;
+        double _minGradientValue;
 };
 
 #endif

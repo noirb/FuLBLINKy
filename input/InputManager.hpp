@@ -8,9 +8,9 @@
 class InputManager
 {
     private:
-        GLFWwindow* mainWindow;
-        double mouseX;
-        double mouseY;
+        GLFWwindow* _mainWindow;
+        double _mouseX;
+        double _mouseY;
 
         bool _leftMouseDown;
         bool _rightMouseDown;

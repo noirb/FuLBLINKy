@@ -1133,7 +1133,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     _waitingForProvider = true;
     _dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
-        this->UpdateAllFieldSelectionBoxes(P);
+        this->_newProvider = true;
     });
 }
 
@@ -1148,7 +1148,7 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     _waitingForProvider = true;
     _dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
-        this->UpdateAllFieldSelectionBoxes(P);
+        this->_newProvider = true;
     });
 }
 
@@ -1308,6 +1308,12 @@ void Compositor::Update()
         _waitingForProvider = false;
         try
         {
+            if (_newProvider)
+            {
+                _newProvider = false;   // if we were waiting on a new provider to init, update any existing field ComboBoxes
+                UpdateAllFieldSelectionBoxes(_dataProvider);
+            }
+
             UpdateDataGUI(_guiRoot->getChildRecursive("data_window"));
             UpdateRenderers(_dataProvider);
         }

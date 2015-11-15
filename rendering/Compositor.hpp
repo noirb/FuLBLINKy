@@ -107,6 +107,7 @@ class Compositor
         double _lastFrameTime; // time when the last frame was drawn
         bool _running = false;
         bool _waitingForProvider = false; // True if we are expecting a dataprovider to asynchronously retrieve data for us
+        bool _newProvider = false;        // True if a new DataProvider has been created
         bool _autoplay = false; // if true, we load the next timestep automatically
         double _autoplay_interval = 0.01f; // time, in seconds, before we load the next timestep in autoplay mode
 

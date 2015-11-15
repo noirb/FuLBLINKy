@@ -79,12 +79,28 @@ void GradientRenderer::SetStartColor(float * rgba)
     }
 }
 
+void GradientRenderer::SetStartColor(float r, float g, float b, float a)
+{
+    _startColor[0] = r;
+    _startColor[1] = g;
+    _startColor[2] = b;
+    _startColor[3] = a;
+}
+
 void GradientRenderer::SetEndColor(float * rgba)
 {
     for (int i = 0; i < 4; i++)
     {
         _endColor[i] = rgba[i];
     }
+}
+
+void GradientRenderer::SetEndColor(float r, float g, float b, float a)
+{
+    _endColor[0] = r;
+    _endColor[1] = g;
+    _endColor[2] = b;
+    _endColor[3] = a;
 }
 
 void GradientRenderer::SetColors(float * start, float * end)

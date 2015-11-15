@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="TaharezLook/FrameWindow" name="settings_root" >
+        <Property name="Area" value="{{0,0},{0,0},{0.3,0},{0.3,0}}" />
+        <Property name="Text" value="Settings" />
+        <Property name="Visible" value="False" />
+        <Window type="VerticalLayoutContainer" name="settings" >
+            <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+            <Window type="TaharezLook/Checkbox" name="chk_showAxes" >
+                <Property name="Area" value="{{0,5},{0,3},{1,-7},{0,35}}" />
+                <Property name="Text" value="Show Axes" />
+                <Property name="Selected" value="true" />
+            </Window>
+            <Window type="TaharezLook/Label" name="lbl_bgColors" >
+                <Property name="Area" value="{{0,5},{0,41},{1,5},{0,73}}" />
+                <Property name="Text" value="Background Color:" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="HorzFormatting" value="LeftAligned" />
+            </Window>
+            <Window type="HorizontalLayoutContainer" name="bgColor_container" >
+                <Property name="Area" value="{{0,0},{0,76},{1,0},{1,-68}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

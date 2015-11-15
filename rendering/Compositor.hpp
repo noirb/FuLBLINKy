@@ -77,6 +77,7 @@ class Compositor
 
         // Adds the specified renderer to the scene & constructs the relevant GUI for it
         void AddRenderer(RenderableComponent*, bool);
+        void AddSystemRenderer(RenderableComponent*, bool);
 
         void AddRenderer(Renderers, bool);
 
@@ -98,7 +99,8 @@ class Compositor
         ShaderProgram _scalarMapShader;
 
         std::vector<RenderableComponent* > _renderers;
-        
+        std::vector<RenderableComponent* > _systemRenderers;
+
         DataProvider* _dataProvider;
 
         double _lastFrameTime; // time when the last frame was drawn
@@ -116,6 +118,7 @@ class Compositor
         void LoadVTK(std::string, CEGUI::Window*);
         void LoadLBM(std::string, CEGUI::Window*);
         CEGUI::Window* AddRendererPopup();
+        CEGUI::Window* AddSettingsPopup();
         void ShowLoadingPopup(bool);
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);

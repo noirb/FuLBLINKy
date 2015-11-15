@@ -6,7 +6,7 @@
         <Property name="MouseCursorImage" value="TaharezLook/MouseArrow" />
         <Property name="MousePassThroughEnabled" value="true" />
         <Window type="TaharezLook/FrameWindow" name="data_window" >
-            <Property name="Area" value="{{0,0}, {0,0}, {0, 450}, {0,115}}" />
+            <Property name="Area" value="{{0,0},{0,0},{0,450},{0,115}}" />
             <Property name="RollUpEnabled" value="false" />
             <Property name="SizingEnabled" value="false" />
             <Property name="DragMovingEnabled" value="false" />
@@ -62,7 +62,7 @@
             </Window>
         </Window>
         <Window type="TaharezLook/FrameWindow" name="renderers_window" >
-            <Property name="Area" value="{{0,2},{0,126},{0.3,-116},{0.3,347}}" />
+            <Property name="Area" value="{{0,2},{0,126},{0.3,-73},{0.3,347}}" />
             <Property name="Text" value="Renderers" />
             <Property name="DragMovingEnabled" value="false" />
             <Property name="CloseButtonEnabled" value="false" />
@@ -73,12 +73,13 @@
                 <Property name="Area" value="{{0,8},{0,-2},{0,92},{0,25}}" />
                 <Property name="Text" value="Add" />
                 <Property name="VerticalAlignment" value="Bottom" />
+                <Property name="TooltipText" value="Add a new data renderer" />
             </Window>
             <Window type="TaharezLook/ScrollablePane" name="ScrollablePane" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,-32}}" />
-                <Property name="ContentArea" value="l:0 t:0 r:178 b:390" />
+                <Property name="ContentArea" value="l:0 t:0 r:221 b:390" />
                 <AutoWindow namePath="__auto_container__" >
-                    <Property name="ContentArea" value="l:0 t:0 r:178 b:390" />
+                    <Property name="ContentArea" value="l:0 t:0 r:221 b:390" />
                     <Property name="MouseInputPropagationEnabled" value="true" />
                     <Window type="VerticalLayoutContainer" name="renderers_container" >
                         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -91,6 +92,12 @@
                 <AutoWindow namePath="__auto_vscrollbar__" >
                     <Property name="AlwaysOnTop" value="true" />
                 </AutoWindow>
+            </Window>
+            <Window type="TaharezLook/Button" name="settings_btn" >
+                <Property name="Area" value="{{0,108},{0,-2},{0,204},{0,25}}" />
+                <Property name="Text" value="Settings" />
+                <Property name="TooltipText" value="Opens application settings menu" />
+                <Property name="VerticalAlignment" value="Bottom" />
             </Window>
         </Window>
     </Window>

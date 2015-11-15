@@ -170,6 +170,16 @@ void Compositor::AddRenderer(RenderableComponent* renderer, bool onByDefault)
         renderer->Disable();
 }
 
+void Compositor::AddSystemRenderer(RenderableComponent* renderer, bool onByDefault)
+{
+    _systemRenderers.push_back(renderer);
+
+    if (onByDefault)
+        renderer->Enable();
+    else
+        renderer->Disable();
+}
+
 void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
 {
     RenderableComponent* newRenderer;
@@ -181,11 +191,15 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
             newRenderer = new AxesRenderer();
             newRenderer->SetShader(&(_axesShader));
             newRenderer->PrepareGeometry(NULL);
+            AddSystemRenderer(newRenderer, true);
+            return;
             break;
         case RENDERER_GRADIENT:
             newRenderer = new GradientRenderer();
             newRenderer->SetShader(&(_backgroundShader));
             newRenderer->PrepareGeometry(NULL);
+            AddSystemRenderer(newRenderer, true);
+            return;
             break;
         case RENDERER_POINTS:
             newRenderer = new PointRenderer();
@@ -593,19 +607,19 @@ void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::
     // add an additional subscriber to CheckStateChanged to shade/unshade parameter lists
     visibleToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged,
         [visibleToggle, container](const CEGUI::EventArgs &e)->bool
-    {
-        if (visibleToggle->isSelected())
         {
-            static_cast<CEGUI::FrameWindow*>(container)->setRolledup(false);
-            container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+            if (visibleToggle->isSelected())
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(false);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0)));
+            }
+            else
+            {
+                static_cast<CEGUI::FrameWindow*>(container)->setRolledup(true);
+                container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -450), CEGUI::UDim(0, 0)));
+            }
+            return true;
         }
-        else
-        {
-            static_cast<CEGUI::FrameWindow*>(container)->setRolledup(true);
-            container->setMargin(CEGUI::UBox(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0), CEGUI::UDim(0, -450), CEGUI::UDim(0, 0)));
-        }
-        return true;
-    }
     );
 
     // scalar field selection
@@ -615,12 +629,12 @@ void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::
     /*  Interpolation Bias setter */
     RendererAddSpinner(-4.0, 4.0, 0.5, 0.1, "", true, root, newRenderer,
         [newRenderer](const CEGUI::EventArgs &e)->bool
-    {
-        const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-        CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
-        newRenderer->SetInterpolationBias(spinner->getCurrentValue());
-        return true;
-    }
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::Spinner* spinner = static_cast<CEGUI::Spinner*>(wargs.window);
+            newRenderer->SetInterpolationBias(spinner->getCurrentValue());
+            return true;
+        }
     );
 
     /*  COLOR PICKERS */
@@ -630,13 +644,13 @@ void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::
     // maximum color
     RendererAddColorPicker(picker_container, "Max", CEGUI::Colour(1.0f, 0.0f, 0.0f, 1.0f),
         [newRenderer](const CEGUI::EventArgs &e)->bool
-    {
-        const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
-        CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
-        CEGUI::Colour c = picker->getColour();
-        newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-        return true;
-    }
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            newRenderer->SetMaxColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
     );
 
     // minimum color
@@ -1035,11 +1049,19 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
 
 
     CEGUI::Window* add_popup = this->AddRendererPopup();
-
     // Configure the Add Renderer button
     fWnd->getChildRecursive("AddRendererbtn")->subscribeEvent(CEGUI::PushButton::EventClicked,
                         [add_popup](const CEGUI::EventArgs &e)->bool {
                             add_popup->show();
+                            return true;
+                        }
+    );
+
+    CEGUI::Window* settings_wnd = this->AddSettingsPopup();
+    // Configure the Settings button
+    fWnd->getChildRecursive("settings_btn")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [settings_wnd](const CEGUI::EventArgs &e)->bool {
+                            settings_wnd->show();
                             return true;
                         }
     );
@@ -1176,6 +1198,90 @@ CEGUI::Window* Compositor::AddRendererPopup()
     return addWnd;
 }
 
+
+CEGUI::Window* Compositor::AddSettingsPopup()
+{
+    CEGUI::Window* addWnd = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("settings-dialog.layout");
+    CEGUI::ToggleButton* axes_toggle = static_cast<CEGUI::ToggleButton*>(addWnd->getChildRecursive("chk_showAxes"));
+    CEGUI::Window* color_container = static_cast<CEGUI::Window*>(addWnd->getChildRecursive("bgColor_container"));
+
+    // configure close button
+    addWnd->subscribeEvent(CEGUI::FrameWindow::EventCloseClicked,
+        [] (const CEGUI::EventArgs &e)->bool
+        {
+            static_cast<const CEGUI::WindowEventArgs&>(e).window->setVisible(false);
+            return true;
+        }
+    );
+
+    // configure AxesRenderer toggle switch
+    axes_toggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged,
+        [axes_toggle, this] (const CEGUI::EventArgs &e)->bool
+        {
+            if (axes_toggle->isSelected())
+                this->_systemRenderers[1]->Enable();
+            else
+                this->_systemRenderers[1]->Disable();
+            return true;
+        }
+    );
+
+    // configure background color selection
+    float startColor[4] = { 0.0f, 0.1f, 0.15f, 1.0f };  /// TODO: Load these from a configuration file someday
+    float endColor[4]   = { 0.4f, 0.4f, 0.34f, 1.0f };
+    RendererAddColorPicker(color_container, "Bot", CEGUI::Colour(startColor[0], startColor[1], startColor[2], startColor[3]), 
+        [this] (const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            static_cast<GradientRenderer*>(this->_systemRenderers[0])->SetStartColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+    RendererAddColorPicker(color_container, "Top", CEGUI::Colour(endColor[0], endColor[1], endColor[2], endColor[3]), 
+        [this] (const CEGUI::EventArgs &e)->bool
+        {
+            const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
+            CEGUI::ColourPicker* picker = static_cast<CEGUI::ColourPicker*>(wargs.window);
+            CEGUI::Colour c = picker->getColour();
+            static_cast<GradientRenderer*>(this->_systemRenderers[0])->SetEndColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+            return true;
+        }
+    );
+
+
+/*
+    // setup event for the AddRenderer button
+    addWnd->getChildRecursive("btnAddRenderer")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, addWnd, renderer_list](const CEGUI::EventArgs &e)->bool {
+                            CEGUI::ListboxItem* selected = renderer_list->getFirstSelectedItem();
+
+                            if (selected)
+                            {
+                                this->AddRenderer((Renderers)selected->getID(), true);
+                                addWnd->hide();
+                            }
+                            return true;
+                        }
+    );
+*/
+/*
+    // setup event for the Cancel button
+    addWnd->getChildRecursive("btnCancel")->subscribeEvent(CEGUI::PushButton::EventClicked,
+                        [this, addWnd](const CEGUI::EventArgs &e)->bool {
+                              addWnd->hide();
+                            return true;
+                        }
+    );
+*/
+    _guiRoot->addChild(addWnd);
+    addWnd->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+
+    return addWnd;
+}
+
 void Compositor::ShowLoadingPopup(bool show)
 {
     CEGUI::Window* loadingPopup = _guiRoot->getChildRecursive("loadingInfo_window");
@@ -1222,6 +1328,11 @@ void Compositor::Render(glm::mat4 MVP)
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    for (auto r : _systemRenderers)
+    {
+        r->Draw(MVP);
+    }
 
     for (auto r : _renderers)
     {

@@ -10,7 +10,10 @@ class GradientRenderer : public RenderableComponent
         virtual void Draw(glm::mat4 MVP);
 
         void SetStartColor(float* rgba);
+        void SetStartColor(float r, float g, float b, float a);
+
         void SetEndColor(float* rgba);
+        void SetEndColor(float r, float g, float b, float a);
 
         void SetColors(float* start, float* end);
 

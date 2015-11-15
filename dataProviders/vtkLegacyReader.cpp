@@ -52,7 +52,7 @@ void vtkLegacyReader::init(std::string filename)
     unsigned int len = filename.length();
     std::string timestep = "";
     bool hitLastDot = false;
-    for (unsigned int i = len-1; i >= 0; i--)
+    for (unsigned int i = len; i > 0; --i)
     {
         if (filename[i] == '.' && !hitLastDot)
         {
@@ -346,7 +346,7 @@ void vtkLegacyReader::NextTimeStep()
 {
     if (_timestep < 0) { return; } // do nothing if our current timestep is invalid
 
-    if (_timestep + 1 < _maxTimesteps)
+    if (_timestep + 1 < (int)_maxTimesteps)
     {
         _timestep += 1;
         init(_timestepFilePaths[_timestep]); //this->GetFileDir() + this->GetBaseFilename() + "." + std::to_string(this->timestep) + ".vtk");
@@ -357,7 +357,7 @@ void vtkLegacyReader::NextTimeStep()
 void vtkLegacyReader::PrevTimeStep()
 {
     if (_timestep < 0) { return; } // do nothing if our current timestep is invalid
-    if (_timestep > 0 && _timestepFilePaths.size() >= _timestep)
+    if (_timestep > 0 && _timestepFilePaths.size() >= (unsigned int)(unsigned int)(unsigned int)(unsigned int)(unsigned int)(unsigned int)(unsigned int)(unsigned int)(unsigned int)_timestep)
     {
         _timestep -= 1;
         this->init(_timestepFilePaths[_timestep]);

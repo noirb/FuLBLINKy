@@ -2,7 +2,7 @@ CC = gcc
 CC+ = g++
 
 # final executable name
-BIN = fluid-vis
+BIN = fulblinky
 BUILD_DIR = ./build
 
 # source files
@@ -20,7 +20,7 @@ CPPSRC = main.cpp\
 CFLAGS   = -Wall -g -std=c99
 CPPFLAGS = -Wall -g -std=c++11
 
-C_SRCFLAGS = -I./nativefiledialog/include/
+C_SRCFLAGS = -I./nativefiledialog/include/ `pkg-config --cflags-only-I gtk+-3.0`
 C_LDFLAGS = `pkg-config --cflags --libs gtk+-3.0`
 
 EXT_LDFLAGS  =
@@ -45,7 +45,7 @@ $(BIN) : $(OBJ_C) $(OBJ_CPP)
 
 $(BUILD_DIR)/%.o : %.c
 	mkdir -p $(@D) 
-	$(CC) $(CFLAGS) $(C_SRCFLAGS) -MMD -c $< -o $@ $(C_LDFLAGS)
+	$(CC) $(CFLAGS) $(C_SRCFLAGS) -MMD -c $< -o $@
 
 $(BUILD_DIR)/%.o : %.cpp
 	mkdir -p $(@D)

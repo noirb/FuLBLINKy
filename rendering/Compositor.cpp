@@ -1238,7 +1238,7 @@ void Compositor::Render(glm::mat4 MVP)
         timer = 0;
 
         // if we've reached the maximal timestep, stop autoplaying
-        if (!_waitingForProvider && _dataProvider->GetMaxTimeStep() - 1 == _dataProvider->GetTimeStep())
+        if (!_waitingForProvider && (int)(_dataProvider->GetMaxTimeStep() - 1) == _dataProvider->GetTimeStep())
         {
             _autoplay = false;
             _guiRoot->getChildRecursive("btnPlay")->setText(">>"); /// HACK: Should probably have start/stop autoplaying functions to avoid so many hardcoded strings...

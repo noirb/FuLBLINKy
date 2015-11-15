@@ -1251,31 +1251,6 @@ CEGUI::Window* Compositor::AddSettingsPopup()
         }
     );
 
-
-/*
-    // setup event for the AddRenderer button
-    addWnd->getChildRecursive("btnAddRenderer")->subscribeEvent(CEGUI::PushButton::EventClicked,
-                        [this, addWnd, renderer_list](const CEGUI::EventArgs &e)->bool {
-                            CEGUI::ListboxItem* selected = renderer_list->getFirstSelectedItem();
-
-                            if (selected)
-                            {
-                                this->AddRenderer((Renderers)selected->getID(), true);
-                                addWnd->hide();
-                            }
-                            return true;
-                        }
-    );
-*/
-/*
-    // setup event for the Cancel button
-    addWnd->getChildRecursive("btnCancel")->subscribeEvent(CEGUI::PushButton::EventClicked,
-                        [this, addWnd](const CEGUI::EventArgs &e)->bool {
-                              addWnd->hide();
-                            return true;
-                        }
-    );
-*/
     _guiRoot->addChild(addWnd);
     addWnd->setPosition(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
 

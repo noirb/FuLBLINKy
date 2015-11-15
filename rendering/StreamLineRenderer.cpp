@@ -435,8 +435,8 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
             k += 3;
 
             streamLineLength[i] += sqrt((streamLinePoints[k - 3] - streamLinePoints[k - 6]) * (streamLinePoints[k - 3] - streamLinePoints[k - 6]) +
-                                    (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
-                                    (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
+                                        (streamLinePoints[k - 2] - streamLinePoints[k - 5]) * (streamLinePoints[k - 2] - streamLinePoints[k - 5]) +
+                                        (streamLinePoints[k - 1] - streamLinePoints[k - 4]) * (streamLinePoints[k - 1] - streamLinePoints[k - 4]));
 
             // get scalar value nearest to currPoint
             scalar_mags.push_back(color_scalarField->at(COMPUTEINDEXOF(glm::floor(currPoint[0]), glm::floor(currPoint[1]), glm::floor(currPoint[2])))[0]); // HACK: just take first component--great if it's just a scalar but we're losing data from vectors :(

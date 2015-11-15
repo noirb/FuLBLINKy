@@ -1,13 +1,12 @@
-#include "vtkLegacyReader.hpp"
-#include <algorithm>
-#include <iterator>
-
 #ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #include <strsafe.h>
 #endif
 
+#include "vtkLegacyReader.hpp"
+#include <algorithm>
+#include <iterator>
 
 vtkLegacyReader::vtkLegacyReader()
 {

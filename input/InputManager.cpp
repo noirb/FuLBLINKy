@@ -121,13 +121,7 @@ GLFWframebuffersizefun InputManager::addFramebufferSizeCallback( GLFWwindow* win
 // default callback implementations
 void InputManager::key_callback( GLFWwindow* window, int key, int scancode, int action, int mods )
 {
-     // if the user presses Escape, close the window
-     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-     {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-        Compositor::Instance().ShutDown();
-     }
-     else if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
      {
         Compositor::Instance().ZoomCamera(-10);
      }

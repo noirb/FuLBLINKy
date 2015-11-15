@@ -249,7 +249,9 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
     btnClose->subscribeEvent(CEGUI::PushButton::EventClicked,
                     [this, params_root, newRenderer] (const CEGUI::EventArgs &e)->bool
                         {
+                            int idx = std::distance(this->_renderers.begin(), std::find(this->_renderers.begin(), this->_renderers.end(), newRenderer));
                             this->_renderers.erase(std::remove(this->_renderers.begin(), this->_renderers.end(), newRenderer ), this->_renderers.end());
+                            this->_rendererFieldSelectors.erase(this->_rendererFieldSelectors.begin() + idx);
                             CEGUI::WindowManager::getSingleton().destroyWindow(params_root);
                             delete(newRenderer);
                             return true;
@@ -319,6 +321,32 @@ void Compositor::AddRenderer(Renderers rendererType, bool onByDefault)
     std::cout << "Done setting things up for the new renderer :D (" << this->RendererStrs[rendererType] << ")" << std::endl;
 }
 
+void Compositor::UpdateFieldSelectionBox(CEGUI::Combobox* box, DataProvider* provider)
+{
+    // empty list in case there are existing entries
+    box->resetList();
+
+    for (auto field : provider->GetFieldNames())
+    {
+        box->addItem(new CEGUI::ListboxTextItem(field, RenderableComponent::ScalarParamType::VECTOR_MAGNITUDE));
+    }
+}
+
+void Compositor::UpdateAllFieldSelectionBoxes(DataProvider* provider)
+{
+    for (unsigned int i = 0; i < _rendererFieldSelectors.size(); i++)
+    {
+        UpdateFieldSelectionBox(_rendererFieldSelectors[i], provider);
+
+        // if we have at least 1 field, select the first one by default
+        if (_rendererFieldSelectors[i]->getItemCount() > 0)
+        {
+            _rendererFieldSelectors[i]->setItemSelectState((size_t)0, true);
+            _renderers[i]->SetColorField(_rendererFieldSelectors[i]->getSelectedItem()->getText().c_str());
+        }
+    }
+}
+
 /// Adds comboboxes for selecting a scalar field to color by and selecting an interpolation mode for the coloring
 void Compositor::RendererAddFieldSelectionCombobox(CEGUI::Window* root, RenderableComponent* newRenderer)
 {
@@ -345,18 +373,17 @@ void Compositor::RendererAddFieldSelectionCombobox(CEGUI::Window* root, Renderab
 
     if (_dataProvider)
     {
-        for (auto field : _dataProvider->GetFieldNames())
-        {
-            colorField_combobox->addItem(new CEGUI::ListboxTextItem(field, RenderableComponent::ScalarParamType::VECTOR_MAGNITUDE));
-        }
-
-        // if we have at least 1 field, select the first one by default
-        if (colorField_combobox->getItemCount() > 0)
-        {
-            colorField_combobox->setItemSelectState((size_t)0, true);
-            newRenderer->SetColorField(colorField_combobox->getSelectedItem()->getText().c_str());
-        }
+        UpdateFieldSelectionBox(colorField_combobox, _dataProvider);
     }
+
+    // if we have at least 1 field, select the first one by default
+    if (colorField_combobox->getItemCount() > 0)
+    {
+        colorField_combobox->setItemSelectState((size_t)0, true);
+        newRenderer->SetColorField(colorField_combobox->getSelectedItem()->getText().c_str());
+    }
+
+    _rendererFieldSelectors.push_back(colorField_combobox);
 }
 
 void Compositor::RendererAddInterpolationCombobox(CEGUI::Window* root, RenderableComponent* newRenderer)
@@ -1106,6 +1133,7 @@ void Compositor::LoadVTK(std::string filename, CEGUI::Window* vtkWindowRoot)
     _waitingForProvider = true;
     _dataProvider = new vtkLegacyReader(filename, [this, vtkWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
+        this->UpdateAllFieldSelectionBoxes(P);
     });
 }
 
@@ -1120,6 +1148,7 @@ void Compositor::LoadLBM(std::string filename, CEGUI::Window* dataWindowRoot)
     _waitingForProvider = true;
     _dataProvider = new lbsimWrapper(filename, [this, dataWindowRoot](DataProvider* P){
         this->CenterCameraOnExtents(P->GetExtents());
+        this->UpdateAllFieldSelectionBoxes(P);
     });
 }
 

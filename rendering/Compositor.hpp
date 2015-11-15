@@ -98,6 +98,7 @@ class Compositor
         ShaderProgram _backgroundShader;
         ShaderProgram _scalarMapShader;
 
+        std::vector<CEGUI::Combobox* > _rendererFieldSelectors;
         std::vector<RenderableComponent* > _renderers;
         std::vector<RenderableComponent* > _systemRenderers;
 
@@ -122,6 +123,9 @@ class Compositor
         void ShowLoadingPopup(bool);
         void UpdateDataGUI(CEGUI::Window*);
         void CenterCameraOnExtents(double*);
+
+        void UpdateFieldSelectionBox(CEGUI::Combobox*, DataProvider*);
+        void UpdateAllFieldSelectionBoxes(DataProvider*);
 
         void RendererAddFieldSelectionCombobox(CEGUI::Window*, RenderableComponent*);
         void RendererAddInterpolationCombobox(CEGUI::Window*, RenderableComponent*);

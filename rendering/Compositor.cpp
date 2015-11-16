@@ -693,20 +693,19 @@ void Compositor::AddStreamlineRendererPropertySheet(CEGUI::Window* root, CEGUI::
     );
 
     /*  Scale Parameters */
-    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Scale:", "Line Thickness");
+    RendererAddLabel(root, CEGUI::USize(CEGUI::UDim(1, 0), CEGUI::UDim(0, 30)), "Width:", "Line Thickness");
 
     // layout container to hold min/max scale controls
     CEGUI::HorizontalLayoutContainer* scale_container = static_cast<CEGUI::HorizontalLayoutContainer*>(CEGUI::WindowManager::getSingleton().createWindow("HorizontalLayoutContainer"));
     root->addChild(scale_container);
 
     // scale selection box
-    RendererAddSpinner(0.0, 10.0, 1.0, 0.001, "Width value", true, scale_container, newRenderer,
+    RendererAddSpinner(0.0, 100.0, 1.0, 0.1, "Width value", true, scale_container, newRenderer,
         [this, newRenderer](const CEGUI::EventArgs &e)->bool
         {
             const CEGUI::WindowEventArgs &wargs = static_cast<const CEGUI::WindowEventArgs&>(e);
             CEGUI::Spinner* box = static_cast<CEGUI::Spinner*>(wargs.window);
             newRenderer->SetScale(box->getCurrentValue(), -1);
-            newRenderer->PrepareGeometry(this->_dataProvider);
             return true;
         }
     );

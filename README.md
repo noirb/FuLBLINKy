@@ -91,12 +91,15 @@ You will need:
 
 - Visual Studio 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
 - CMake: https://cmake.org/download/
+- The dependencies listed at the top of this document
 
 ### Dependencies
 
-- GLFW, GLEW, and CEGUI can all be built from source using CMake and Visual Studio. To build CEGUI, you will first need to build the CEGUI Dependencies package, and then copy the result (the `dependencies` directory in the output) into the CEGUI source directory. CEGUI dependencies are documented here: http://static.cegui.org.uk/docs/0.8.4/building_deps.html
-- Make sure to build BOTH Debug and Release versions of each library if you want to be able to build both versions of this project.
+- 64-bit Windows binaries for GLFW and GLEW are available from the links above
 - GLM is a header-only library and does not require any extra steps.
+- CEGUI will need be built from source using CMake and Visual Studio. To build CEGUI, you will first need to build the CEGUI Dependencies package, and then copy the result (the `dependencies` directory in the output) into the CEGUI source directory. CEGUI dependencies are documented here: http://static.cegui.org.uk/docs/0.8.4/building_deps.html
+    - Make sure to build BOTH Debug and Release versions of each library if you want to be able to build both versions of this project! (if you only need Release, though, it's fine to just build the Release version of CEGUI and its dependencies)
+
 
 ### Development Environment Configuration
 Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above. A short batch file, devenv.bat, will set these for you, but you must edit this file to fill in the paths to the library locations on your local machine.

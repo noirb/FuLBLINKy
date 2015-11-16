@@ -8,6 +8,8 @@
 std::vector<int> streamLinePointCounter;
 std::vector<double> velocity_magnitudes;
 
+const int MAX_STREAMLINE_ITERATIONS = 512; // maximum number of loop iterations while trying to follow a streamline
+
 double* StreamLineRenderer::GetStartPoint()
 {
     return this->startPoint;
@@ -415,12 +417,17 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
 
         // Create a copy of the current point
         std::vector<double> currPoint;
+        int iter_count = 0;
         // ith while loop starts here..
         while( streamLinePoints[k - 3] < xlength-1 && streamLinePoints[k - 3] > 1 &&
                streamLinePoints[k - 2] < ylength-1 && streamLinePoints[k - 2] > 1 &&
                streamLinePoints[k - 1] < zlength-1 && streamLinePoints[k - 1] > 1 &&
-               streamLineLength[i] < maxStreamlineLength)
+               streamLineLength[i] < maxStreamlineLength &&
+               iter_count < MAX_STREAMLINE_ITERATIONS
+            )
         {
+            iter_count++;
+
             currPoint.clear();
             currPoint.push_back(streamLinePoints[k - 3]);
             currPoint.push_back(streamLinePoints[k - 2]);
@@ -448,6 +455,10 @@ void StreamLineRenderer::PrepareGeometry(DataProvider* provider)
             std::vector<double> k1 = trilinearVelocityInterpolator(deltaX, deltaY, deltaZ, xlength, ylength, zlength, currPoint, localVelocities);
             velocity_magnitudes.push_back(sqrt(k1[0]*k1[0] + k1[1]*k1[1] + k1[2]*k1[2]));
             scalar_mags.push_back(color_scalarField->at(COMPUTEINDEXOF(glm::floor(currPoint[0]), glm::floor(currPoint[1]), glm::floor(currPoint[2])))[0]); // HACK: Same as above...
+        }
+        else
+        {
+            k -= 3;
         }
     }
 

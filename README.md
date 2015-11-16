@@ -5,7 +5,7 @@ In other words: a vector field visualizer focused on 3D fluid data, with an inte
 
 Our primary goal is to someday make your fluid visualization tasks easier and more intuitive. 
 
-This project and [lbsim](https://github.com/noirb/lbsim) were both originally produced as part of a lab course in Computational Fluid Dynamics from the [Chair of Scientific Computing at TUM](http://www5.in.tum.de/wiki/index.php/Home).
+This project and [lbsim](https://github.com/noirb/lbsim) were both originally produced as part of a lab course in Computational Fluid Dynamics from the [Chair of Scientific Computing at TUM](http://www5.in.tum.de/wiki/index.php/Home). To make using lbsim easier, there is a graphical editor for creating problem domains in the [lb_ed repository](https://github.com/noirb/lb_ed).
 
 # Build Dependencies
   - GLFW3      (http://www.glfw.org/)

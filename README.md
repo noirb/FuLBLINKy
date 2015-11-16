@@ -1,5 +1,5 @@
 # FuLBLINKy
-#### Fully-unified Lattice-Boltzmann INtegrated Kit for you
+#### Fully-unified Lattice-Boltzmann Loosely INtegrated Kit for you
 
 In other words: a vector field visualizer focused on 3D fluid data, with an interface to allow you to visualize results directly from a simulator. Out-of-the box, we currently support visualization of arbitrary vector field data from legacy .vtk files, as well as direct visualization from a small LBM fluid simulator. The project supports both Linux and Windows, and may see OSX support in the future if there's interest.
 

@@ -1092,11 +1092,8 @@ void Compositor::InitGUI(CEGUI::Window* guiRoot)
                         }
     );
 
-    // set mouse cursor
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
-    guiRoot->setMouseCursor("TaharezLook/MouseArrow");
-    fWnd->setMouseCursor("TaharezLook/MouseArrow");
-
+    // hide CEGUI mouse cursor (so only the OS cursor is visible)
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
 }
 
 void Compositor::InitShaders()

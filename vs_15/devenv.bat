@@ -31,7 +31,7 @@ call .\scripts\set_env.bat
 if errorlevel 1 goto error
 
 REM Open project
-start CFD_Project.sln
+start FuLBLINKy.sln
 
 if errorlevel 0 goto end
 

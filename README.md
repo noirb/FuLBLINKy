@@ -1,11 +1,15 @@
 # FuLBLINKy
 #### Fully-unified Lattice-Boltzmann Loosely INtegrated Kit for you
 
-In other words: a vector field visualizer focused on 3D fluid data, with an interface to allow you to visualize results directly from a simulator. Out-of-the box, we currently support visualization of arbitrary vector field data from legacy .vtk files, as well as direct visualization from a small LBM fluid simulator. The project supports both Linux and Windows, and may see OSX support in the future if there's interest.
+In other words: a vector field visualizer focused on 3D fluid data, with an interface to allow you to visualize results directly from a simulator. We're also working on some Lattice-Boltzmann-specific visualization tools to help with building and debugging.
 
-Our primary goal is to someday make your fluid visualization tasks easier and more intuitive. 
+Out-of-the box, we currently support visualization of arbitrary vector field data from legacy .vtk files, as well as direct visualization from a [small LBM fluid simulator](https://github.com/noirb/lbsim). The project supports both Linux and Windows, and may see OSX support in the future if there's interest.
 
-This project and [lbsim](https://github.com/noirb/lbsim) were both originally produced as part of a lab course in Computational Fluid Dynamics from the [Chair of Scientific Computing at TUM](http://www5.in.tum.de/wiki/index.php/Home). To make using lbsim easier, there is a graphical editor for creating problem domains in the [lb_ed repository](https://github.com/noirb/lb_ed).
+Our primary goal is to someday make your fluid visualization tasks for small-to-medium datasets easier and more intuitive.
+
+Use `git clone --recursive` when cloning this repo for the first time.
+
+This project and [lbsim](https://github.com/noirb/lbsim) were both produced with the help of the CFD Lab at the [Chair of Scientific Computing at TUM](http://www5.in.tum.de/wiki/index.php/Home). To make using lbsim easier, there is an HTML5-based graphical editor for creating problem domains in the [lb_ed repository](https://github.com/noirb/lb_ed).
 
 # Build Dependencies
   - GLFW3      (http://www.glfw.org/)
@@ -83,7 +87,7 @@ This project and [lbsim](https://github.com/noirb/lbsim) were both originally pr
     If everything went well with the above steps, you should now have everything you need to build the project. Just make sure your LD_LIBRARY_PATH points to the location the GLFW and CEGUI libs were installed to (/usr/local/lib by default) and  run `make` from the project directory.
     
   ###### Taking the visualizer out of the source tree
-    Apart from the final executable, fluid-vis, you also need to copy the `shaders` and `cegui_layout` directories, which contain files necessary for the program to function.
+    Apart from the final executable, you also need to copy the `shaders` and `cegui_layout` directories, which contain files necessary for the program to function.
     The `build` directory just contains object and dependency files generated during the build, and can safely be deleted or ignored.
 
 
@@ -104,7 +108,7 @@ You will need:
 
 
 ### Development Environment Configuration
-Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above. A short batch file, devenv.bat, will set these for you, but you must edit this file to fill in the paths to the library locations on your local machine.
+Several environment variables need to be configured before launching Visual Studio and building the project. These all point to the headers and LIB files from the dependencies above. A short batch file, `devenv.bat` (in the `vs_2015` directory), will set these for you, but you must edit this file to fill in the paths to the library locations on your local machine.
 
     CEGUI_ROOT - Path to the root directory of CEGUI's source
     GLFW_ROOT  - Path to the root GLFW folder

@@ -11,6 +11,8 @@ Use `git clone --recursive` when cloning this repo for the first time.
 
 This project and [lbsim](https://github.com/noirb/lbsim) were both produced with the help of the CFD Lab at the [Chair of Scientific Computing at TUM](http://www5.in.tum.de/wiki/index.php/Home). To make using lbsim easier, there is an HTML5-based graphical editor for creating problem domains in the [lb_ed repository](https://github.com/noirb/lb_ed).
 
+[NativeFileDialog](https://github.com/mlabbe/nativefiledialog) was created by [Michael Labbe](https://github.com/mlabbe).
+
 # Build Dependencies
   - GLFW3      (http://www.glfw.org/)
   - GLEW       (http://glew.sourceforge.net/)
